@@ -1,19 +1,25 @@
 "use client"
 
-import { ArrowUpRight } from "lucide-react"
+import { ArrowUpRight, Sparkles } from "lucide-react"
 import { motion } from "@/components/wrapped/motion"
 import { Starburst } from "@/components/wrapped/shapes"
 import { Field } from "@/components/wrapped/field"
 import { PhotoDropzone, TxtDropzone } from "@/components/wrapped/dropzone"
 import { PURPOSES, VIBES, useWrap } from "@/context/wrap-context"
+import { AiLoading } from "@/components/stages/ai-loading"
 import { cn } from "@/lib/utils"
 
 export function StageTwo() {
-  const { data, update, submitStage2, loading, error } = useWrap()
+  const { data, update, submitStage2, loading, aiLoading, error } = useWrap()
   const purpose = data.purpose ?? "life"
   const meta = PURPOSES.find((p) => p.id === purpose)!
 
   const photoMax = purpose === "travel" ? 8 : 5
+
+  // Show the cinematic loading screen while AI is generating
+  if (aiLoading) {
+    return <AiLoading accentColor={meta.color} />
+  }
 
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden bg-ink px-4 py-12 md:px-8">
@@ -165,6 +171,61 @@ export function StageTwo() {
             />
           </div>
 
+          {/* ────── YOUR STORY paragraph ────── */}
+          <div className="my-6 flex items-center gap-3">
+            <div className="h-1 flex-1 bg-foreground/10" />
+            <span className="flex items-center gap-1.5 font-display text-xs font-black uppercase tracking-widest" style={{ color: meta.color }}>
+              <Sparkles className="size-3.5" />
+              AI Personalization
+            </span>
+            <div className="h-1 flex-1 bg-foreground/10" />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label className="font-display text-xs font-black uppercase tracking-widest text-foreground/70">
+              Tell us your story
+              <span className="ml-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold normal-case tracking-normal" style={{ backgroundColor: meta.color, color: "var(--wr-ink)" }}>
+                powers AI ✨
+              </span>
+            </label>
+            <p className="font-sans text-[11px] font-medium text-foreground/40 leading-relaxed">
+              Write a paragraph about your year — the chaos, the wins, the late nights, the inside jokes. The more detail you share, the more personalized and unhinged your wrap gets.
+            </p>
+            <textarea
+              value={data.storyParagraph}
+              onChange={(e) => update({ storyParagraph: e.target.value })}
+              placeholder={
+                purpose === "couple"
+                  ? "Tell us about your relationship — how you met, your funniest moments, that one argument about where to eat, the trip that almost broke you, the song you can't stop playing together..."
+                  : purpose === "travel"
+                    ? "Tell us about your travels — the best sunset, the worst airport, the food that changed your life, the hostel story you keep retelling, the city that stole your heart..."
+                    : purpose === "birthday"
+                      ? "Tell us about your year — the glow up, the chaos, the friendships that hit different, the moment you peaked, the late night that became legendary..."
+                      : purpose === "group"
+                        ? "Tell us about your squad — the inside jokes, the group chat drama, the trip that almost ended friendships, the person who always shows up late..."
+                        : "Tell us about your year — the highs, the lows, the unhinged moments, the growth, the people who made it worth it, the main character moments..."
+              }
+              rows={5}
+              className="w-full resize-none rounded-lg border-2 border-foreground/20 bg-ink/50 px-4 py-3 font-sans text-sm font-medium text-foreground placeholder:text-foreground/30 transition-all focus:border-cream focus:outline-none focus:ring-2 focus:ring-cream/20"
+              style={{
+                boxShadow: data.storyParagraph ? `0 0 0 1px ${meta.color}44, 0 4px 20px ${meta.color}11` : undefined,
+                borderColor: data.storyParagraph ? meta.color : undefined,
+              }}
+              maxLength={1500}
+            />
+            <div className="flex items-center justify-between">
+              <p className="font-sans text-[10px] font-medium text-foreground/30">
+                {data.storyParagraph.length} / 1,500 characters
+              </p>
+              {data.storyParagraph.length > 50 && (
+                <span className="flex items-center gap-1 rounded-full px-2 py-0.5 font-display text-[10px] font-bold uppercase tracking-wide" style={{ backgroundColor: `${meta.color}22`, color: meta.color }}>
+                  <Sparkles className="size-2.5" />
+                  AI ready
+                </span>
+              )}
+            </div>
+          </div>
+
           {error && (
             <p className="mt-4 rounded-md border-2 border-orange bg-orange/10 px-3 py-2 font-display text-xs font-bold uppercase text-orange">
               {error}
@@ -177,7 +238,12 @@ export function StageTwo() {
             disabled={loading}
             className="group mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-green px-7 py-4 font-display text-base font-black uppercase tracking-wide text-ink transition-transform hover:-rotate-1 hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {loading ? "Building..." : "Generate Full Experience"}
+            {loading ? "Building..." : (
+              <>
+                <Sparkles className="size-4" />
+                {data.storyParagraph.trim() ? "Generate AI Experience" : "Generate Full Experience"}
+              </>
+            )}
             <ArrowUpRight className="size-5 transition-transform group-hover:rotate-45" />
           </button>
         </div>

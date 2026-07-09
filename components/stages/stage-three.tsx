@@ -9,8 +9,8 @@ import { buildPages } from "@/components/player/pages"
 const PAGE_MS = 7000
 
 export function StageThree() {
-  const { data } = useWrap()
-  const pages = useMemo(() => buildPages(data), [data])
+  const { data, aiContent } = useWrap()
+  const pages = useMemo(() => buildPages(data, aiContent), [data, aiContent])
   const [index, setIndex] = useState(0)
   const [dir, setDir] = useState(1)
   const [paused, setPaused] = useState(false)

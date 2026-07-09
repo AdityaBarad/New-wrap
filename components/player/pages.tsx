@@ -7,6 +7,7 @@ import { Burst, Halftone, WrapFooter, type BurstPalette } from "@/components/pla
 import { useWrap, type WrapData } from "@/context/wrap-context"
 import { PURPOSES } from "@/context/wrap-context"
 import { buildStats, fmt, type WrapStats } from "@/lib/wrap-stats"
+import type { AiWrapContent } from "@/lib/ai-types"
 
 export type WrapPage = { key: string; bg: string; node: ReactNode }
 
@@ -812,7 +813,7 @@ function Kaleidoscope() {
   )
 }
 
-function FinaleCard({ data, stats, bg }: { data: WrapData; stats: WrapStats; bg: string }) {
+function FinaleCard({ data, stats, bg, ai }: { data: WrapData; stats: WrapStats; bg: string; ai?: AiWrapContent | null }) {
   const { reset } = useWrap()
   const meta = PURPOSES.find((p) => p.id === (data.purpose ?? "life"))!
   const palette = PALETTES[bg] ?? PALETTES["var(--wr-yellow)"]
@@ -820,7 +821,7 @@ function FinaleCard({ data, stats, bg }: { data: WrapData; stats: WrapStats; bg:
   async function share() {
     const shareData = {
       title: "Your Life, Wrapped",
-      text: `${stats.firstName}'s year is officially wrapped. Your year. Unhinged.`,
+      text: ai?.finale?.tagline ?? `${stats.firstName}'s year is officially wrapped. Your year. Unhinged.`,
       url: typeof window !== "undefined" ? window.location.origin : "",
     }
     try {
@@ -940,7 +941,7 @@ function bigMetric(data: WrapData, stats: WrapStats) {
   return { value: stats.streakDays, label: "Day streak", note: `And a documented top ${stats.topPercent}% level of chaos this year alone.` }
 }
 
-export function buildPages(data: WrapData): WrapPage[] {
+export function buildPages(data: WrapData, ai?: AiWrapContent | null): WrapPage[] {
   const stats = buildStats(data)
   const names = data.userNames || stats.firstName
   const purpose = data.purpose ?? "life"
@@ -951,37 +952,55 @@ export function buildPages(data: WrapData): WrapPage[] {
   const isCouple = purpose === "couple"
   const isTravel = purpose === "travel"
 
-  const introKicker = isCouple
-    ? "Now streaming"
-    : isTravel
-      ? "Boarding now"
+  // ─── SLIDE 1: INTRO ───
+  const introKicker = ai?.intro?.kicker ?? (
+    isCouple
+      ? "Now streaming"
+      : isTravel
+        ? "Boarding now"
+        : isGroup
+          ? "The group chat"
+          : purpose === "birthday"
+            ? "Happy birthday"
+            : "Now streaming"
+  )
+
+  const introLines: string[] = ai?.intro?.lines ?? (
+    isTravel
+      ? ["The", (data.destinationCity || "world").slice(0, 14), "universe"]
       : isGroup
-        ? "The group chat"
-        : purpose === "birthday"
-          ? "Happy birthday"
-          : "Now streaming"
+        ? ["The", "chaos", "universe"]
+        : ["The", `${names}`, "universe"]
+  )
 
-  const introLines = isTravel
-    ? ["The", (data.destinationCity || "world").slice(0, 14), "universe"]
-    : isGroup
-      ? ["The", "chaos", "universe"]
-      : ["The", `${names}`, "universe"]
+  const introSub = ai?.intro?.sub ?? (
+    isCouple
+      ? "Two people, one unhinged storyline. Here's your love story, wrapped and ready to post."
+      : isTravel
+        ? `${data.destinationCity || "The world"} didn't stand a chance. Here's your year in transit, wrapped.`
+        : isGroup
+          ? "The people who ruin your notifications in the best way. Wrapped."
+          : "Your year had range. Villain arc, glow up, redemption. All of it. Wrapped."
+  )
 
-  const introSub = isCouple
-    ? "Two people, one unhinged storyline. Here's your love story, wrapped and ready to post."
-    : isTravel
-      ? `${data.destinationCity || "The world"} didn't stand a chance. Here's your year in transit, wrapped.`
-      : isGroup
-        ? "The people who ruin your notifications in the best way. Wrapped."
-        : "Your year had range. Villain arc, glow up, redemption. All of it. Wrapped."
-
+  // ─── SLIDE 2: DATA HIGHLIGHT ───
   const big = bigMetric(data, stats)
+  const dataKicker = ai?.dataHighlight?.kicker ?? (isCouple ? "Days in your era" : "Time on the clock")
+  const dataLabel = ai?.dataHighlight?.label ?? big.label
+  const dataNote = ai?.dataHighlight?.note ?? big.note
 
+  // ─── SLIDE 3: TOP TRACK ───
   const anthem = data.anthemTitle || "Your Anthem"
   const vibeName = data.vibe ? data.vibe.replace(/-/g, " ") : "Hyperpop"
+  const trackKicker = ai?.topTrack?.kicker ?? "Your top track"
+  const trackArtistLine = ai?.topTrack?.artistLine ?? `${vibeName} · on repeat`
 
-  const receiptTitle = isCouple ? "Chat wrapped" : isTravel ? "Trip wrapped" : isGroup ? "Group wrapped" : "Life wrapped"
-  const receiptRows = isTravel
+  // ─── SLIDE 4: RECEIPTS ───
+  const receiptTitle = ai?.receipts?.title ?? (
+    isCouple ? "Chat wrapped" : isTravel ? "Trip wrapped" : isGroup ? "Group wrapped" : "Life wrapped"
+  )
+
+  const fallbackReceiptRows = isTravel
     ? [
         { label: "Km traveled", value: fmt(stats.int(8000, 62000)), pct: stats.int(70, 96) },
         { label: "Sunsets caught", value: fmt(stats.int(40, 190)), pct: stats.int(45, 80) },
@@ -994,6 +1013,37 @@ export function buildPages(data: WrapData): WrapPage[] {
         { label: "Double texts", value: fmt(stats.int(300, 1200)), pct: stats.int(55, 90) },
         { label: "Night owl", value: `${stats.nightOwlPct}%`, pct: stats.nightOwlPct },
       ]
+
+  const receiptRows = ai?.receipts?.rows
+    ? ai.receipts.rows.slice(0, 4).map((r, i) => ({
+        label: r.label,
+        value: r.value,
+        pct: stats.int(50, 98 - i * 5),
+      }))
+    : fallbackReceiptRows
+
+  // ─── SLIDE 5: VERSUS ───
+  const versusKicker = ai?.versus?.kicker ?? "Most watched league"
+  const versusLeft = ai?.versus?.left ?? "Arsenal"
+  const versusRight = ai?.versus?.right ?? "Real Madrid"
+  const versusLeagueTitle = ai?.versus?.leagueTitle ?? "English Premier League"
+
+  // ─── SLIDE 6: VERSUS BOARD ───
+  const vsBoardKicker = ai?.versusBoard?.kicker ?? "The matchups"
+  const vsBoardTitle = ai?.versusBoard?.title ?? "Top games"
+  const vsBoardGames = ai?.versusBoard?.games
+    ? ai.versusBoard.games.slice(0, 4).map((g, i) => ({
+        rank: i + 1,
+        team1: g.team1,
+        team2: g.team2,
+        competition: g.competition,
+      }))
+    : DEMO_GAMES
+
+  // ─── SLIDE 7: DASHBOARD ───
+  const dashboardArtists = ai?.dashboard?.topArtists?.slice(0, 3) ?? DEMO_ARTISTS
+  const dashboardSongs = ai?.dashboard?.topSongs?.slice(0, 3) ?? DEMO_SONGS
+  const dashboardGenre = ai?.dashboard?.topGenre ?? vibeName
 
   return [
     {
@@ -1018,10 +1068,10 @@ export function buildPages(data: WrapData): WrapPage[] {
           bg="var(--wr-ink)"
           ink="var(--wr-green)"
           accent="var(--wr-pink)"
-          kicker={isCouple ? "Days in your era" : "Time on the clock"}
+          kicker={dataKicker}
           value={big.value}
-          label={big.label}
-          note={big.note}
+          label={dataLabel}
+          note={dataNote}
         />
       ),
     },
@@ -1033,9 +1083,9 @@ export function buildPages(data: WrapData): WrapPage[] {
           bg="var(--wr-purple)"
           ink="var(--wr-yellow)"
           accent="var(--wr-green)"
-          kicker="Your top track"
+          kicker={trackKicker}
           title={anthem}
-          artist={`${vibeName} · on repeat`}
+          artist={trackArtistLine}
           photo={photo0}
         />
       ),
@@ -1055,10 +1105,10 @@ export function buildPages(data: WrapData): WrapPage[] {
           bg="var(--wr-yellow)"
           ink="var(--wr-ink)"
           accent="var(--wr-pink)"
-          kicker="Most watched league"
-          left="Arsenal"
-          right="Real Madrid"
-          leagueTitle="English Premier League"
+          kicker={versusKicker}
+          left={versusLeft}
+          right={versusRight}
+          leagueTitle={versusLeagueTitle}
           photo={photo0}
         />
       ),
@@ -1071,9 +1121,9 @@ export function buildPages(data: WrapData): WrapPage[] {
           bg="var(--wr-orange)"
           ink="var(--wr-ink)"
           accent="var(--wr-purple)"
-          kicker="The matchups"
-          title="Top games"
-          games={DEMO_GAMES}
+          kicker={vsBoardKicker}
+          title={vsBoardTitle}
+          games={vsBoardGames}
         />
       ),
     },
@@ -1084,19 +1134,19 @@ export function buildPages(data: WrapData): WrapPage[] {
         <DashboardTicket
           bg="var(--wr-ink)"
           ink="var(--wr-ink)"
-          year="2024"
+          year="2025"
           photo={photo0}
-          topArtists={DEMO_ARTISTS}
-          topSongs={DEMO_SONGS}
+          topArtists={dashboardArtists}
+          topSongs={dashboardSongs}
           minutesListened={fmt(stats.int(40000, 90000))}
-          topGenre={vibeName}
+          topGenre={dashboardGenre}
         />
       ),
     },
     {
       key: "s8",
       bg: "var(--wr-ink)",
-      node: <FinaleCard data={data} stats={stats} bg="var(--wr-ink)" />,
+      node: <FinaleCard data={data} stats={stats} bg="var(--wr-ink)" ai={ai} />,
     },
   ]
 }

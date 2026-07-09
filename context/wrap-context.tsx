@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react"
 import { createClient } from "@/lib/supabase/client"
+import type { AiWrapContent } from "@/lib/ai-types"
 
 export type Purpose = "couple" | "travel" | "birthday" | "life" | "group"
 
@@ -56,6 +57,8 @@ export type WrapData = {
   delusionalHabit: string
   birthYear: string
   photos: LocalPhoto[]
+  // AI personalization
+  storyParagraph: string
 }
 
 const initialData: WrapData = {
@@ -74,6 +77,7 @@ const initialData: WrapData = {
   delusionalHabit: "",
   birthYear: "",
   photos: [],
+  storyParagraph: "",
 }
 
 type Stage = 1 | 2 | 3
@@ -83,6 +87,8 @@ type WrapContextValue = {
   data: WrapData
   loading: boolean
   error: string | null
+  aiContent: AiWrapContent | null
+  aiLoading: boolean
   update: (patch: Partial<WrapData>) => void
   setStage: (s: Stage) => void
   submitStage1: () => Promise<boolean>
@@ -97,6 +103,8 @@ export function WrapProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<WrapData>(initialData)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [aiContent, setAiContent] = useState<AiWrapContent | null>(null)
+  const [aiLoading, setAiLoading] = useState(false)
 
   const update = useCallback((patch: Partial<WrapData>) => {
     setData((d) => ({ ...d, ...patch }))
@@ -106,6 +114,46 @@ export function WrapProvider({ children }: { children: ReactNode }) {
     setData(initialData)
     setStage(1)
     setError(null)
+    setAiContent(null)
+    setAiLoading(false)
+  }, [])
+
+  /** Call the Gemini API route to generate personalized wrap content */
+  const generateAiContent = useCallback(async (wrapData: WrapData): Promise<AiWrapContent | null> => {
+    setAiLoading(true)
+    try {
+      const res = await fetch("/api/generate-wrap", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: wrapData.name,
+          purpose: wrapData.purpose,
+          userNames: wrapData.userNames,
+          vibe: wrapData.vibe,
+          anthemTitle: wrapData.anthemTitle,
+          anniversaryDate: wrapData.anniversaryDate,
+          destinationCity: wrapData.destinationCity,
+          travelHours: wrapData.travelHours,
+          delusionalHabit: wrapData.delusionalHabit,
+          birthYear: wrapData.birthYear,
+          storyParagraph: wrapData.storyParagraph,
+          photoCount: wrapData.photos.length,
+        }),
+      })
+
+      if (!res.ok) {
+        console.warn("[wrap] AI generation failed, falling back to defaults")
+        return null
+      }
+
+      const json = await res.json()
+      return json.content as AiWrapContent
+    } catch (err) {
+      console.warn("[wrap] AI generation error, falling back to defaults:", err)
+      return null
+    } finally {
+      setAiLoading(false)
+    }
   }, [])
 
   const submitStage1 = useCallback(async () => {
@@ -146,6 +194,8 @@ export function WrapProvider({ children }: { children: ReactNode }) {
   const submitStage2 = useCallback(async () => {
     setError(null)
     setLoading(true)
+    setAiLoading(true)
+
     try {
       const supabase = createClient()
       const payload = {
@@ -166,21 +216,30 @@ export function WrapProvider({ children }: { children: ReactNode }) {
         const { error: err } = await supabase.from("leads").update(payload).eq("id", data.id)
         if (err) throw err
       }
+
+      // Generate AI content in parallel with the DB update
+      const content = await generateAiContent(data)
+      setAiContent(content)
+
       setStage(3)
       return true
     } catch (e) {
       console.log("[v0] submitStage2 error:", e)
       // Don't hard-block the experience if the update fails — still let them play
+      // Try to generate AI content anyway
+      const content = await generateAiContent(data)
+      setAiContent(content)
       setStage(3)
       return true
     } finally {
       setLoading(false)
+      setAiLoading(false)
     }
-  }, [data])
+  }, [data, generateAiContent])
 
   const value = useMemo<WrapContextValue>(
-    () => ({ stage, data, loading, error, update, setStage, submitStage1, submitStage2, reset }),
-    [stage, data, loading, error, update, submitStage1, submitStage2, reset],
+    () => ({ stage, data, loading, error, aiContent, aiLoading, update, setStage, submitStage1, submitStage2, reset }),
+    [stage, data, loading, error, aiContent, aiLoading, update, submitStage1, submitStage2, reset],
   )
 
   return <WrapContext.Provider value={value}>{children}</WrapContext.Provider>
