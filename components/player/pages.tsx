@@ -4,10 +4,14 @@ import { useEffect, useRef, useState, type ReactNode } from "react"
 import { motion, useInView } from "framer-motion"
 import { RotateCcw, Share2 } from "lucide-react"
 import { Burst, Halftone, WrapFooter, type BurstPalette } from "@/components/player/burst"
+import { BgPatternLayer, DecorationLayer } from "@/components/player/slide-effects"
+import { c, typoClass, typoOutlineStyle, getDesign } from "@/lib/design-utils"
+import type { SlideDesign, SlideData } from "@/lib/ai-types"
 import { useWrap, type WrapData } from "@/context/wrap-context"
 import { PURPOSES } from "@/context/wrap-context"
 import { buildStats, fmt, type WrapStats } from "@/lib/wrap-stats"
 import type { AiWrapContent } from "@/lib/ai-types"
+import { ThreadSlide, RadarSlide, QuoteSlide, RoastSlide, AwardSlide, PolaroidSlide } from "@/components/player/new-slides"
 
 export type WrapPage = { key: string; bg: string; node: ReactNode }
 
@@ -52,7 +56,7 @@ function useCountUp(target: number, duration = 1500) {
 
 /* ---------- shared primitives ---------- */
 
-function Shell({ children }: { children: ReactNode }) {
+export function Shell({ children }: { children: ReactNode }) {
   return <div className="relative h-full w-full overflow-hidden">{children}</div>
 }
 
@@ -92,7 +96,7 @@ function ClipHeading({
   )
 }
 
-function Kicker({ children, ink, delay = 0.1 }: { children: ReactNode; ink: string; delay?: number }) {
+export function Kicker({ children, ink, delay = 0.1 }: { children: ReactNode; ink: string; delay?: number }) {
   return (
     <motion.p
       initial={{ opacity: 0, y: 14 }}
@@ -111,44 +115,64 @@ function Kicker({ children, ink, delay = 0.1 }: { children: ReactNode; ink: stri
 /* ================================================================== */
 
 function IntroUniverse({
-  bg,
-  ink,
+  design,
   kicker,
   lines,
   sub,
   photo,
 }: {
-  bg: string
-  ink: string
+  design: SlideDesign
   kicker: string
   lines: string[]
   sub: string
   photo?: string
 }) {
+  const bg = c(design.bg)
+  const ink = c(design.ink)
+  const accent = c(design.accent)
   const palette = PALETTES[bg] ?? PALETTES["var(--wr-green)"]
+
+  const isCentered = design.layout === "centered"
+  const isStacked = design.layout === "stacked"
+  const isRight = design.layout === "split-right"
+
+  const textCol = (
+    <div className={`flex h-full flex-col justify-center gap-5 ${isCentered ? "items-center text-center" : ""}`}>
+      <Kicker ink={ink}>{kicker}</Kicker>
+      <ClipHeading lines={lines} ink={ink} delay={0.2} className={typoClass(design.typoStyle)} />
+      <motion.p
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 120, damping: 14, delay: 0.6 }}
+        className="max-w-md font-sans text-base font-semibold leading-relaxed md:text-lg"
+        style={{ color: ink }}
+      >
+        {sub}
+      </motion.p>
+      <div className="mt-2">
+        <WrapFooter ink={ink} hashtag={HASHTAG} />
+      </div>
+    </div>
+  )
+
+  const visualCol = (
+    <div className="flex items-center justify-center">
+      <Burst photo={photo} palette={palette} className="w-[74vw] max-w-[26rem] md:w-full" />
+    </div>
+  )
+
   return (
     <Shell>
-      <Halftone dark={bg !== "var(--wr-ink)"} />
-      <div className="relative grid h-full w-full grid-cols-1 items-center gap-6 px-6 py-10 md:grid-cols-[1.05fr_0.95fr] md:px-14">
-        <div className="flex h-full flex-col justify-center gap-5">
-          <Kicker ink={ink}>{kicker}</Kicker>
-          <ClipHeading lines={lines} ink={ink} delay={0.2} />
-          <motion.p
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...SPRING, delay: 0.6 }}
-            className="max-w-md font-sans text-base font-semibold leading-relaxed md:text-lg"
-            style={{ color: ink }}
-          >
-            {sub}
-          </motion.p>
-          <div className="mt-2">
-            <WrapFooter ink={ink} hashtag={HASHTAG} />
-          </div>
-        </div>
-        <div className="flex items-center justify-center">
-          <Burst photo={photo} palette={palette} className="w-[74vw] max-w-[26rem] md:w-full" />
-        </div>
+      <BgPatternLayer pattern={design.bgPattern} ink={ink} dark={bg !== "var(--wr-ink)"} />
+      <DecorationLayer style={design.decoration} colors={[accent, ink]} ink={ink} />
+      <div className={`relative h-full w-full px-6 py-10 md:px-14 ${
+        isCentered 
+          ? "flex flex-col items-center justify-center gap-8" 
+          : isStacked
+            ? "flex flex-col justify-between"
+            : "grid grid-cols-1 items-center gap-6 md:grid-cols-2"
+      }`}>
+        {isRight ? <>{visualCol}{textCol}</> : <>{textCol}{visualCol}</>}
       </div>
     </Shell>
   )
@@ -158,103 +182,64 @@ function IntroUniverse({
 /* SLIDE 2 — DATA HIGHLIGHT (kinetic grid + count up)                 */
 /* ================================================================== */
 
-function FloatingCube({
-  size,
-  x,
-  y,
-  color,
-  ink,
-  delay,
-}: {
-  size: number
-  x: string
-  y: string
-  color: string
-  ink: string
-  delay: number
-}) {
-  return (
-    <motion.div
-      aria-hidden="true"
-      className="pointer-events-none absolute"
-      style={{ left: x, top: y }}
-      initial={{ opacity: 0, scale: 0.4 }}
-      animate={{ opacity: 0.9, scale: 1, y: [0, -12, 0], rotate: [0, 8, 0] }}
-      transition={{
-        opacity: { ...SPRING, delay },
-        scale: { ...SPRING, delay },
-        y: { duration: 4.5 + delay, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" },
-        rotate: { duration: 6 + delay, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" },
-      }}
-    >
-      <div style={{ width: size, height: size, background: color, boxShadow: `${size * 0.14}px ${size * 0.14}px 0 ${ink}` }} />
-    </motion.div>
-  )
-}
-
 function DataHighlight({
-  bg,
-  ink,
-  accent,
+  design,
   kicker,
   value,
   label,
   note,
 }: {
-  bg: string
-  ink: string
-  accent: string
+  design: SlideDesign
   kicker: string
   value: number
   label: string
   note: string
 }) {
   const count = useCountUp(value, 1500)
+  const bg = c(design.bg)
+  const ink = c(design.ink)
+  const accent = c(design.accent)
+
+  const isSplit = design.layout === "split-left" || design.layout === "split-right"
+
   return (
     <Shell>
-      {/* scrolling grid wall */}
-      <motion.div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
-        style={{
-          backgroundImage: `linear-gradient(${ink}22 1px, transparent 1px), linear-gradient(90deg, ${ink}22 1px, transparent 1px)`,
-          backgroundSize: "44px 44px",
-        }}
-        animate={{ backgroundPosition: ["0px 0px", "44px 44px"] }}
-        transition={{ duration: 6, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-      />
-      <FloatingCube size={54} x="12%" y="18%" color={accent} ink={ink} delay={0.2} />
-      <FloatingCube size={34} x="82%" y="24%" color={accent} ink={ink} delay={0.6} />
-      <FloatingCube size={44} x="76%" y="70%" color={accent} ink={ink} delay={0.4} />
-      <FloatingCube size={28} x="16%" y="72%" color={accent} ink={ink} delay={0.8} />
+      <BgPatternLayer pattern={design.bgPattern} ink={ink} dark={bg !== "var(--wr-ink)"} />
+      <DecorationLayer style={design.decoration} colors={[accent, ink]} ink={ink} />
 
-      <div className="relative flex h-full w-full flex-col items-center justify-center px-6 text-center">
-        <Kicker ink={ink}>{kicker}</Kicker>
-        <p
-          className="my-1 font-display text-[26vw] font-black leading-[0.8] tracking-tighter tabular-nums md:text-[15rem]"
-          style={{ color: ink }}
-        >
-          {fmt(count)}
-        </p>
-        <motion.p
-          initial={{ opacity: 0, y: 20, scale: 0.94 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ ...SPRING, delay: 0.9 }}
-          className="font-display text-2xl font-black uppercase tracking-tight md:text-4xl"
-          style={{ color: ink }}
-        >
-          {label}
-        </motion.p>
-        <motion.p
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ ...SPRING, delay: 1.15 }}
-          className="mt-4 max-w-md font-sans text-base font-semibold leading-relaxed"
-          style={{ color: ink, opacity: 0.85 }}
-        >
-          {note}
-        </motion.p>
-        <div className="absolute bottom-8 left-6 md:left-14">
+      <div className={`relative flex h-full w-full px-6 ${
+        isSplit ? "flex-row items-center gap-8" : "flex-col items-center justify-center text-center"
+      }`}>
+        <div className={isSplit ? "flex-1" : ""}>
+          <Kicker ink={ink}>{kicker}</Kicker>
+          <p
+            className={`my-1 font-display font-black leading-[0.8] tracking-tighter tabular-nums ${isSplit ? "text-[15vw] md:text-[8rem]" : "text-[26vw] md:text-[15rem]"}`}
+            style={{ color: ink, ...typoOutlineStyle(design.typoStyle, ink) }}
+          >
+            {fmt(count)}
+          </p>
+        </div>
+        <div className={isSplit ? "flex-1" : ""}>
+          <motion.p
+            initial={{ opacity: 0, y: 20, scale: 0.94 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ type: "spring", stiffness: 120, damping: 14, delay: 0.9 }}
+            className={typoClass(design.typoStyle !== "massive" ? design.typoStyle : "elegant")}
+            style={{ color: ink }}
+          >
+            {label}
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ type: "spring", stiffness: 120, damping: 14, delay: 1.15 }}
+            className="mt-4 max-w-md font-sans text-base font-semibold leading-relaxed"
+            style={{ color: ink, opacity: 0.85 }}
+          >
+            {note}
+          </motion.p>
+        </div>
+        <div className={`absolute bottom-8 ${isSplit ? "left-6" : "left-1/2 -translate-x-1/2 md:left-14 md:translate-x-0"}`}>
           <WrapFooter ink={ink} hashtag={HASHTAG} />
         </div>
       </div>
@@ -302,25 +287,89 @@ function MarqueeRow({
 }
 
 function TopTrack({
-  bg,
-  ink,
-  accent,
+  design,
   kicker,
   title,
   artist,
   photo,
 }: {
-  bg: string
-  ink: string
-  accent: string
+  design: SlideDesign
   kicker: string
   title: string
   artist: string
   photo?: string
 }) {
+  const bg = c(design.bg)
+  const ink = c(design.ink)
+  const accent = c(design.accent)
+  
+  const isCentered = design.layout === "centered"
+  const isRight = design.layout === "split-right"
+  
+  const textCol = (
+    <div className={`flex flex-col justify-center gap-3 ${isCentered ? "items-center text-center" : ""}`}>
+      <Kicker ink={ink}>{kicker}</Kicker>
+      <motion.h2
+        initial={{ opacity: 0, scale: 2.2, rotate: -4 }}
+        animate={{ opacity: 1, scale: 1, rotate: design.typoStyle === "rotated" ? -2 : 0 }}
+        transition={{ type: "spring", stiffness: 170, damping: 15, delay: 0.1 }}
+        className={typoClass(design.typoStyle)}
+        style={{ color: ink, ...typoOutlineStyle(design.typoStyle, ink) }}
+      >
+        {title}
+      </motion.h2>
+      <motion.p
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 120, damping: 14, delay: 0.5 }}
+        className="font-display text-lg font-black uppercase tracking-widest"
+        style={{ color: accent }}
+      >
+        {artist}
+      </motion.p>
+    </div>
+  )
+  
+  const visualCol = (
+    <motion.div
+      initial={{ opacity: 0, x: isRight ? -80 : 80, rotate: 8 }}
+      animate={{ opacity: 1, x: 0, rotate: 0 }}
+      transition={{ type: "spring", stiffness: 120, damping: 14, delay: 0.35 }}
+      className="flex items-center justify-center"
+    >
+      <div
+        className="relative w-[60vw] max-w-[18rem] border-4 p-4 md:w-full"
+        style={{ borderColor: ink, backgroundColor: bg }}
+      >
+        <motion.div
+          className="relative mx-auto aspect-square w-full overflow-hidden rounded-full border-4"
+          style={{ borderColor: accent }}
+          animate={{ rotate: 360 }}
+          transition={{ duration: 8, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+        >
+          <img
+            src={photo || "/wrapped-portrait-1.png"}
+            alt="Now playing artwork"
+            className="h-full w-full object-cover"
+            crossOrigin="anonymous"
+          />
+          <span
+            className="absolute left-1/2 top-1/2 size-8 -translate-x-1/2 -translate-y-1/2 rounded-full border-2"
+            style={{ backgroundColor: ink, borderColor: accent }}
+          />
+        </motion.div>
+        <p className="mt-3 text-center font-display text-xs font-black uppercase tracking-widest" style={{ color: ink }}>
+          On Repeat
+        </p>
+      </div>
+    </motion.div>
+  )
+
   return (
     <Shell>
-      {/* moving typography wall */}
+      <BgPatternLayer pattern={design.bgPattern} ink={ink} dark={bg !== "var(--wr-ink)"} />
+      <DecorationLayer style={design.decoration} colors={[accent, ink]} ink={ink} />
+
       <div className="pointer-events-none absolute inset-0 flex flex-col justify-between py-6">
         <MarqueeRow text={HASHTAG} ink={ink} duration={22} />
         <MarqueeRow text={HASHTAG} ink={ink} duration={16} reverse outline />
@@ -328,63 +377,12 @@ function TopTrack({
         <MarqueeRow text={HASHTAG} ink={ink} duration={19} reverse outline />
       </div>
 
-      <div className="relative grid h-full w-full grid-cols-1 items-center gap-8 px-6 py-10 md:grid-cols-[1.15fr_0.85fr] md:px-14">
-        <div className="flex flex-col justify-center gap-3">
-          <Kicker ink={ink}>{kicker}</Kicker>
-          <motion.h2
-            initial={{ opacity: 0, scale: 2.2, rotate: -4 }}
-            animate={{ opacity: 1, scale: 1, rotate: -1.5 }}
-            transition={{ type: "spring", stiffness: 170, damping: 15, delay: 0.1 }}
-            className="font-display text-6xl font-black uppercase leading-[0.85] tracking-tight text-balance md:text-8xl"
-            style={{ color: ink }}
-          >
-            {title}
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...SPRING, delay: 0.5 }}
-            className="font-display text-lg font-black uppercase tracking-widest"
-            style={{ color: accent }}
-          >
-            {artist}
-          </motion.p>
-        </div>
-
-        {/* spinning vinyl card */}
-        <motion.div
-          initial={{ opacity: 0, x: 80, rotate: 8 }}
-          animate={{ opacity: 1, x: 0, rotate: 0 }}
-          transition={{ ...SPRING, delay: 0.35 }}
-          className="flex items-center justify-center"
-        >
-          <div
-            className="relative w-[60vw] max-w-[18rem] border-4 p-4 md:w-full"
-            style={{ borderColor: ink, backgroundColor: "var(--wr-ink)" }}
-          >
-            <motion.div
-              className="relative mx-auto aspect-square w-full overflow-hidden rounded-full border-4"
-              style={{ borderColor: accent }}
-              animate={{ rotate: 360 }}
-              transition={{ duration: 8, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={photo || "/wrapped-portrait-1.png"}
-                alt="Now playing artwork"
-                className="h-full w-full object-cover"
-                crossOrigin="anonymous"
-              />
-              <span
-                className="absolute left-1/2 top-1/2 size-8 -translate-x-1/2 -translate-y-1/2 rounded-full border-2"
-                style={{ backgroundColor: "var(--wr-ink)", borderColor: accent }}
-              />
-            </motion.div>
-            <p className="mt-3 text-center font-display text-xs font-black uppercase tracking-widest text-cream/70">
-              On Repeat
-            </p>
-          </div>
-        </motion.div>
+      <div className={`relative h-full w-full px-6 py-10 md:px-14 ${
+        isCentered 
+          ? "flex flex-col items-center justify-center gap-12" 
+          : "grid grid-cols-1 items-center gap-8 md:grid-cols-2"
+      }`}>
+        {isRight ? <>{visualCol}{textCol}</> : <>{textCol}{visualCol}</>}
       </div>
     </Shell>
   )
@@ -395,28 +393,32 @@ function TopTrack({
 /* ================================================================== */
 
 function Receipts({
-  bg,
-  ink,
+  design,
   kicker,
   title,
   rows,
 }: {
-  bg: string
-  ink: string
+  design: SlideDesign
   kicker: string
   title: string
   rows: { label: string; value: string; pct: number }[]
 }) {
+  const bg = c(design.bg)
+  const ink = c(design.ink)
+  const accent = c(design.accent)
+  const isCentered = design.layout === "centered"
+  
   return (
     <Shell>
-      <Halftone dark={bg !== "var(--wr-ink)"} />
-      <div className="relative flex h-full w-full flex-col justify-center gap-5 px-6 md:px-14">
+      <BgPatternLayer pattern={design.bgPattern} ink={ink} dark={bg !== "var(--wr-ink)"} />
+      <DecorationLayer style={design.decoration} colors={[accent, ink]} ink={ink} />
+      <div className={`relative flex h-full w-full flex-col justify-center gap-5 px-6 md:px-14 ${isCentered ? "items-center text-center" : ""}`}>
         <Kicker ink={ink}>{kicker}</Kicker>
         <ClipHeading
           lines={[title]}
           ink={ink}
           delay={0.15}
-          className="font-display text-4xl font-black leading-[0.9] tracking-tight md:text-6xl"
+          className={typoClass(design.typoStyle)}
         />
         <motion.div
           className="mt-2 flex w-full max-w-2xl flex-col gap-4"
@@ -428,8 +430,8 @@ function Receipts({
             <motion.div
               key={i}
               variants={{
-                hidden: { opacity: 0, x: -40 },
-                show: { opacity: 1, x: 0, transition: SPRING },
+                hidden: { opacity: 0, x: isCentered ? 0 : -40, y: isCentered ? 20 : 0 },
+                show: { opacity: 1, x: 0, y: 0, transition: { type: "spring", stiffness: 120, damping: 14 } },
               }}
               whileHover={{ scale: 1.03 }}
               className="flex flex-col gap-1.5"
@@ -452,7 +454,7 @@ function Receipts({
                   style={{ backgroundColor: ink }}
                   initial={{ width: "0%" }}
                   animate={{ width: `${r.pct}%` }}
-                  transition={{ ...SPRING, delay: 0.5 + i * 0.14 }}
+                  transition={{ type: "spring", stiffness: 120, damping: 14, delay: 0.5 + i * 0.14 }}
                 />
               </div>
             </motion.div>
@@ -473,38 +475,38 @@ function Receipts({
 const SLANT_CLIP = "polygon(12% 0, 100% 0, 88% 100%, 0 100%)"
 
 function VersusLeague({
-  bg,
-  ink,
-  accent,
+  design,
   kicker,
   left,
   right,
   leagueTitle,
   photo,
 }: {
-  bg: string
-  ink: string
-  accent: string
+  design: SlideDesign
   kicker: string
   left: string
   right: string
   leagueTitle: string
   photo?: string
 }) {
+  const bg = c(design.bg)
+  const ink = c(design.ink)
+  const accent = c(design.accent)
+  
   return (
     <Shell>
-      <Halftone dark={bg !== "var(--wr-ink)"} />
+      <BgPatternLayer pattern={design.bgPattern} ink={ink} dark={bg !== "var(--wr-ink)"} />
+      <DecorationLayer style={design.decoration} colors={[accent, ink]} ink={ink} />
       <div className="relative flex h-full w-full flex-col justify-center gap-6 px-6 py-10 md:px-14">
         <Kicker ink={ink}>{kicker}</Kicker>
 
-        {/* crashing team names */}
         <div className="relative flex items-center justify-center gap-3 md:gap-6">
           <motion.span
             initial={{ x: "-120%", opacity: 0 }}
             animate={{ x: "0%", opacity: 1 }}
             transition={{ type: "spring", stiffness: 140, damping: 12, delay: 0.15 }}
-            className="flex-1 text-right font-display text-4xl font-black uppercase leading-[0.85] tracking-tight md:text-6xl"
-            style={{ color: ink }}
+            className={`flex-1 text-right ${typoClass(design.typoStyle)}`}
+            style={{ color: ink, ...typoOutlineStyle(design.typoStyle, ink) }}
           >
             {left}
           </motion.span>
@@ -521,23 +523,21 @@ function VersusLeague({
             initial={{ x: "120%", opacity: 0 }}
             animate={{ x: "0%", opacity: 1 }}
             transition={{ type: "spring", stiffness: 140, damping: 12, delay: 0.15 }}
-            className="flex-1 text-left font-display text-4xl font-black uppercase leading-[0.85] tracking-tight md:text-6xl"
-            style={{ color: ink }}
+            className={`flex-1 text-left ${typoClass(design.typoStyle)}`}
+            style={{ color: ink, ...typoOutlineStyle(design.typoStyle, ink) }}
           >
             {right}
           </motion.span>
         </div>
 
-        {/* geometric media window */}
         <motion.div
           initial={{ opacity: 0, scale: 0.7 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ ...SPRING, delay: 0.7 }}
+          transition={{ type: "spring", stiffness: 120, damping: 14, delay: 0.7 }}
           className="mx-auto aspect-[16/7] w-full max-w-2xl overflow-hidden"
           style={{ clipPath: SLANT_CLIP, backgroundColor: ink }}
         >
           {photo && (
-            // eslint-disable-next-line @next/next/no-img-element
             <motion.img
               src={photo}
               alt="Most watched moment"
@@ -545,7 +545,7 @@ function VersusLeague({
               crossOrigin="anonymous"
               initial={{ scale: 1.3 }}
               animate={{ scale: 1 }}
-              transition={{ ...SPRING, delay: 0.7 }}
+              transition={{ type: "spring", stiffness: 120, damping: 14, delay: 0.7 }}
             />
           )}
         </motion.div>
@@ -553,7 +553,7 @@ function VersusLeague({
         <motion.p
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ ...SPRING, delay: 0.95 }}
+          transition={{ type: "spring", stiffness: 120, damping: 14, delay: 0.95 }}
           className="text-center font-display text-lg font-black uppercase tracking-widest"
           style={{ color: ink, opacity: 0.75 }}
         >
@@ -572,76 +572,120 @@ function VersusLeague({
 /* ================================================================== */
 
 function VersusBoard({
-  bg,
-  ink,
-  accent,
+  design,
   kicker,
   title,
   games,
 }: {
-  bg: string
-  ink: string
-  accent: string
+  design: SlideDesign
   kicker: string
   title: string
   games: { rank: number; team1: string; team2: string; competition: string }[]
 }) {
+  const bg = c(design.bg)
+  const ink = c(design.ink)
+  const accent = c(design.accent)
+  const isCentered = design.layout === "centered"
+
   return (
     <Shell>
-      <Halftone dark={bg !== "var(--wr-ink)"} />
-      <div className="relative flex h-full w-full flex-col justify-center gap-4 px-6 py-10 md:px-14">
+      <BgPatternLayer pattern={design.bgPattern} ink={ink} dark={bg !== "var(--wr-ink)"} />
+      <DecorationLayer style={design.decoration} colors={[accent, ink]} ink={ink} />
+      <div className={`relative flex h-full w-full flex-col justify-center gap-4 px-6 py-10 md:px-14 ${isCentered ? "items-center text-center" : ""}`}>
         <Kicker ink={ink}>{kicker}</Kicker>
         <ClipHeading
           lines={[title]}
           ink={ink}
           delay={0.15}
-          className="font-display text-4xl font-black leading-[0.9] tracking-tight md:text-6xl"
+          className={typoClass(design.typoStyle)}
         />
-        <div className="mt-2 flex max-w-3xl flex-col gap-3.5">
+        <div className="mt-2 flex max-w-3xl flex-col gap-3.5 w-full">
           {games.map((g, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ ...SPRING, delay: 0.25 + i * 0.12 }}
+              transition={{ type: "spring", stiffness: 120, damping: 14, delay: 0.25 + i * 0.12 }}
               whileHover={{ scale: 1.02 }}
-              className="grid grid-cols-[auto_1fr] items-center gap-4 border-b-[3px] pb-3.5"
+              className={`grid items-center gap-4 border-b-[3px] pb-3.5 ${isCentered ? "grid-cols-[1fr_auto_1fr]" : "grid-cols-[auto_1fr]"}`}
               style={{ borderColor: ink }}
             >
-              <span className="font-display text-4xl font-black leading-none md:text-6xl" style={{ color: accent }}>
-                {g.rank}
-              </span>
-              <div className="flex flex-col gap-0.5">
-                <div className="flex flex-wrap items-baseline gap-x-3">
-                  <motion.span
-                    initial={{ x: -30, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ ...SPRING, delay: 0.35 + i * 0.12 }}
-                    className="font-display text-xl font-black uppercase md:text-3xl"
-                    style={{ color: ink }}
-                  >
-                    {g.team1}
-                  </motion.span>
+              {!isCentered && (
+                <span className="font-display text-4xl font-black leading-none md:text-6xl" style={{ color: accent }}>
+                  {g.rank}
+                </span>
+              )}
+              {isCentered && (
+                <motion.span
+                  initial={{ x: -30, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ type: "spring", stiffness: 120, damping: 14, delay: 0.35 + i * 0.12 }}
+                  className="font-display text-xl font-black uppercase md:text-3xl justify-self-end text-right"
+                  style={{ color: ink }}
+                >
+                  {g.team1}
+                </motion.span>
+              )}
+              {isCentered && (
+                <div className="flex flex-col items-center justify-center">
                   <span className="font-display text-sm font-black uppercase opacity-50" style={{ color: ink }}>
                     vs
                   </span>
+                </div>
+              )}
+              {isCentered && (
+                <div className="flex flex-col gap-0.5 justify-self-start text-left">
                   <motion.span
                     initial={{ x: 30, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
-                    transition={{ ...SPRING, delay: 0.35 + i * 0.12 }}
+                    transition={{ type: "spring", stiffness: 120, damping: 14, delay: 0.35 + i * 0.12 }}
                     className="font-display text-xl font-black uppercase md:text-3xl"
                     style={{ color: ink }}
                   >
                     {g.team2}
                   </motion.span>
+                  <span
+                    className="font-display text-[0.68rem] font-bold uppercase tracking-widest md:text-xs"
+                    style={{ color: ink, opacity: 0.6 }}
+                  >
+                    {g.competition}
+                  </span>
                 </div>
-                <span
-                  className="font-display text-[0.68rem] font-bold uppercase tracking-widest md:text-xs"
-                  style={{ color: ink, opacity: 0.6 }}
-                >
-                  {g.competition}
-                </span>
-              </div>
+              )}
+
+              {!isCentered && (
+                <div className="flex flex-col gap-0.5">
+                  <div className="flex flex-wrap items-baseline gap-x-3">
+                    <motion.span
+                      initial={{ x: -30, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ type: "spring", stiffness: 120, damping: 14, delay: 0.35 + i * 0.12 }}
+                      className="font-display text-xl font-black uppercase md:text-3xl"
+                      style={{ color: ink }}
+                    >
+                      {g.team1}
+                    </motion.span>
+                    <span className="font-display text-sm font-black uppercase opacity-50" style={{ color: ink }}>
+                      vs
+                    </span>
+                    <motion.span
+                      initial={{ x: 30, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ type: "spring", stiffness: 120, damping: 14, delay: 0.35 + i * 0.12 }}
+                      className="font-display text-xl font-black uppercase md:text-3xl"
+                      style={{ color: ink }}
+                    >
+                      {g.team2}
+                    </motion.span>
+                  </div>
+                  <span
+                    className="font-display text-[0.68rem] font-bold uppercase tracking-widest md:text-xs"
+                    style={{ color: ink, opacity: 0.6 }}
+                  >
+                    {g.competition}
+                  </span>
+                </div>
+              )}
             </motion.div>
           ))}
         </div>
@@ -655,8 +699,7 @@ function VersusBoard({
 /* ================================================================== */
 
 function DashboardTicket({
-  bg,
-  ink,
+  design,
   year,
   photo,
   topArtists,
@@ -664,8 +707,7 @@ function DashboardTicket({
   minutesListened,
   topGenre,
 }: {
-  bg: string
-  ink: string
+  design: SlideDesign
   year: string
   photo?: string
   topArtists: string[]
@@ -673,11 +715,16 @@ function DashboardTicket({
   minutesListened: string
   topGenre: string
 }) {
+  const bg = c(design.bg)
+  const ink = c(design.ink)
+  const accent = c(design.accent)
+  
   const cardRef = useRef<HTMLDivElement>(null)
   const inView = useInView(cardRef, { once: true })
   return (
     <Shell>
-      <Halftone dark />
+      <BgPatternLayer pattern={design.bgPattern} ink={ink} dark={bg !== "var(--wr-ink)"} />
+      <DecorationLayer style={design.decoration} colors={[accent, ink]} ink={ink} />
       <div className="relative flex h-full w-full items-center justify-center px-4 py-6 md:px-8">
         <motion.div
           ref={cardRef}
@@ -701,7 +748,6 @@ function DashboardTicket({
           </div>
 
           <div className="mx-6 my-4 aspect-square overflow-hidden border-4" style={{ borderColor: ink }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={photo || "/wrapped-portrait-1.png"}
               alt="Wrapped headliner"
@@ -717,7 +763,7 @@ function DashboardTicket({
             variants={{ show: { transition: { staggerChildren: 0.12, delayChildren: 0.25 } } }}
           >
             <motion.div
-              variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: SPRING } }}
+              variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 120, damping: 14 } } }}
               className="grid grid-cols-2 gap-6 border-b-[3px] pb-4"
               style={{ borderColor: ink }}
             >
@@ -744,7 +790,7 @@ function DashboardTicket({
             </motion.div>
 
             <motion.div
-              variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: SPRING } }}
+              variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 120, damping: 14 } } }}
               className="flex items-center justify-between"
             >
               <p className="font-display text-xs font-black uppercase tracking-wider" style={{ color: ink }}>
@@ -755,7 +801,7 @@ function DashboardTicket({
               </p>
             </motion.div>
             <motion.div
-              variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: SPRING } }}
+              variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 120, damping: 14 } } }}
               className="flex items-center justify-between border-t-2 pt-3"
               style={{ borderColor: ink }}
             >
@@ -813,9 +859,13 @@ function Kaleidoscope() {
   )
 }
 
-function FinaleCard({ data, stats, bg, ai }: { data: WrapData; stats: WrapStats; bg: string; ai?: AiWrapContent | null }) {
+function FinaleCard({ data, stats, design, ai }: { data: WrapData; stats: WrapStats; design: SlideDesign; ai?: AiWrapContent | null }) {
   const { reset } = useWrap()
   const meta = PURPOSES.find((p) => p.id === (data.purpose ?? "life"))!
+  
+  const bg = c(design.bg)
+  const ink = c(design.ink)
+  const accent = c(design.accent)
   const palette = PALETTES[bg] ?? PALETTES["var(--wr-yellow)"]
 
   async function share() {
@@ -837,7 +887,9 @@ function FinaleCard({ data, stats, bg, ai }: { data: WrapData; stats: WrapStats;
 
   return (
     <Shell>
-      <Kaleidoscope />
+      <BgPatternLayer pattern={design.bgPattern} ink={ink} dark={bg !== "var(--wr-ink)"} />
+      <DecorationLayer style={design.decoration} colors={[accent, ink]} ink={ink} />
+      {design.bgPattern === "clean" && <Kaleidoscope />}
       <div className="relative flex h-full w-full flex-col items-center justify-center gap-6 px-6 py-8">
         <motion.div
           initial={{ opacity: 0, y: 50, rotate: 3, scale: 0.85 }}
@@ -876,7 +928,7 @@ function FinaleCard({ data, stats, bg, ai }: { data: WrapData; stats: WrapStats;
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ ...SPRING, delay: 0.5 }}
+          transition={{ type: "spring", stiffness: 120, damping: 14, delay: 0.5 }}
           className="z-10 flex items-center gap-3"
         >
           <motion.button
@@ -896,7 +948,7 @@ function FinaleCard({ data, stats, bg, ai }: { data: WrapData; stats: WrapStats;
             onClick={reset}
             whileHover={{ rotate: -180 }}
             whileTap={{ scale: 0.92 }}
-            transition={SPRING}
+            transition={{ type: "spring", stiffness: 120, damping: 14 }}
             className="flex items-center justify-center rounded-full border-2 border-cream/60 bg-ink/40 p-3 text-cream backdrop-blur-md"
             aria-label="Start over"
           >
@@ -907,10 +959,6 @@ function FinaleCard({ data, stats, bg, ai }: { data: WrapData; stats: WrapStats;
     </Shell>
   )
 }
-
-/* ================================================================== */
-/* page builder — one elite 8-slide sequence for every purpose        */
-/* ================================================================== */
 
 const DEMO_ARTISTS = ["sombr", "Karol G", "Cyril Kamer"]
 const DEMO_SONGS = ["back to friends", "Golden", "Bad Romance"]
@@ -941,6 +989,7 @@ function bigMetric(data: WrapData, stats: WrapStats) {
   return { value: stats.streakDays, label: "Day streak", note: `And a documented top ${stats.topPercent}% level of chaos this year alone.` }
 }
 
+
 export function buildPages(data: WrapData, ai?: AiWrapContent | null): WrapPage[] {
   const stats = buildStats(data)
   const names = data.userNames || stats.firstName
@@ -948,205 +997,48 @@ export function buildPages(data: WrapData, ai?: AiWrapContent | null): WrapPage[
   const photos = data.photos.map((p) => p.url)
   const photo0 = photos[0]
 
+  const big = bigMetric(data, stats)
+  const anthem = data.anthemTitle || "Your Anthem"
+
+  if (ai?.slides && Array.isArray(ai.slides)) {
+    return ai.slides.map((slide, i) => {
+      const bg = c(slide.design.bg)
+      const key = `${slide.type}-${i}`
+      const p = photos.length > 0 ? photos[i % photos.length] : undefined
+      
+      switch (slide.type) {
+        case "intro": return { key, bg, node: <IntroUniverse design={slide.design} kicker={slide.content.kicker} lines={slide.content.lines} sub={slide.content.sub} photo={photo0} /> }
+        case "dataHighlight": return { key, bg, node: <DataHighlight design={slide.design} kicker={slide.content.kicker} value={slide.content.valueOverride ?? big.value} label={slide.content.label} note={slide.content.note} /> }
+        case "topTrack": return { key, bg, node: <TopTrack design={slide.design} kicker={slide.content.kicker} title={slide.content.anthemTitleOverride ?? anthem} artist={slide.content.artistLine} photo={photo0} /> }
+        case "receipts": return { key, bg, node: <Receipts design={slide.design} kicker="The receipts" title={slide.content.title} rows={slide.content.rows} /> }
+        case "versus": return { key, bg, node: <VersusLeague design={slide.design} kicker={slide.content.kicker} left={slide.content.left} right={slide.content.right} leagueTitle={slide.content.leagueTitle} photo={photo0} /> }
+        case "versusBoard": return { key, bg, node: <VersusBoard design={slide.design} kicker={slide.content.kicker} title={slide.content.title} games={slide.content.games} /> }
+        case "dashboard": return { key, bg, node: <DashboardTicket design={slide.design} year="2025" photo={photo0} topArtists={slide.content.topArtists} topSongs={slide.content.topSongs} minutesListened={fmt(stats.int(40000, 90000))} topGenre={slide.content.topGenre} /> }
+        case "finale": return { key, bg, node: <FinaleCard data={data} stats={stats} design={slide.design} ai={ai} /> }
+        case "thread": return { key, bg, node: <ThreadSlide design={slide.design} content={slide.content} photo={p} /> }
+        case "radar": return { key, bg, node: <RadarSlide design={slide.design} content={slide.content} photo={p} /> }
+        case "quote": return { key, bg, node: <QuoteSlide design={slide.design} content={slide.content} photo={p} /> }
+        case "polaroid": return { key, bg, node: <PolaroidSlide design={slide.design} content={slide.content} photos={photos} /> }
+        case "roast": return { key, bg, node: <RoastSlide design={slide.design} content={slide.content} photo={p} /> }
+        case "award": return { key, bg, node: <AwardSlide design={slide.design} content={slide.content} photo={p} /> }
+        default: return { key, bg: "var(--wr-ink)", node: <div className="flex h-full items-center justify-center bg-ink text-white">Unknown slide type</div> }
+      }
+    })
+  }
+
+  // Fallback defaults
   const isGroup = purpose === "group"
   const isCouple = purpose === "couple"
   const isTravel = purpose === "travel"
-
-  // ─── SLIDE 1: INTRO ───
-  const introKicker = ai?.intro?.kicker ?? (
-    isCouple
-      ? "Now streaming"
-      : isTravel
-        ? "Boarding now"
-        : isGroup
-          ? "The group chat"
-          : purpose === "birthday"
-            ? "Happy birthday"
-            : "Now streaming"
-  )
-
-  const introLines: string[] = ai?.intro?.lines ?? (
-    isTravel
-      ? ["The", (data.destinationCity || "world").slice(0, 14), "universe"]
-      : isGroup
-        ? ["The", "chaos", "universe"]
-        : ["The", `${names}`, "universe"]
-  )
-
-  const introSub = ai?.intro?.sub ?? (
-    isCouple
-      ? "Two people, one unhinged storyline. Here's your love story, wrapped and ready to post."
-      : isTravel
-        ? `${data.destinationCity || "The world"} didn't stand a chance. Here's your year in transit, wrapped.`
-        : isGroup
-          ? "The people who ruin your notifications in the best way. Wrapped."
-          : "Your year had range. Villain arc, glow up, redemption. All of it. Wrapped."
-  )
-
-  // ─── SLIDE 2: DATA HIGHLIGHT ───
-  const big = bigMetric(data, stats)
-  const dataKicker = ai?.dataHighlight?.kicker ?? (isCouple ? "Days in your era" : "Time on the clock")
-  const dataLabel = ai?.dataHighlight?.label ?? big.label
-  const dataNote = ai?.dataHighlight?.note ?? big.note
-
-  // ─── SLIDE 3: TOP TRACK ───
-  const anthem = data.anthemTitle || "Your Anthem"
-  const vibeName = data.vibe ? data.vibe.replace(/-/g, " ") : "Hyperpop"
-  const trackKicker = ai?.topTrack?.kicker ?? "Your top track"
-  const trackArtistLine = ai?.topTrack?.artistLine ?? `${vibeName} · on repeat`
-
-  // ─── SLIDE 4: RECEIPTS ───
-  const receiptTitle = ai?.receipts?.title ?? (
-    isCouple ? "Chat wrapped" : isTravel ? "Trip wrapped" : isGroup ? "Group wrapped" : "Life wrapped"
-  )
-
-  const fallbackReceiptRows = isTravel
-    ? [
-        { label: "Km traveled", value: fmt(stats.int(8000, 62000)), pct: stats.int(70, 96) },
-        { label: "Sunsets caught", value: fmt(stats.int(40, 190)), pct: stats.int(45, 80) },
-        { label: "Snacks demolished", value: fmt(stats.int(120, 620)), pct: stats.int(60, 92) },
-        { label: "Night owl", value: `${stats.nightOwlPct}%`, pct: stats.nightOwlPct },
-      ]
-    : [
-        { label: "Words yapped", value: fmt(stats.wordsYapped), pct: stats.int(72, 98) },
-        { label: "Texted first", value: `${stats.int(51, 84)}%`, pct: stats.int(51, 84) },
-        { label: "Double texts", value: fmt(stats.int(300, 1200)), pct: stats.int(55, 90) },
-        { label: "Night owl", value: `${stats.nightOwlPct}%`, pct: stats.nightOwlPct },
-      ]
-
-  const receiptRows = ai?.receipts?.rows
-    ? ai.receipts.rows.slice(0, 4).map((r, i) => ({
-        label: r.label,
-        value: r.value,
-        pct: stats.int(50, 98 - i * 5),
-      }))
-    : fallbackReceiptRows
-
-  // ─── SLIDE 5: VERSUS ───
-  const versusKicker = ai?.versus?.kicker ?? "Most watched league"
-  const versusLeft = ai?.versus?.left ?? "Arsenal"
-  const versusRight = ai?.versus?.right ?? "Real Madrid"
-  const versusLeagueTitle = ai?.versus?.leagueTitle ?? "English Premier League"
-
-  // ─── SLIDE 6: VERSUS BOARD ───
-  const vsBoardKicker = ai?.versusBoard?.kicker ?? "The matchups"
-  const vsBoardTitle = ai?.versusBoard?.title ?? "Top games"
-  const vsBoardGames = ai?.versusBoard?.games
-    ? ai.versusBoard.games.slice(0, 4).map((g, i) => ({
-        rank: i + 1,
-        team1: g.team1,
-        team2: g.team2,
-        competition: g.competition,
-      }))
-    : DEMO_GAMES
-
-  // ─── SLIDE 7: DASHBOARD ───
-  const dashboardArtists = ai?.dashboard?.topArtists?.slice(0, 3) ?? DEMO_ARTISTS
-  const dashboardSongs = ai?.dashboard?.topSongs?.slice(0, 3) ?? DEMO_SONGS
-  const dashboardGenre = ai?.dashboard?.topGenre ?? vibeName
-
+  const introKicker = isCouple ? "Now streaming" : isTravel ? "Boarding now" : isGroup ? "The group chat" : purpose === "birthday" ? "Happy birthday" : "Now streaming"
+  const introLines: [string, string, string] = isTravel ? ["The", (data.destinationCity || "world").slice(0, 14), "universe"] : isGroup ? ["The", "chaos", "universe"] : isCouple ? (data.userNames ? ["The", `${names}`.slice(0, 14), "universe"] : ["Your", "love", "story"]) : ["The", `${names}`.slice(0,14), "universe"]
+  const introSub = isCouple ? "Two people, one unhinged storyline. Here's your love story, wrapped and ready to post." : isTravel ? `${data.destinationCity || "The world"} didn't stand a chance. Here's your year in transit, wrapped.` : isGroup ? "The people who ruin your notifications in the best way. Wrapped." : "Your year had range. Villain arc, glow up, redemption. All of it. Wrapped."
+  
+  const defaultDesign: SlideDesign = { bg: "ink", ink: "green", accent: "pink", layout: "centered", bgPattern: "halftone", decoration: "none", typoStyle: "massive" }
+  
   return [
-    {
-      key: "s1",
-      bg: "var(--wr-pink)",
-      node: (
-        <IntroUniverse
-          bg="var(--wr-pink)"
-          ink="var(--wr-ink)"
-          kicker={introKicker}
-          lines={introLines}
-          sub={introSub}
-          photo={photo0}
-        />
-      ),
-    },
-    {
-      key: "s2",
-      bg: "var(--wr-ink)",
-      node: (
-        <DataHighlight
-          bg="var(--wr-ink)"
-          ink="var(--wr-green)"
-          accent="var(--wr-pink)"
-          kicker={dataKicker}
-          value={big.value}
-          label={dataLabel}
-          note={dataNote}
-        />
-      ),
-    },
-    {
-      key: "s3",
-      bg: "var(--wr-purple)",
-      node: (
-        <TopTrack
-          bg="var(--wr-purple)"
-          ink="var(--wr-yellow)"
-          accent="var(--wr-green)"
-          kicker={trackKicker}
-          title={anthem}
-          artist={trackArtistLine}
-          photo={photo0}
-        />
-      ),
-    },
-    {
-      key: "s4",
-      bg: "var(--wr-green)",
-      node: (
-        <Receipts bg="var(--wr-green)" ink="var(--wr-ink)" kicker="The receipts" title={receiptTitle} rows={receiptRows} />
-      ),
-    },
-    {
-      key: "s5",
-      bg: "var(--wr-yellow)",
-      node: (
-        <VersusLeague
-          bg="var(--wr-yellow)"
-          ink="var(--wr-ink)"
-          accent="var(--wr-pink)"
-          kicker={versusKicker}
-          left={versusLeft}
-          right={versusRight}
-          leagueTitle={versusLeagueTitle}
-          photo={photo0}
-        />
-      ),
-    },
-    {
-      key: "s6",
-      bg: "var(--wr-orange)",
-      node: (
-        <VersusBoard
-          bg="var(--wr-orange)"
-          ink="var(--wr-ink)"
-          accent="var(--wr-purple)"
-          kicker={vsBoardKicker}
-          title={vsBoardTitle}
-          games={vsBoardGames}
-        />
-      ),
-    },
-    {
-      key: "s7",
-      bg: "var(--wr-ink)",
-      node: (
-        <DashboardTicket
-          bg="var(--wr-ink)"
-          ink="var(--wr-ink)"
-          year="2025"
-          photo={photo0}
-          topArtists={dashboardArtists}
-          topSongs={dashboardSongs}
-          minutesListened={fmt(stats.int(40000, 90000))}
-          topGenre={dashboardGenre}
-        />
-      ),
-    },
-    {
-      key: "s8",
-      bg: "var(--wr-ink)",
-      node: <FinaleCard data={data} stats={stats} bg="var(--wr-ink)" ai={ai} />,
-    },
+    { key: "intro", bg: "var(--wr-ink)", node: <IntroUniverse design={defaultDesign} kicker={introKicker} lines={introLines} sub={introSub} photo={photo0} /> },
+    { key: "dataHighlight", bg: "var(--wr-ink)", node: <DataHighlight design={defaultDesign} kicker="Time on the clock" value={big.value} label={big.label} note={big.note} /> },
+    { key: "finale", bg: "var(--wr-ink)", node: <FinaleCard data={data} stats={stats} design={defaultDesign} /> }
   ]
 }

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 
 const GEMINI_API_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent"
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent"
 
 function buildPrompt(body: Record<string, unknown>): string {
   const {
@@ -20,16 +20,16 @@ function buildPrompt(body: Record<string, unknown>): string {
   } = body
 
   const purposeLabels: Record<string, string> = {
-    couple: "Couple / Love Story",
-    travel: "Travel Memories",
+    couple: "Love Story / Relationship",
+    travel: "Travel Adventures",
     birthday: "Birthday Special",
     life: "Personal Life Journey",
-    group: "Group & Family Chaos",
+    group: "Group Chat Chaos",
   }
 
   const purposeLabel = purposeLabels[(purpose as string) ?? "life"] ?? "Personal Life Journey"
 
-  return `You are a world-class creative director for a viral "Year Wrapped" experience — think Spotify Wrapped but for someone's LIFE. Your job is to write punchy, Gen-Z, unhinged-but-heartfelt, meme-aware copy that makes every slide screenshot-worthy.
+  return `You are a world class creative UI builder and copywriter for a viral "Year Wrapped" web app experience. Your job is to generate a completely unique, personalized sequence of 6 to 8 slides that tell the user's specific story in a highly shareable, Gen-Z, unhinged-but-heartfelt way.
 
 ## USER PROFILE
 - **Name**: ${name || "User"}
@@ -44,88 +44,62 @@ ${delusionalHabit ? `- **Delusional habit / inside joke**: ${delusionalHabit}` :
 ${birthYear ? `- **Birth year**: ${birthYear}` : ""}
 - **Photos uploaded**: ${photoCount || 0}
 
-## USER'S STORY (use this heavily — it's the soul of the wrap)
+## USER'S STORY (use this heavily to determine the slides and content)
 "${storyParagraph || "No story provided — improvise based on the profile above."}"
 
 ## INSTRUCTIONS
-Generate creative, personalized, trendy content for an 8-slide wrapped experience. The content must:
-1. Be deeply personalized using the user's name, story, and details
-2. Sound like a mix of Spotify Wrapped + Instagram Reels + Twitter shitposting
-3. Use Gen-Z slang naturally (slay, era, main character, unhinged, no cap, ate, etc.)
-4. Reference specific details from their story paragraph
-5. Be witty, warm, and shareable — every line should make someone want to screenshot it
-6. Be unique — NEVER generic. If they mentioned a city, reference it. If they mentioned a habit, roast it lovingly.
+You must return a JSON object with a single root property: "slides".
+The "slides" array should contain 6 to 8 slide objects. Choose the sequence and types of slides that best tell their story.
+For example, a "couple" might get an intro, a thread (texting), a polaroid, a radar chart (compatibility), and a finale. A "group" might get a roast, a versus board, a receipt, etc.
+Always start with an "intro" slide and end with a "finale" slide.
 
-Return ONLY a valid JSON object (no markdown, no backticks, no explanation) with this exact structure:
+**CRITICAL PHRASING RULES**:
+- If Purpose is "Love Story / Relationship", the entire wrap MUST use relational phrasing: "moments together", "our era", "songs we loved", "chats with each other". If the partner's name isn't provided, refer to them as "your partner" or use "Your Love Story". Do NOT just say "User's wrap".
+- If Purpose is "Group Chat Chaos", use group phrasing: "the squad", "our group chat", "messages we sent".
+- Metrics and labels must reflect this context (e.g., "Hours spent together" instead of "Time on the clock").
 
+Available slide types and their content schemas:
+
+1. "intro": { "kicker": "1-3 words", "lines": ["Word1", "Word2", "Word3"], "sub": "1-2 sentence subtitle" } (MUST have exactly 3 words in 'lines')
+2. "dataHighlight": { "kicker": "short label", "label": "what the number is", "note": "funny observation", "valueOverride": 1234 }
+3. "topTrack": { "kicker": "label", "artistLine": "creative description", "anthemTitleOverride": "song name" }
+4. "receipts": { "title": "receipt title", "rows": [{ "label": "metric", "value": "stat" }] } (MUST have exactly 4 rows)
+5. "versus": { "kicker": "label", "left": "name 1", "right": "name 2", "leagueTitle": "funny title" }
+6. "versusBoard": { "kicker": "label", "title": "board title", "games": [{ "team1": "A", "team2": "B", "competition": "context" }] } (MUST have exactly 4 games)
+7. "dashboard": { "topArtists": ["1","2","3"], "topSongs": ["1","2","3"], "topGenre": "genre" } (MUST have exactly 3 artists and 3 songs)
+8. "finale": { "tagline": "epic 1-sentence farewell" }
+9. "thread": { "kicker": "label", "messages": [{ "sender": "me"|"them", "text": "msg" }], "footerNote": "funny note" }
+10. "radar": { "title": "radar title", "traits": [{ "label": "Trait 1", "value": 85 }], "verdict": "short verdict" } (MUST have 3-5 traits with values 0-100)
+11. "quote": { "quote": "unhinged quote from their year", "author": "- someone" }
+12. "polaroid": { "kicker": "label", "captions": ["Caption 1", "Caption 2"] }
+13. "roast": { "title": "The Roast", "roastLines": ["Line 1", "Line 2", "Line 3"] }
+14. "award": { "awardName": "The Award", "recipientCategory": "Category", "reason": "Why they won" }
+
+Every slide object must also have a "design" object:
+"design": { "bg": "green"|"pink"|"yellow"|"ink"|"purple"|"orange", "ink": "...", "accent": "...", "layout": "split-left"|"split-right"|"centered"|"stacked", "bgPattern": "halftone"|"grid"|"dots"|"gradient"|"noise"|"clean", "decoration": "cubes"|"circles"|"stars"|"lines"|"none", "typoStyle": "massive"|"elegant"|"rotated"|"outlined" }
+
+DESIGN RULES:
+- bg and ink MUST be different colors. "ink" is a dark/black color.
+- If bg is "ink" (dark), ink text should be a bright color (green/pink/yellow/purple/orange).
+- If bg is a bright color, ink text should be "ink" (dark).
+- Vary the layouts, patterns, and typography styles heavily across the slides so every slide feels completely new!
+
+Return ONLY the JSON. No markdown code fences. No explanation.
+Example structure:
 {
-  "intro": {
-    "kicker": "2-3 word punchy intro label (e.g. 'Now Streaming', 'Main Character Alert')",
-    "lines": ["Word1", "Word2", "Word3"],
-    "sub": "1-2 sentence witty subtitle that references their story. Make it personal and cinematic."
-  },
-  "dataHighlight": {
-    "kicker": "2-4 word label for the big number slide (e.g. 'Time on the clock', 'The receipts are in')",
-    "label": "What the number represents (e.g. 'Days of chaos', 'Hours in transit')",
-    "note": "A witty 1-2 sentence observation about this number. Reference their story."
-  },
-  "topTrack": {
-    "kicker": "2-3 word label (e.g. 'Your anthem', 'On repeat')",
-    "artistLine": "A creative subtitle for the track card (e.g. 'the soundtrack of your villain arc')"
-  },
-  "receipts": {
-    "title": "A creative title for the stats receipt (e.g. 'The damage report', 'Chat wrapped')",
-    "rows": [
-      { "label": "Creative metric name personalized to their story", "value": "A fun made-up stat value" },
-      { "label": "Another personalized metric", "value": "Another stat" },
-      { "label": "Third metric", "value": "Third stat" },
-      { "label": "Fourth metric", "value": "Fourth stat" }
-    ]
-  },
-  "versus": {
-    "kicker": "2-3 word label (e.g. 'The main event', 'Head to head')",
-    "left": "Left side name — something from their story or a personality trait (1-3 words)",
-    "right": "Right side name — opposing thing (1-3 words)",
-    "leagueTitle": "A funny league/competition name relevant to their life"
-  },
-  "versusBoard": {
-    "kicker": "2-3 word label",
-    "title": "Creative board title (e.g. 'Top matchups', 'The bracket')",
-    "games": [
-      { "team1": "Something from their life", "team2": "Opposing thing", "competition": "Funny context" },
-      { "team1": "Another thing", "team2": "Another opposing", "competition": "Another context" },
-      { "team1": "Third thing", "team2": "Third opposing", "competition": "Third context" },
-      { "team1": "Fourth thing", "team2": "Fourth opposing", "competition": "Fourth context" }
-    ]
-  },
-  "dashboard": {
-    "topArtists": ["3 creative artist names or personality archetypes from their story"],
-    "topSongs": ["3 creative 'song titles' that are actually life moments from their story"],
-    "topGenre": "A funny made-up genre that describes their year (e.g. 'Chaotic Soft Pop')"
-  },
-  "finale": {
-    "tagline": "An epic, emotional 1-sentence farewell line. Make it feel like the end of a movie."
-  }
+  "slides": [
+    { "type": "intro", "design": { "bg": "green", "ink": "ink", "accent": "pink", "layout": "split-left", "bgPattern": "noise", "decoration": "none", "typoStyle": "massive" }, "content": { "kicker": "...", "lines": ["a", "b", "c"], "sub": "..." } },
+    { "type": "roast", "design": { ... }, "content": { "title": "...", "roastLines": [...] } }
+  ]
 }
-
-CRITICAL: 
-- The "lines" array in "intro" MUST have exactly 3 short items (1-2 words each) — they're displayed as giant stacked text.
-- "receipts.rows" MUST have exactly 4 items.
-- "versusBoard.games" MUST have exactly 4 items.
-- "dashboard.topArtists" MUST have exactly 3 items.
-- "dashboard.topSongs" MUST have exactly 3 items.
-- Make "versus" entries feel like a personal battle/duality from their life, not generic sports.
-- Make "versusBoard.games" entries feel like life moments or personality clashes, not actual sports games.
-- Return ONLY the JSON. No markdown code fences. No explanation.`
+`
 }
 
 /** Attempt to repair truncated JSON by closing open structures */
 function repairJson(raw: string): string {
   let s = raw.trim()
-  // Remove trailing commas before closing brackets
-  s = s.replace(/,\s*$/, "")
+  s = s.replace(/,\\s*$/, "")
 
-  // Count open/close braces and brackets
   let braces = 0
   let brackets = 0
   let inString = false
@@ -133,7 +107,7 @@ function repairJson(raw: string): string {
 
   for (const ch of s) {
     if (escape) { escape = false; continue }
-    if (ch === "\\") { escape = true; continue }
+    if (ch === "\\\\") { escape = true; continue }
     if (ch === '"') { inString = !inString; continue }
     if (inString) continue
     if (ch === "{") braces++
@@ -142,29 +116,21 @@ function repairJson(raw: string): string {
     else if (ch === "]") brackets--
   }
 
-  // If we're inside a string, close it
   if (inString) s += '"'
-
-  // Close any open brackets/braces
   while (brackets > 0) { s += "]"; brackets-- }
   while (braces > 0) { s += "}"; braces-- }
-
   return s
 }
 
-/** Extract the actual text content from Gemini response (handles 2.5 Flash thinking parts) */
+/** Extract the actual text content from Gemini response */
 function extractGeminiText(response: Record<string, unknown>): string {
   const parts = (response as any)?.candidates?.[0]?.content?.parts
   if (!Array.isArray(parts) || parts.length === 0) return ""
-
-  // Gemini 2.5 Flash puts thinking in earlier parts, text in the last part
-  // Find the last part that has a "text" field (not a "thought" field)
   for (let i = parts.length - 1; i >= 0; i--) {
     if (parts[i].text !== undefined && !parts[i].thought) {
       return parts[i].text
     }
   }
-  // Fallback: just grab the last text
   for (let i = parts.length - 1; i >= 0; i--) {
     if (parts[i].text !== undefined) {
       return parts[i].text
@@ -177,28 +143,21 @@ export async function POST(req: NextRequest) {
   try {
     const apiKey = process.env.GEMINI_API_KEY
     if (!apiKey) {
-      return NextResponse.json(
-        { error: "GEMINI_API_KEY not configured" },
-        { status: 500 },
-      )
+      return NextResponse.json({ error: "GEMINI_API_KEY not configured" }, { status: 500 })
     }
 
     const body = await req.json()
     const prompt = buildPrompt(body)
 
     const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 45000) // 45s timeout for thinking model
+    const timeout = setTimeout(() => controller.abort(), 45000) // 45s timeout
 
     const res = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       signal: controller.signal,
       body: JSON.stringify({
-        contents: [
-          {
-            parts: [{ text: prompt }],
-          },
-        ],
+        contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
           temperature: 1.0,
           topP: 0.95,
@@ -214,87 +173,44 @@ export async function POST(req: NextRequest) {
     if (!res.ok) {
       const errText = await res.text()
       console.error("[generate-wrap] Gemini API error:", res.status, errText)
-      return NextResponse.json(
-        { error: `Gemini API returned ${res.status}` },
-        { status: 502 },
-      )
+      return NextResponse.json({ error: `Gemini API returned ${res.status}` }, { status: 502 })
     }
 
     const geminiResponse = await res.json()
-
-    // Check if the response was truncated (finish reason)
-    const finishReason = (geminiResponse as any)?.candidates?.[0]?.finishReason
-    if (finishReason && finishReason !== "STOP" && finishReason !== "END_TURN") {
-      console.warn("[generate-wrap] Non-standard finish reason:", finishReason)
-    }
-
-    // Extract the text from Gemini's response (handles 2.5 Flash thinking parts)
     const rawText = extractGeminiText(geminiResponse)
 
     if (!rawText) {
-      console.error("[generate-wrap] Empty response from Gemini. Full response:", JSON.stringify(geminiResponse).slice(0, 500))
-      return NextResponse.json(
-        { error: "Empty response from AI" },
-        { status: 502 },
-      )
+      return NextResponse.json({ error: "Empty response from AI" }, { status: 502 })
     }
 
-    // Clean up potential markdown fences
     let cleaned = rawText.trim()
     if (cleaned.startsWith("```")) {
-      cleaned = cleaned.replace(/^```(?:json)?\s*/, "").replace(/\s*```$/, "")
+      cleaned = cleaned.replace(/^```(?:json)?\\s*/, "").replace(/\\s*```$/, "")
     }
 
-    // Try parsing, with repair on failure
     let parsed: Record<string, unknown>
     try {
       parsed = JSON.parse(cleaned)
     } catch {
-      console.warn("[generate-wrap] JSON parse failed, attempting repair...")
       try {
         const repaired = repairJson(cleaned)
         parsed = JSON.parse(repaired)
-        console.log("[generate-wrap] JSON repair succeeded")
       } catch (e2) {
-        console.error("[generate-wrap] JSON repair also failed. Raw text (first 1000 chars):", cleaned.slice(0, 1000))
-        return NextResponse.json(
-          { error: "AI returned malformed JSON" },
-          { status: 502 },
-        )
+        return NextResponse.json({ error: "AI returned malformed JSON" }, { status: 502 })
       }
     }
 
-    // Basic structural validation
-    if (
-      !parsed.intro ||
-      !parsed.dataHighlight ||
-      !parsed.topTrack ||
-      !parsed.receipts ||
-      !parsed.versus ||
-      !parsed.versusBoard ||
-      !parsed.dashboard ||
-      !parsed.finale
-    ) {
-      console.error("[generate-wrap] Invalid JSON structure. Keys found:", Object.keys(parsed))
-      return NextResponse.json(
-        { error: "AI returned invalid structure" },
-        { status: 502 },
-      )
+    if (!parsed.slides || !Array.isArray(parsed.slides)) {
+      console.error("[generate-wrap] Invalid JSON structure. Missing slides array.")
+      return NextResponse.json({ error: "AI returned invalid structure" }, { status: 502 })
     }
 
     return NextResponse.json({ content: parsed })
   } catch (err) {
     if (err instanceof Error && err.name === "AbortError") {
-      return NextResponse.json(
-        { error: "AI generation timed out" },
-        { status: 504 },
-      )
+      return NextResponse.json({ error: "AI generation timed out" }, { status: 504 })
     }
     console.error("[generate-wrap] Unexpected error:", err)
-    return NextResponse.json(
-      { error: "Failed to generate content" },
-      { status: 500 },
-    )
+    return NextResponse.json({ error: "Failed to generate content" }, { status: 500 })
   }
 }
-
