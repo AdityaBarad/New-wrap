@@ -44,7 +44,7 @@ function SpikyLayer({
 }) {
   return (
     <motion.div
-      className={`absolute ${className ?? ""}`}
+      className={`absolute gpu-layer backface-hidden ${className ?? ""}`}
       animate={{ rotate: reverse ? -360 : 360 }}
       transition={{ repeat: Number.POSITIVE_INFINITY, ease: "linear", duration }}
     >
@@ -75,7 +75,7 @@ function CloudLayer({
   })
   return (
     <motion.div
-      className={`absolute ${className ?? ""}`}
+      className={`absolute gpu-layer backface-hidden ${className ?? ""}`}
       animate={{ rotate: reverse ? -360 : 360 }}
       transition={{ repeat: Number.POSITIVE_INFINITY, ease: "linear", duration }}
     >
@@ -104,17 +104,20 @@ export function Burst({
   palette,
   className,
   delay = 0,
+  layoutId,
 }: {
   photo?: string
   palette: BurstPalette
   className?: string
   delay?: number
+  layoutId?: string
 }) {
   const springConfig = { type: "spring" as const, stiffness: 120, damping: 14 }
   
   return (
     <motion.div
-      className={`relative aspect-square ${className ?? ""}`}
+      layoutId={layoutId}
+      className={`relative aspect-square gpu-layer ${className ?? ""}`}
     >
       {/* Layer 1: Background Checkerboard Grid */}
       <motion.div
@@ -182,13 +185,13 @@ export function Burst({
 
       {/* Layer 4: Spiky Outer Ring (Lime Green) with rotation */}
       <motion.div
-        className="absolute inset-0"
+        className="absolute inset-0 gpu-layer backface-hidden"
         initial={{ opacity: 0, scale: 0 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ ...springConfig, delay: delay + 0.3 }}
       >
         <motion.div
-          className="absolute inset-0"
+          className="absolute inset-0 gpu-layer backface-hidden"
           animate={{ rotate: 360 }}
           transition={{ repeat: Number.POSITIVE_INFINITY, ease: "linear", duration: 20 }}
         >

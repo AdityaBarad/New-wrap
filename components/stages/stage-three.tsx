@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { AnimatePresence, motion } from "framer-motion"
+import { AnimatePresence, LayoutGroup, motion } from "framer-motion"
 import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react"
 import { useWrap } from "@/context/wrap-context"
 import { buildPages } from "@/components/player/pages"
@@ -78,9 +78,44 @@ export function StageThree() {
 
   const current = pages[index]
   const isLast = index === pages.length - 1
+  const { theme } = current
+
+  /* -------------------------------------------------------------- */
+  /* Spatial transition variants (profile-driven)                    */
+  /* -------------------------------------------------------------- */
+  const spatialVariants = {
+    enter: (d: number) => ({
+      x: d * theme.enter.x,
+      y: d * theme.enter.y,
+      scale: theme.enter.scale,
+      rotate: d * theme.enter.rotate,
+      opacity: 0,
+    }),
+    center: {
+      x: 0,
+      y: 0,
+      scale: 1,
+      rotate: 0,
+      opacity: 1,
+    },
+    exit: (d: number) => ({
+      x: d * theme.exit.x,
+      y: d * theme.exit.y,
+      scale: theme.exit.scale,
+      rotate: d * theme.exit.rotate,
+      opacity: 0,
+    }),
+  }
 
   return (
     <div className="fixed inset-0 z-50 h-[100dvh] w-screen overflow-hidden bg-ink select-none">
+      {/* smooth background color crossfade */}
+      <motion.div
+        className="absolute inset-0 gpu-layer"
+        animate={{ backgroundColor: current.bg }}
+        transition={{ duration: 0.6, ease: "easeInOut" }}
+      />
+
       {/* progress bars */}
       <div className="absolute inset-x-0 top-0 z-30 flex gap-1.5 p-3 md:p-4">
         {pages.map((_, i) => (
@@ -107,21 +142,28 @@ export function StageThree() {
         className="absolute inset-y-0 right-0 z-20 w-1/2 cursor-e-resize"
       />
 
-      {/* pages */}
-      <AnimatePresence mode="popLayout" custom={dir}>
-        <motion.div
-          key={current.key}
-          custom={dir}
-          initial={{ opacity: 0, x: dir * 120, scale: 0.92, rotate: dir * 2 }}
-          animate={{ opacity: 1, x: 0, scale: 1, rotate: 0 }}
-          exit={{ opacity: 0, x: dir * -120, scale: 0.92, rotate: dir * -2 }}
-          transition={{ type: "spring", stiffness: 260, damping: 26, mass: 0.9 }}
-          className="absolute inset-0 flex items-center justify-center"
-          style={{ backgroundColor: current.bg }}
-        >
-          {current.node}
-        </motion.div>
-      </AnimatePresence>
+      {/* spatial slide transitions with shared layout group */}
+      <LayoutGroup>
+        <AnimatePresence mode="wait" custom={dir}>
+          <motion.div
+            key={current.key}
+            custom={dir}
+            variants={spatialVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{
+              type: "spring",
+              stiffness: theme.spring.stiffness,
+              damping: theme.spring.damping,
+              mass: theme.spring.mass,
+            }}
+            className="absolute inset-0 flex items-center justify-center gpu-layer backface-hidden"
+          >
+            {current.node}
+          </motion.div>
+        </AnimatePresence>
+      </LayoutGroup>
 
       {/* top-right glassmorphism controls */}
       <div className="absolute right-3 top-8 z-30 flex items-center gap-2 md:right-4 md:top-10">

@@ -1,8 +1,17 @@
 "use client"
 
-import { useState } from "react"
-import { buildPages } from "@/components/player/pages"
-import { WrapProvider, type WrapData } from "@/context/wrap-context"
+import { useEffect } from "react"
+import { WrapProvider, useWrap, type WrapData } from "@/context/wrap-context"
+import { StageThree } from "@/components/stages/stage-three"
+
+/**
+ * Preview page that renders the full spatial slide engine
+ * with sample data for development & design QA.
+ *
+ * Uses the same StageThree player component (with spatial
+ * transitions, shared elements, parallax layers) so the
+ * preview is identical to what users see in production.
+ */
 
 const sample: WrapData = {
   name: "Zeynep",
@@ -24,6 +33,22 @@ const sample: WrapData = {
     { name: "2", url: "/wrapped-portrait-2.png" },
     { name: "3", url: "/wrapped-portrait-3.png" },
   ],
+  storyParagraph: "",
+}
+
+/**
+ * Inner component that auto-advances the context to stage 3
+ * so the WrapProvider renders the player immediately.
+ */
+function PreviewInner() {
+  const { setStage, update } = useWrap()
+
+  useEffect(() => {
+    update(sample)
+    setStage(3)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  return <StageThree />
 }
 
 export default function PreviewPlayer() {
@@ -31,27 +56,5 @@ export default function PreviewPlayer() {
     <WrapProvider>
       <PreviewInner />
     </WrapProvider>
-  )
-}
-
-function PreviewInner() {
-  const [i, setI] = useState(0)
-  const pages = buildPages(sample)
-  const page = pages[i]
-  return (
-    <div className="fixed inset-0 bg-ink">
-      <div className="absolute inset-0" style={{ backgroundColor: page.bg }}>
-        {page.node}
-      </div>
-      <div className="absolute bottom-2 left-1/2 z-50 flex -translate-x-1/2 gap-1">
-        {pages.map((_, n) => (
-          <button
-            key={n}
-            onClick={() => setI(n)}
-            className={`size-3 rounded-full border border-white ${n === i ? "bg-white" : "bg-transparent"}`}
-          />
-        ))}
-      </div>
-    </div>
   )
 }

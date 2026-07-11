@@ -8,11 +8,31 @@ import { useWrap, type WrapData } from "@/context/wrap-context"
 import { PURPOSES } from "@/context/wrap-context"
 import { buildStats, fmt, type WrapStats } from "@/lib/wrap-stats"
 import type { AiWrapContent } from "@/lib/ai-types"
+import {
+  SLIDE_PROFILES,
+  getSlideProfile,
+  resolveTheme,
+  type SlideDesignProfile,
+} from "@/lib/design-tokens"
+import { SpatialShell, SlideDesignProvider } from "@/components/player/spatial-shell"
+import { SharedAvatar, SharedMetric, SharedHeading } from "@/components/player/shared-elements"
+import { BackgroundWarp, SegmentedOverlay, RadialGlow } from "@/components/player/background-warp"
 
-export type WrapPage = { key: string; bg: string; node: ReactNode }
+export type WrapPage = {
+  key: string
+  bg: string
+  node: ReactNode
+  /** Design profile driving the spatial transition engine */
+  theme: SlideDesignProfile
+}
 
-/* fluid spring physics used across every slide */
+/* ------------------------------------------------------------------ */
+/* Spring presets (derived from design profiles or used as fallbacks)  */
+/* ------------------------------------------------------------------ */
+
 const SPRING = { type: "spring", stiffness: 120, damping: 14 } as const
+const SPRING_HEAVY = { type: "spring", stiffness: 260, damping: 26 } as const
+const SPRING_SNAPPY = { type: "spring", stiffness: 280, damping: 24 } as const
 const HASHTAG = "#YOURLIFEWRAPPED"
 
 /* palette presets keyed by the card background (for the Burst monogram) */
@@ -50,23 +70,27 @@ function useCountUp(target: number, duration = 1500) {
   return val
 }
 
-/* ---------- shared primitives ---------- */
+/* ================================================================== */
+/* SHARED PRIMITIVES — upgraded with spatial layers                    */
+/* ================================================================== */
 
-function Shell({ children }: { children: ReactNode }) {
-  return <div className="relative h-full w-full overflow-hidden">{children}</div>
-}
-
-/** Heading revealed line-by-line through clipping masks (translateY out of a clip). */
+/**
+ * Heading revealed character-by-character with staggered clip masks.
+ * GPU-safe: uses only translateY + opacity + rotate.
+ */
 function ClipHeading({
   lines,
   ink,
   className,
   delay = 0.15,
+  charLevel = false,
 }: {
   lines: string[]
   ink: string
   className?: string
   delay?: number
+  /** Enable character-level staggered reveal */
+  charLevel?: boolean
 }) {
   return (
     <h2
@@ -78,14 +102,43 @@ function ClipHeading({
     >
       {lines.map((l, i) => (
         <span key={i} className="block overflow-hidden pb-[0.06em]">
-          <motion.span
-            className="block"
-            initial={{ y: "110%", rotate: 4 }}
-            animate={{ y: "0%", rotate: 0 }}
-            transition={{ ...SPRING, delay: delay + i * 0.11 }}
-          >
-            {l}
-          </motion.span>
+          {charLevel ? (
+            <motion.span
+              className="block"
+              initial="hidden"
+              animate="show"
+              variants={{
+                show: { transition: { staggerChildren: 0.025, delayChildren: delay + i * 0.11 } },
+              }}
+            >
+              {l.split("").map((char, ci) => (
+                <motion.span
+                  key={ci}
+                  className="inline-block gpu-layer"
+                  variants={{
+                    hidden: { y: "110%", opacity: 0, rotate: 6 },
+                    show: {
+                      y: "0%",
+                      opacity: 1,
+                      rotate: 0,
+                      transition: SPRING,
+                    },
+                  }}
+                >
+                  {char === " " ? "\u00A0" : char}
+                </motion.span>
+              ))}
+            </motion.span>
+          ) : (
+            <motion.span
+              className="block gpu-layer"
+              initial={{ y: "110%", rotate: 4 }}
+              animate={{ y: "0%", rotate: 0 }}
+              transition={{ ...SPRING, delay: delay + i * 0.11 }}
+            >
+              {l}
+            </motion.span>
+          )}
         </span>
       ))}
     </h2>
@@ -98,7 +151,7 @@ function Kicker({ children, ink, delay = 0.1 }: { children: ReactNode; ink: stri
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 0.7, y: 0 }}
       transition={{ ...SPRING, delay }}
-      className="font-display text-xs font-black uppercase tracking-[0.32em] md:text-sm"
+      className="font-display text-xs font-black uppercase tracking-[0.32em] md:text-sm gpu-layer"
       style={{ color: ink }}
     >
       {children}
@@ -108,6 +161,7 @@ function Kicker({ children, ink, delay = 0.1 }: { children: ReactNode; ink: stri
 
 /* ================================================================== */
 /* SLIDE 1 — THE UNIVERSE (cover / intro)                             */
+/* Spatial layers: BackgroundWarp + Halftone + Content + SharedAvatar  */
 /* ================================================================== */
 
 function IntroUniverse({
@@ -127,17 +181,18 @@ function IntroUniverse({
 }) {
   const palette = PALETTES[bg] ?? PALETTES["var(--wr-green)"]
   return (
-    <Shell>
-      <Halftone dark={bg !== "var(--wr-ink)"} />
+    <SpatialShell showWarp showHalftone>
       <div className="relative grid h-full w-full grid-cols-1 items-center gap-6 px-6 py-10 md:grid-cols-[1.05fr_0.95fr] md:px-14">
         <div className="flex h-full flex-col justify-center gap-5">
           <Kicker ink={ink}>{kicker}</Kicker>
-          <ClipHeading lines={lines} ink={ink} delay={0.2} />
+          <SharedHeading variant="intro">
+            <ClipHeading lines={lines} ink={ink} delay={0.2} charLevel />
+          </SharedHeading>
           <motion.p
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...SPRING, delay: 0.6 }}
-            className="max-w-md font-sans text-base font-semibold leading-relaxed md:text-lg"
+            className="max-w-md font-sans text-base font-semibold leading-relaxed md:text-lg gpu-layer"
             style={{ color: ink }}
           >
             {sub}
@@ -147,15 +202,18 @@ function IntroUniverse({
           </div>
         </div>
         <div className="flex items-center justify-center">
-          <Burst photo={photo} palette={palette} className="w-[74vw] max-w-[26rem] md:w-full" />
+          <SharedAvatar variant="hero">
+            <Burst photo={photo} palette={palette} className="w-[74vw] max-w-[26rem] md:w-full" />
+          </SharedAvatar>
         </div>
       </div>
-    </Shell>
+    </SpatialShell>
   )
 }
 
 /* ================================================================== */
 /* SLIDE 2 — DATA HIGHLIGHT (kinetic grid + count up)                 */
+/* Spatial layers: Grid overlay + FloatingCubes in particle layer      */
 /* ================================================================== */
 
 function FloatingCube({
@@ -176,7 +234,7 @@ function FloatingCube({
   return (
     <motion.div
       aria-hidden="true"
-      className="pointer-events-none absolute"
+      className="pointer-events-none absolute gpu-layer backface-hidden"
       style={{ left: x, top: y }}
       initial={{ opacity: 0, scale: 0.4 }}
       animate={{ opacity: 0.9, scale: 1, y: [0, -12, 0], rotate: [0, 8, 0] }}
@@ -186,8 +244,17 @@ function FloatingCube({
         y: { duration: 4.5 + delay, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" },
         rotate: { duration: 6 + delay, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" },
       }}
+      whileHover={{ scale: 1.3, rotate: 15 }}
+      whileTap={{ scale: 0.8 }}
     >
-      <div style={{ width: size, height: size, background: color, boxShadow: `${size * 0.14}px ${size * 0.14}px 0 ${ink}` }} />
+      <div
+        style={{
+          width: size,
+          height: size,
+          background: color,
+          boxShadow: `${size * 0.14}px ${size * 0.14}px 0 ${ink}`,
+        }}
+      />
     </motion.div>
   )
 }
@@ -210,37 +277,33 @@ function DataHighlight({
   note: string
 }) {
   const count = useCountUp(value, 1500)
-  return (
-    <Shell>
-      {/* scrolling grid wall */}
-      <motion.div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
-        style={{
-          backgroundImage: `linear-gradient(${ink}22 1px, transparent 1px), linear-gradient(90deg, ${ink}22 1px, transparent 1px)`,
-          backgroundSize: "44px 44px",
-        }}
-        animate={{ backgroundPosition: ["0px 0px", "44px 44px"] }}
-        transition={{ duration: 6, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-      />
+
+  const particles = (
+    <>
       <FloatingCube size={54} x="12%" y="18%" color={accent} ink={ink} delay={0.2} />
       <FloatingCube size={34} x="82%" y="24%" color={accent} ink={ink} delay={0.6} />
       <FloatingCube size={44} x="76%" y="70%" color={accent} ink={ink} delay={0.4} />
       <FloatingCube size={28} x="16%" y="72%" color={accent} ink={ink} delay={0.8} />
+    </>
+  )
 
+  return (
+    <SpatialShell showGrid showHalftone particles={particles}>
       <div className="relative flex h-full w-full flex-col items-center justify-center px-6 text-center">
         <Kicker ink={ink}>{kicker}</Kicker>
-        <p
-          className="my-1 font-display text-[26vw] font-black leading-[0.8] tracking-tighter tabular-nums md:text-[15rem]"
-          style={{ color: ink }}
-        >
-          {fmt(count)}
-        </p>
+        <SharedMetric variant="large">
+          <p
+            className="my-1 font-display text-[26vw] font-black leading-[0.8] tracking-tighter tabular-nums md:text-[15rem]"
+            style={{ color: ink }}
+          >
+            {fmt(count)}
+          </p>
+        </SharedMetric>
         <motion.p
           initial={{ opacity: 0, y: 20, scale: 0.94 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ ...SPRING, delay: 0.9 }}
-          className="font-display text-2xl font-black uppercase tracking-tight md:text-4xl"
+          className="font-display text-2xl font-black uppercase tracking-tight md:text-4xl gpu-layer"
           style={{ color: ink }}
         >
           {label}
@@ -249,7 +312,7 @@ function DataHighlight({
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ ...SPRING, delay: 1.15 }}
-          className="mt-4 max-w-md font-sans text-base font-semibold leading-relaxed"
+          className="mt-4 max-w-md font-sans text-base font-semibold leading-relaxed gpu-layer"
           style={{ color: ink, opacity: 0.85 }}
         >
           {note}
@@ -258,12 +321,13 @@ function DataHighlight({
           <WrapFooter ink={ink} hashtag={HASHTAG} />
         </div>
       </div>
-    </Shell>
+    </SpatialShell>
   )
 }
 
 /* ================================================================== */
 /* SLIDE 3 — TOP TRACK (typography wall + spinning vinyl)             */
+/* Spatial layers: Marquee grid layer + SharedAvatar vinyl             */
 /* ================================================================== */
 
 function MarqueeRow({
@@ -286,7 +350,7 @@ function MarqueeRow({
   ))
   return (
     <motion.div
-      className="flex whitespace-nowrap font-display text-6xl font-black uppercase tracking-tight md:text-8xl"
+      className="flex whitespace-nowrap font-display text-6xl font-black uppercase tracking-tight gpu-layer md:text-8xl"
       style={
         outline
           ? { color: "transparent", WebkitTextStroke: `2px ${ink}`, opacity: 0.35 }
@@ -319,8 +383,8 @@ function TopTrack({
   photo?: string
 }) {
   return (
-    <Shell>
-      {/* moving typography wall */}
+    <SpatialShell showWarp>
+      {/* moving typography wall — in content layer */}
       <div className="pointer-events-none absolute inset-0 flex flex-col justify-between py-6">
         <MarqueeRow text={HASHTAG} ink={ink} duration={22} />
         <MarqueeRow text={HASHTAG} ink={ink} duration={16} reverse outline />
@@ -331,20 +395,22 @@ function TopTrack({
       <div className="relative grid h-full w-full grid-cols-1 items-center gap-8 px-6 py-10 md:grid-cols-[1.15fr_0.85fr] md:px-14">
         <div className="flex flex-col justify-center gap-3">
           <Kicker ink={ink}>{kicker}</Kicker>
-          <motion.h2
-            initial={{ opacity: 0, scale: 2.2, rotate: -4 }}
-            animate={{ opacity: 1, scale: 1, rotate: -1.5 }}
-            transition={{ type: "spring", stiffness: 170, damping: 15, delay: 0.1 }}
-            className="font-display text-6xl font-black uppercase leading-[0.85] tracking-tight text-balance md:text-8xl"
-            style={{ color: ink }}
-          >
-            {title}
-          </motion.h2>
+          <SharedHeading variant="track">
+            <motion.h2
+              initial={{ opacity: 0, scale: 2.2, rotate: -4 }}
+              animate={{ opacity: 1, scale: 1, rotate: -1.5 }}
+              transition={{ ...SPRING_SNAPPY, delay: 0.1 }}
+              className="font-display text-6xl font-black uppercase leading-[0.85] tracking-tight text-balance gpu-layer md:text-8xl"
+              style={{ color: ink }}
+            >
+              {title}
+            </motion.h2>
+          </SharedHeading>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...SPRING, delay: 0.5 }}
-            className="font-display text-lg font-black uppercase tracking-widest"
+            className="font-display text-lg font-black uppercase tracking-widest gpu-layer"
             style={{ color: accent }}
           >
             {artist}
@@ -355,43 +421,46 @@ function TopTrack({
         <motion.div
           initial={{ opacity: 0, x: 80, rotate: 8 }}
           animate={{ opacity: 1, x: 0, rotate: 0 }}
-          transition={{ ...SPRING, delay: 0.35 }}
-          className="flex items-center justify-center"
+          transition={{ ...SPRING_HEAVY, delay: 0.35 }}
+          className="flex items-center justify-center gpu-layer"
         >
           <div
             className="relative w-[60vw] max-w-[18rem] border-4 p-4 md:w-full"
             style={{ borderColor: ink, backgroundColor: "var(--wr-ink)" }}
           >
-            <motion.div
-              className="relative mx-auto aspect-square w-full overflow-hidden rounded-full border-4"
-              style={{ borderColor: accent }}
-              animate={{ rotate: 360 }}
-              transition={{ duration: 8, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={photo || "/wrapped-portrait-1.png"}
-                alt="Now playing artwork"
-                className="h-full w-full object-cover"
-                crossOrigin="anonymous"
-              />
-              <span
-                className="absolute left-1/2 top-1/2 size-8 -translate-x-1/2 -translate-y-1/2 rounded-full border-2"
-                style={{ backgroundColor: "var(--wr-ink)", borderColor: accent }}
-              />
-            </motion.div>
+            <SharedAvatar variant="vinyl">
+              <motion.div
+                className="relative mx-auto aspect-square w-full overflow-hidden rounded-full border-4 gpu-layer backface-hidden"
+                style={{ borderColor: accent }}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 8, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={photo || "/wrapped-portrait-1.png"}
+                  alt="Now playing artwork"
+                  className="h-full w-full object-cover"
+                  crossOrigin="anonymous"
+                />
+                <span
+                  className="absolute left-1/2 top-1/2 size-8 -translate-x-1/2 -translate-y-1/2 rounded-full border-2"
+                  style={{ backgroundColor: "var(--wr-ink)", borderColor: accent }}
+                />
+              </motion.div>
+            </SharedAvatar>
             <p className="mt-3 text-center font-display text-xs font-black uppercase tracking-widest text-cream/70">
               On Repeat
             </p>
           </div>
         </motion.div>
       </div>
-    </Shell>
+    </SpatialShell>
   )
 }
 
 /* ================================================================== */
 /* SLIDE 4 — THE RECEIPTS (staggered leaderboard)                     */
+/* Spatial layers: Halftone + enhanced stagger cascade                 */
 /* ================================================================== */
 
 function Receipts({
@@ -408,8 +477,7 @@ function Receipts({
   rows: { label: string; value: string; pct: number }[]
 }) {
   return (
-    <Shell>
-      <Halftone dark={bg !== "var(--wr-ink)"} />
+    <SpatialShell showHalftone showGrid>
       <div className="relative flex h-full w-full flex-col justify-center gap-5 px-6 md:px-14">
         <Kicker ink={ink}>{kicker}</Kicker>
         <ClipHeading
@@ -428,11 +496,12 @@ function Receipts({
             <motion.div
               key={i}
               variants={{
-                hidden: { opacity: 0, x: -40 },
-                show: { opacity: 1, x: 0, transition: SPRING },
+                hidden: { opacity: 0, x: -40, rotate: -2 },
+                show: { opacity: 1, x: 0, rotate: 0, transition: { ...SPRING_HEAVY } },
               }}
-              whileHover={{ scale: 1.03 }}
-              className="flex flex-col gap-1.5"
+              whileHover={{ scale: 1.03, x: 8 }}
+              whileTap={{ scale: 0.98 }}
+              className="flex flex-col gap-1.5 gpu-layer"
             >
               <div className="flex items-baseline justify-between gap-4">
                 <span
@@ -448,11 +517,11 @@ function Receipts({
               </div>
               <div className="h-2.5 w-full overflow-hidden rounded-full" style={{ backgroundColor: `${ink}22` }}>
                 <motion.div
-                  className="h-full rounded-full"
+                  className="h-full rounded-full gpu-layer"
                   style={{ backgroundColor: ink }}
                   initial={{ width: "0%" }}
                   animate={{ width: `${r.pct}%` }}
-                  transition={{ ...SPRING, delay: 0.5 + i * 0.14 }}
+                  transition={{ type: "spring", stiffness: 180, damping: 22, delay: 0.5 + i * 0.14 }}
                 />
               </div>
             </motion.div>
@@ -462,12 +531,13 @@ function Receipts({
           <WrapFooter ink={ink} hashtag={HASHTAG} />
         </div>
       </div>
-    </Shell>
+    </SpatialShell>
   )
 }
 
 /* ================================================================== */
 /* SLIDE 5 — VERSUS LEAGUE (crashing headline + geometric window)     */
+/* Spatial layers: Halftone + heavy crash springs                      */
 /* ================================================================== */
 
 const SLANT_CLIP = "polygon(12% 0, 100% 0, 88% 100%, 0 100%)"
@@ -492,18 +562,17 @@ function VersusLeague({
   photo?: string
 }) {
   return (
-    <Shell>
-      <Halftone dark={bg !== "var(--wr-ink)"} />
+    <SpatialShell showHalftone showWarp>
       <div className="relative flex h-full w-full flex-col justify-center gap-6 px-6 py-10 md:px-14">
         <Kicker ink={ink}>{kicker}</Kicker>
 
-        {/* crashing team names */}
+        {/* crashing team names — heavy spring physics */}
         <div className="relative flex items-center justify-center gap-3 md:gap-6">
           <motion.span
             initial={{ x: "-120%", opacity: 0 }}
             animate={{ x: "0%", opacity: 1 }}
-            transition={{ type: "spring", stiffness: 140, damping: 12, delay: 0.15 }}
-            className="flex-1 text-right font-display text-4xl font-black uppercase leading-[0.85] tracking-tight md:text-6xl"
+            transition={{ type: "spring", stiffness: 260, damping: 12, delay: 0.15 }}
+            className="flex-1 text-right font-display text-4xl font-black uppercase leading-[0.85] tracking-tight gpu-layer md:text-6xl"
             style={{ color: ink }}
           >
             {left}
@@ -511,8 +580,8 @@ function VersusLeague({
           <motion.span
             initial={{ scale: 0, rotate: -30 }}
             animate={{ scale: 1, rotate: -6 }}
-            transition={{ type: "spring", stiffness: 260, damping: 12, delay: 0.55 }}
-            className="shrink-0 font-display text-3xl font-black uppercase md:text-5xl"
+            transition={{ type: "spring", stiffness: 300, damping: 12, delay: 0.55 }}
+            className="shrink-0 font-display text-3xl font-black uppercase gpu-layer md:text-5xl"
             style={{ color: accent }}
           >
             vs
@@ -520,20 +589,20 @@ function VersusLeague({
           <motion.span
             initial={{ x: "120%", opacity: 0 }}
             animate={{ x: "0%", opacity: 1 }}
-            transition={{ type: "spring", stiffness: 140, damping: 12, delay: 0.15 }}
-            className="flex-1 text-left font-display text-4xl font-black uppercase leading-[0.85] tracking-tight md:text-6xl"
+            transition={{ type: "spring", stiffness: 260, damping: 12, delay: 0.15 }}
+            className="flex-1 text-left font-display text-4xl font-black uppercase leading-[0.85] tracking-tight gpu-layer md:text-6xl"
             style={{ color: ink }}
           >
             {right}
           </motion.span>
         </div>
 
-        {/* geometric media window */}
+        {/* geometric media window with depth */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.7 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ ...SPRING, delay: 0.7 }}
-          className="mx-auto aspect-[16/7] w-full max-w-2xl overflow-hidden"
+          initial={{ opacity: 0, scale: 0.7, y: 40 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ ...SPRING_HEAVY, delay: 0.7 }}
+          className="mx-auto aspect-[16/7] w-full max-w-2xl overflow-hidden gpu-layer"
           style={{ clipPath: SLANT_CLIP, backgroundColor: ink }}
         >
           {photo && (
@@ -545,7 +614,7 @@ function VersusLeague({
               crossOrigin="anonymous"
               initial={{ scale: 1.3 }}
               animate={{ scale: 1 }}
-              transition={{ ...SPRING, delay: 0.7 }}
+              transition={{ ...SPRING_HEAVY, delay: 0.7 }}
             />
           )}
         </motion.div>
@@ -554,7 +623,7 @@ function VersusLeague({
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...SPRING, delay: 0.95 }}
-          className="text-center font-display text-lg font-black uppercase tracking-widest"
+          className="text-center font-display text-lg font-black uppercase tracking-widest gpu-layer"
           style={{ color: ink, opacity: 0.75 }}
         >
           {leagueTitle}
@@ -563,12 +632,13 @@ function VersusLeague({
           <WrapFooter ink={ink} hashtag={HASHTAG} />
         </div>
       </div>
-    </Shell>
+    </SpatialShell>
   )
 }
 
 /* ================================================================== */
 /* SLIDE 6 — VERSUS BOARD (ranked matchups crashing in)               */
+/* Spatial layers: Halftone + alternating-side row entries             */
 /* ================================================================== */
 
 function VersusBoard({
@@ -587,8 +657,7 @@ function VersusBoard({
   games: { rank: number; team1: string; team2: string; competition: string }[]
 }) {
   return (
-    <Shell>
-      <Halftone dark={bg !== "var(--wr-ink)"} />
+    <SpatialShell showHalftone showGrid>
       <div className="relative flex h-full w-full flex-col justify-center gap-4 px-6 py-10 md:px-14">
         <Kicker ink={ink}>{kicker}</Kicker>
         <ClipHeading
@@ -601,23 +670,30 @@ function VersusBoard({
           {games.map((g, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ ...SPRING, delay: 0.25 + i * 0.12 }}
-              whileHover={{ scale: 1.02 }}
-              className="grid grid-cols-[auto_1fr] items-center gap-4 border-b-[3px] pb-3.5"
+              initial={{ opacity: 0, x: i % 2 === 0 ? -60 : 60, rotate: i % 2 === 0 ? -3 : 3 }}
+              animate={{ opacity: 1, x: 0, rotate: 0 }}
+              transition={{ ...SPRING_HEAVY, delay: 0.25 + i * 0.12 }}
+              whileHover={{ scale: 1.02, x: 6 }}
+              whileTap={{ scale: 0.98 }}
+              className="grid grid-cols-[auto_1fr] items-center gap-4 border-b-[3px] pb-3.5 gpu-layer"
               style={{ borderColor: ink }}
             >
-              <span className="font-display text-4xl font-black leading-none md:text-6xl" style={{ color: accent }}>
+              <motion.span
+                className="font-display text-4xl font-black leading-none md:text-6xl"
+                style={{ color: accent }}
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 300, damping: 18, delay: 0.3 + i * 0.12 }}
+              >
                 {g.rank}
-              </span>
+              </motion.span>
               <div className="flex flex-col gap-0.5">
                 <div className="flex flex-wrap items-baseline gap-x-3">
                   <motion.span
                     initial={{ x: -30, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
-                    transition={{ ...SPRING, delay: 0.35 + i * 0.12 }}
-                    className="font-display text-xl font-black uppercase md:text-3xl"
+                    transition={{ ...SPRING_HEAVY, delay: 0.35 + i * 0.12 }}
+                    className="font-display text-xl font-black uppercase gpu-layer md:text-3xl"
                     style={{ color: ink }}
                   >
                     {g.team1}
@@ -628,8 +704,8 @@ function VersusBoard({
                   <motion.span
                     initial={{ x: 30, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
-                    transition={{ ...SPRING, delay: 0.35 + i * 0.12 }}
-                    className="font-display text-xl font-black uppercase md:text-3xl"
+                    transition={{ ...SPRING_HEAVY, delay: 0.35 + i * 0.12 }}
+                    className="font-display text-xl font-black uppercase gpu-layer md:text-3xl"
                     style={{ color: ink }}
                   >
                     {g.team2}
@@ -646,12 +722,13 @@ function VersusBoard({
           ))}
         </div>
       </div>
-    </Shell>
+    </SpatialShell>
   )
 }
 
 /* ================================================================== */
 /* SLIDE 7 — DASHBOARD (festival ticket / receipt stub)               */
+/* Spatial layers: Halftone + SharedAvatar + SharedMetric in ticket    */
 /* ================================================================== */
 
 function DashboardTicket({
@@ -676,16 +753,15 @@ function DashboardTicket({
   const cardRef = useRef<HTMLDivElement>(null)
   const inView = useInView(cardRef, { once: true })
   return (
-    <Shell>
-      <Halftone dark />
+    <SpatialShell showHalftone showWarp>
       <div className="relative flex h-full w-full items-center justify-center px-4 py-6 md:px-8">
         <motion.div
           ref={cardRef}
           initial={{ opacity: 0, y: -40, scaleY: 0.2 }}
           animate={{ opacity: 1, y: 0, scaleY: 1 }}
-          transition={{ type: "spring", stiffness: 140, damping: 18 }}
+          transition={{ type: "spring", stiffness: 200, damping: 20 }}
           style={{ transformOrigin: "top", backgroundColor: "var(--wr-cream)" }}
-          className="relative w-full max-w-sm overflow-hidden border-4 shadow-2xl"
+          className="relative w-full max-w-sm overflow-hidden border-4 shadow-2xl gpu-layer"
         >
           <div
             className="h-3 w-full"
@@ -701,13 +777,15 @@ function DashboardTicket({
           </div>
 
           <div className="mx-6 my-4 aspect-square overflow-hidden border-4" style={{ borderColor: ink }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={photo || "/wrapped-portrait-1.png"}
-              alt="Wrapped headliner"
-              className="h-full w-full object-cover"
-              crossOrigin="anonymous"
-            />
+            <SharedAvatar variant="ticket">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={photo || "/wrapped-portrait-1.png"}
+                alt="Wrapped headliner"
+                className="h-full w-full object-cover"
+                crossOrigin="anonymous"
+              />
+            </SharedAvatar>
           </div>
 
           <motion.div
@@ -750,9 +828,11 @@ function DashboardTicket({
               <p className="font-display text-xs font-black uppercase tracking-wider" style={{ color: ink }}>
                 Minutes Listened
               </p>
-              <p className="font-display text-lg font-black tabular-nums" style={{ color: ink }}>
-                {minutesListened}
-              </p>
+              <SharedMetric variant="compact">
+                <p className="font-display text-lg font-black tabular-nums" style={{ color: ink }}>
+                  {minutesListened}
+                </p>
+              </SharedMetric>
             </motion.div>
             <motion.div
               variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: SPRING } }}
@@ -775,20 +855,23 @@ function DashboardTicket({
           </div>
         </motion.div>
       </div>
-    </Shell>
+    </SpatialShell>
   )
 }
 
 /* ================================================================== */
 /* SLIDE 8 — GRAND FINALE (share card + kaleidoscope)                 */
+/* Full background warp + SharedAvatar + pulsing CTA                  */
 /* ================================================================== */
 
 function Kaleidoscope() {
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
       <motion.div
-        className="absolute left-1/2 top-1/2 h-[200%] w-[200%] -translate-x-1/2 -translate-y-1/2"
+        className="absolute left-1/2 top-1/2 h-[200%] w-[200%] gpu-layer backface-hidden"
         style={{
+          x: "-50%",
+          y: "-50%",
           background:
             "conic-gradient(from 0deg, var(--wr-pink), var(--wr-purple), var(--wr-green), var(--wr-yellow), var(--wr-orange), var(--wr-pink))",
           filter: "blur(2px)",
@@ -800,8 +883,10 @@ function Kaleidoscope() {
         }}
       />
       <motion.div
-        className="absolute left-1/2 top-1/2 h-[140%] w-[140%] -translate-x-1/2 -translate-y-1/2 mix-blend-overlay"
+        className="absolute left-1/2 top-1/2 h-[140%] w-[140%] gpu-layer backface-hidden mix-blend-overlay"
         style={{
+          x: "-50%",
+          y: "-50%",
           background:
             "repeating-conic-gradient(from 0deg, transparent 0deg 12deg, rgba(0,0,0,0.28) 12deg 24deg)",
         }}
@@ -836,14 +921,14 @@ function FinaleCard({ data, stats, bg, ai }: { data: WrapData; stats: WrapStats;
   }
 
   return (
-    <Shell>
+    <SpatialShell showWarp>
       <Kaleidoscope />
       <div className="relative flex h-full w-full flex-col items-center justify-center gap-6 px-6 py-8">
         <motion.div
           initial={{ opacity: 0, y: 50, rotate: 3, scale: 0.85 }}
           animate={{ opacity: 1, y: 0, rotate: -1.5, scale: 1 }}
-          transition={{ type: "spring", stiffness: 140, damping: 16 }}
-          className="relative z-10 w-full max-w-xs border-4 border-ink bg-cream p-5 shadow-2xl"
+          transition={{ type: "spring", stiffness: 200, damping: 18 }}
+          className="relative z-10 w-full max-w-xs border-4 border-ink bg-cream p-5 shadow-2xl gpu-layer"
         >
           <div className="flex items-center justify-between">
             <p className="font-display text-xs font-black uppercase tracking-widest" style={{ color: meta.color }}>
@@ -855,7 +940,9 @@ function FinaleCard({ data, stats, bg, ai }: { data: WrapData; stats: WrapStats;
             {`${stats.firstName}'s wrapped`}
           </p>
           <div className="relative mx-auto my-4 aspect-square w-full max-w-[14rem]">
-            <Burst photo={data.photos[0]?.url} palette={palette} delay={0.2} className="h-full w-full" />
+            <SharedAvatar variant="finale">
+              <Burst photo={data.photos[0]?.url} palette={palette} delay={0.2} className="h-full w-full" />
+            </SharedAvatar>
           </div>
           <div className="grid grid-cols-2 gap-2 font-display uppercase">
             <div className="bg-ink p-3">
@@ -876,7 +963,7 @@ function FinaleCard({ data, stats, bg, ai }: { data: WrapData; stats: WrapStats;
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ ...SPRING, delay: 0.5 }}
+          transition={{ ...SPRING_HEAVY, delay: 0.5 }}
           className="z-10 flex items-center gap-3"
         >
           <motion.button
@@ -886,7 +973,7 @@ function FinaleCard({ data, stats, bg, ai }: { data: WrapData; stats: WrapStats;
             transition={{ duration: 1.6, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
             whileHover={{ scale: 1.12, y: -6, rotate: -2 }}
             whileTap={{ scale: 0.96 }}
-            className="flex items-center gap-2 rounded-full bg-green px-6 py-3 font-display text-sm font-black uppercase tracking-wide text-ink shadow-xl"
+            className="flex items-center gap-2 rounded-full bg-green px-6 py-3 font-display text-sm font-black uppercase tracking-wide text-ink shadow-xl gpu-layer"
           >
             <Share2 className="size-4" />
             Share
@@ -896,20 +983,21 @@ function FinaleCard({ data, stats, bg, ai }: { data: WrapData; stats: WrapStats;
             onClick={reset}
             whileHover={{ rotate: -180 }}
             whileTap={{ scale: 0.92 }}
-            transition={SPRING}
-            className="flex items-center justify-center rounded-full border-2 border-cream/60 bg-ink/40 p-3 text-cream backdrop-blur-md"
+            transition={SPRING_HEAVY}
+            className="flex items-center justify-center rounded-full border-2 border-cream/60 bg-ink/40 p-3 text-cream backdrop-blur-md gpu-layer"
             aria-label="Start over"
           >
             <RotateCcw className="size-5" />
           </motion.button>
         </motion.div>
       </div>
-    </Shell>
+    </SpatialShell>
   )
 }
 
 /* ================================================================== */
 /* page builder — one elite 8-slide sequence for every purpose        */
+/* Now includes SlideDesignProfile per page for the spatial engine     */
 /* ================================================================== */
 
 const DEMO_ARTISTS = ["sombr", "Karol G", "Cyril Kamer"]
@@ -951,6 +1039,9 @@ export function buildPages(data: WrapData, ai?: AiWrapContent | null): WrapPage[
   const isGroup = purpose === "group"
   const isCouple = purpose === "couple"
   const isTravel = purpose === "travel"
+
+  // AI design overrides (optional)
+  const aiDesign = ai?.design
 
   // ─── SLIDE 1: INTRO ───
   const introKicker = ai?.intro?.kicker ?? (
@@ -1049,104 +1140,130 @@ export function buildPages(data: WrapData, ai?: AiWrapContent | null): WrapPage[
     {
       key: "s1",
       bg: "var(--wr-pink)",
+      theme: resolveTheme(getSlideProfile("s1"), aiDesign?.s1),
       node: (
-        <IntroUniverse
-          bg="var(--wr-pink)"
-          ink="var(--wr-ink)"
-          kicker={introKicker}
-          lines={introLines}
-          sub={introSub}
-          photo={photo0}
-        />
+        <SlideDesignProvider profile={resolveTheme(getSlideProfile("s1"), aiDesign?.s1)}>
+          <IntroUniverse
+            bg="var(--wr-pink)"
+            ink="var(--wr-ink)"
+            kicker={introKicker}
+            lines={introLines}
+            sub={introSub}
+            photo={photo0}
+          />
+        </SlideDesignProvider>
       ),
     },
     {
       key: "s2",
       bg: "var(--wr-ink)",
+      theme: resolveTheme(getSlideProfile("s2"), aiDesign?.s2),
       node: (
-        <DataHighlight
-          bg="var(--wr-ink)"
-          ink="var(--wr-green)"
-          accent="var(--wr-pink)"
-          kicker={dataKicker}
-          value={big.value}
-          label={dataLabel}
-          note={dataNote}
-        />
+        <SlideDesignProvider profile={resolveTheme(getSlideProfile("s2"), aiDesign?.s2)}>
+          <DataHighlight
+            bg="var(--wr-ink)"
+            ink="var(--wr-green)"
+            accent="var(--wr-pink)"
+            kicker={dataKicker}
+            value={big.value}
+            label={dataLabel}
+            note={dataNote}
+          />
+        </SlideDesignProvider>
       ),
     },
     {
       key: "s3",
       bg: "var(--wr-purple)",
+      theme: resolveTheme(getSlideProfile("s3"), aiDesign?.s3),
       node: (
-        <TopTrack
-          bg="var(--wr-purple)"
-          ink="var(--wr-yellow)"
-          accent="var(--wr-green)"
-          kicker={trackKicker}
-          title={anthem}
-          artist={trackArtistLine}
-          photo={photo0}
-        />
+        <SlideDesignProvider profile={resolveTheme(getSlideProfile("s3"), aiDesign?.s3)}>
+          <TopTrack
+            bg="var(--wr-purple)"
+            ink="var(--wr-yellow)"
+            accent="var(--wr-green)"
+            kicker={trackKicker}
+            title={anthem}
+            artist={trackArtistLine}
+            photo={photo0}
+          />
+        </SlideDesignProvider>
       ),
     },
     {
       key: "s4",
       bg: "var(--wr-green)",
+      theme: resolveTheme(getSlideProfile("s4"), aiDesign?.s4),
       node: (
-        <Receipts bg="var(--wr-green)" ink="var(--wr-ink)" kicker="The receipts" title={receiptTitle} rows={receiptRows} />
+        <SlideDesignProvider profile={resolveTheme(getSlideProfile("s4"), aiDesign?.s4)}>
+          <Receipts bg="var(--wr-green)" ink="var(--wr-ink)" kicker="The receipts" title={receiptTitle} rows={receiptRows} />
+        </SlideDesignProvider>
       ),
     },
     {
       key: "s5",
       bg: "var(--wr-yellow)",
+      theme: resolveTheme(getSlideProfile("s5"), aiDesign?.s5),
       node: (
-        <VersusLeague
-          bg="var(--wr-yellow)"
-          ink="var(--wr-ink)"
-          accent="var(--wr-pink)"
-          kicker={versusKicker}
-          left={versusLeft}
-          right={versusRight}
-          leagueTitle={versusLeagueTitle}
-          photo={photo0}
-        />
+        <SlideDesignProvider profile={resolveTheme(getSlideProfile("s5"), aiDesign?.s5)}>
+          <VersusLeague
+            bg="var(--wr-yellow)"
+            ink="var(--wr-ink)"
+            accent="var(--wr-pink)"
+            kicker={versusKicker}
+            left={versusLeft}
+            right={versusRight}
+            leagueTitle={versusLeagueTitle}
+            photo={photo0}
+          />
+        </SlideDesignProvider>
       ),
     },
     {
       key: "s6",
       bg: "var(--wr-orange)",
+      theme: resolveTheme(getSlideProfile("s6"), aiDesign?.s6),
       node: (
-        <VersusBoard
-          bg="var(--wr-orange)"
-          ink="var(--wr-ink)"
-          accent="var(--wr-purple)"
-          kicker={vsBoardKicker}
-          title={vsBoardTitle}
-          games={vsBoardGames}
-        />
+        <SlideDesignProvider profile={resolveTheme(getSlideProfile("s6"), aiDesign?.s6)}>
+          <VersusBoard
+            bg="var(--wr-orange)"
+            ink="var(--wr-ink)"
+            accent="var(--wr-purple)"
+            kicker={vsBoardKicker}
+            title={vsBoardTitle}
+            games={vsBoardGames}
+          />
+        </SlideDesignProvider>
       ),
     },
     {
       key: "s7",
       bg: "var(--wr-ink)",
+      theme: resolveTheme(getSlideProfile("s7"), aiDesign?.s7),
       node: (
-        <DashboardTicket
-          bg="var(--wr-ink)"
-          ink="var(--wr-ink)"
-          year="2025"
-          photo={photo0}
-          topArtists={dashboardArtists}
-          topSongs={dashboardSongs}
-          minutesListened={fmt(stats.int(40000, 90000))}
-          topGenre={dashboardGenre}
-        />
+        <SlideDesignProvider profile={resolveTheme(getSlideProfile("s7"), aiDesign?.s7)}>
+          <DashboardTicket
+            bg="var(--wr-ink)"
+            ink="var(--wr-ink)"
+            year="2025"
+            photo={photo0}
+            topArtists={dashboardArtists}
+            topSongs={dashboardSongs}
+            minutesListened={fmt(stats.int(40000, 90000))}
+            topGenre={dashboardGenre}
+          />
+        </SlideDesignProvider>
       ),
     },
     {
       key: "s8",
       bg: "var(--wr-ink)",
-      node: <FinaleCard data={data} stats={stats} bg="var(--wr-ink)" ai={ai} />,
+      theme: resolveTheme(getSlideProfile("s8"), aiDesign?.s8),
+      node: (
+        <SlideDesignProvider profile={resolveTheme(getSlideProfile("s8"), aiDesign?.s8)}>
+          <FinaleCard data={data} stats={stats} bg="var(--wr-ink)" ai={ai} />
+        </SlideDesignProvider>
+      ),
     },
   ]
 }

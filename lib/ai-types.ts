@@ -3,6 +3,8 @@
  * Each key maps to one of the 8 wrap slides.
  */
 
+import type { SlideDesignOverride } from "@/lib/design-tokens"
+
 export type AiWrapContent = {
   intro: {
     kicker: string
@@ -41,4 +43,6 @@ export type AiWrapContent = {
   finale: {
     tagline: string
   }
+  /** Optional per-slide design overrides (AI-driven theming). */
+  design?: Record<string, SlideDesignOverride>
 }
