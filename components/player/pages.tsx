@@ -117,6 +117,9 @@ function IntroUniverse({
   lines,
   sub,
   photo,
+  songTitle,
+  songArtist,
+  songStat,
 }: {
   bg: string
   ink: string
@@ -124,31 +127,149 @@ function IntroUniverse({
   lines: string[]
   sub: string
   photo?: string
+  songTitle?: string
+  songArtist?: string
+  songStat?: string
 }) {
   const palette = PALETTES[bg] ?? PALETTES["var(--wr-green)"]
   return (
     <Shell>
       <Halftone dark={bg !== "var(--wr-ink)"} />
-      <div className="relative grid h-full w-full grid-cols-1 items-center gap-6 px-6 py-10 md:grid-cols-[1.05fr_0.95fr] md:px-14">
-        <div className="flex h-full flex-col justify-center gap-5">
-          <Kicker ink={ink}>{kicker}</Kicker>
-          <ClipHeading lines={lines} ink={ink} delay={0.2} />
-          <motion.p
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...SPRING, delay: 0.6 }}
-            className="max-w-md font-sans text-base font-semibold leading-relaxed md:text-lg"
+
+      {/* Mobile: vertical stack — text top, Burst center-bottom, footer bottom */}
+      <div className="flex h-full w-full flex-col items-center md:hidden">
+        {/* Text at top — centered */}
+        <motion.div
+          className="flex w-full flex-col items-center gap-1.5 px-6 pt-10 text-center"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...SPRING, delay: 2.0 }}
+        >
+          <h2
+            className="font-display text-[1.75rem] font-black leading-[1.0] tracking-tight"
             style={{ color: ink }}
           >
-            {sub}
+            {lines.map((l, i) => (
+              <span key={i} className="block overflow-hidden pb-[0.01em]">
+                <motion.span
+                  className="block"
+                  initial={{ y: "110%" }}
+                  animate={{ y: "0%" }}
+                  transition={{ ...SPRING, delay: 2.1 + i * 0.1 }}
+                >
+                  {l}
+                </motion.span>
+              </span>
+            ))}
+          </h2>
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...SPRING, delay: 2.6 }}
+            className="mt-2 font-display text-sm font-bold"
+            style={{ color: ink }}
+          >
+            {songTitle} <span className="font-semibold not-uppercase">by</span> {songArtist}
           </motion.p>
-          <div className="mt-2">
-            <WrapFooter ink={ink} hashtag={HASHTAG} />
+          {songStat && (
+            <motion.p
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ ...SPRING, delay: 2.8 }}
+              className="font-sans text-xs font-semibold"
+              style={{ color: ink, opacity: 0.85 }}
+            >
+              {songStat}
+            </motion.p>
+          )}
+        </motion.div>
+
+        {/* Burst — large, centered */}
+        <div className="relative flex flex-1 items-center justify-center">
+          <motion.div
+            initial={{ y: "-12vh", scale: 0.4, opacity: 0 }}
+            animate={{ y: "0%", scale: 1, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 55, damping: 16, delay: 0.3 }}
+          >
+            <Burst photo={photo} palette={palette} delay={0.2} className="w-[72vw] max-w-[22rem]" />
+          </motion.div>
+        </div>
+
+        {/* Footer at bottom — centered */}
+        <div className="w-full pb-6 pt-2 text-center">
+          <WrapFooter ink={ink} hashtag={HASHTAG} />
+        </div>
+      </div>
+
+      {/* Desktop: side-by-side — Burst slides right, text on left */}
+      <div className="hidden h-full w-full md:block">
+        {/* Burst slides right */}
+        <motion.div
+          className="absolute inset-0 z-10 flex items-center justify-center"
+          initial={{ x: "0%" }}
+          animate={{ x: "30%" }}
+          transition={{ type: "spring", stiffness: 60, damping: 18, delay: 1.6 }}
+        >
+          <Burst photo={photo} palette={palette} delay={0.2} className="w-[28vw] max-w-[24rem]" />
+        </motion.div>
+
+        {/* Left text */}
+        <motion.div
+          className="absolute inset-0 z-20 flex flex-col justify-center px-14 pl-[6%]"
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...SPRING, delay: 2.0 }}
+        >
+          <div className="flex max-w-lg flex-col gap-5">
+            <Kicker ink={ink} delay={2.2}>{kicker}</Kicker>
+            <h2
+              className="font-display text-6xl font-black leading-[0.92] tracking-tight text-balance xl:text-7xl"
+              style={{ color: ink }}
+            >
+              {lines.map((l, i) => (
+                <span key={i} className="block overflow-hidden pb-[0.06em]">
+                  <motion.span
+                    className="block"
+                    initial={{ y: "110%" }}
+                    animate={{ y: "0%" }}
+                    transition={{ ...SPRING, delay: 2.3 + i * 0.12 }}
+                  >
+                    {l}
+                  </motion.span>
+                </span>
+              ))}
+            </h2>
+            <motion.p
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ ...SPRING, delay: 2.9 }}
+              className="max-w-md font-sans text-base font-semibold leading-relaxed lg:text-lg"
+              style={{ color: ink }}
+            >
+              {sub}
+            </motion.p>
+            {(songTitle || songArtist) && (
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ ...SPRING, delay: 3.2 }}
+                className="mt-2"
+              >
+                <p className="font-display text-lg font-black uppercase" style={{ color: ink }}>
+                  {songTitle} <span className="font-semibold not-uppercase">by</span> {songArtist}
+                </p>
+                {songStat && (
+                  <p className="font-sans text-sm font-semibold" style={{ color: ink, opacity: 0.8 }}>
+                    {songStat}
+                  </p>
+                )}
+              </motion.div>
+            )}
+            <div className="mt-2">
+              <WrapFooter ink={ink} hashtag={HASHTAG} />
+            </div>
           </div>
-        </div>
-        <div className="flex items-center justify-center">
-          <Burst photo={photo} palette={palette} className="w-[74vw] max-w-[26rem] md:w-full" />
-        </div>
+        </motion.div>
       </div>
     </Shell>
   )
@@ -1048,15 +1169,18 @@ export function buildPages(data: WrapData, ai?: AiWrapContent | null): WrapPage[
   return [
     {
       key: "s1",
-      bg: "var(--wr-pink)",
+      bg: "var(--wr-orange)",
       node: (
         <IntroUniverse
-          bg="var(--wr-pink)"
+          bg="var(--wr-orange)"
           ink="var(--wr-ink)"
           kicker={introKicker}
           lines={introLines}
           sub={introSub}
           photo={photo0}
+          songTitle={anthem}
+          songArtist={trackArtistLine}
+          songStat={`${fmt(stats.int(100000, 5000000))} streams in ${data.destinationCity || "NYC"}`}
         />
       ),
     },

@@ -122,4 +122,15 @@
       transform: rotate(360deg);
     }
   }
+  .intro-text-scroll {
+    animation: intro-scroll 3s linear infinite;
+  }
+  @keyframes intro-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-20%);
+    }
+  }
 }
