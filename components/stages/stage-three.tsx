@@ -10,7 +10,7 @@ const PAGE_MS = 7000
 
 export function StageThree() {
   const { data, aiContent } = useWrap()
-  const pages = useMemo(() => buildPages(data, aiContent), [data, aiContent])
+  const pages = useMemo(() => (aiContent ? buildPages(data, aiContent) : []), [data, aiContent])
   const [index, setIndex] = useState(0)
   const [dir, setDir] = useState(1)
   const [paused, setPaused] = useState(false)
@@ -78,6 +78,8 @@ export function StageThree() {
 
   const current = pages[index]
   const isLast = index === pages.length - 1
+
+  if (!current) return null
 
   return (
     <div className="fixed inset-0 z-50 h-[100dvh] w-screen overflow-hidden bg-ink select-none">

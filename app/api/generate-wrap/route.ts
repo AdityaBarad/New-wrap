@@ -5,10 +5,8 @@ const GEMINI_API_URL =
 
 function buildPrompt(body: Record<string, unknown>): string {
   const {
-    name,
     purpose,
     userNames,
-    vibe,
     anthemTitle,
     anniversaryDate,
     destinationCity,
@@ -32,10 +30,8 @@ function buildPrompt(body: Record<string, unknown>): string {
   return `You are a world-class creative director for a viral "Year Wrapped" experience — think Spotify Wrapped but for someone's LIFE. Your job is to write punchy, Gen-Z, unhinged-but-heartfelt, meme-aware copy that makes every slide screenshot-worthy.
 
 ## USER PROFILE
-- **Name**: ${name || "User"}
 - **Purpose**: ${purposeLabel}
-- **People involved**: ${userNames || name || "the main character"}
-- **Sonic vibe**: ${vibe || "hyperpop"}
+- **People involved**: ${userNames || "the main character"}
 - **Anthem song**: ${anthemTitle || "their song"}
 ${anniversaryDate ? `- **Anniversary/First date**: ${anniversaryDate}` : ""}
 ${destinationCity ? `- **Destination city**: ${destinationCity}` : ""}
@@ -49,7 +45,7 @@ ${birthYear ? `- **Birth year**: ${birthYear}` : ""}
 
 ## INSTRUCTIONS
 Generate creative, personalized, trendy content for an 8-slide wrapped experience. The content must:
-1. Be deeply personalized using the user's name, story, and details
+1. Be deeply personalized using the user's story and details
 2. Sound like a mix of Spotify Wrapped + Instagram Reels + Twitter shitposting
 3. Use Gen-Z slang naturally (slay, era, main character, unhinged, no cap, ate, etc.)
 4. Reference specific details from their story paragraph

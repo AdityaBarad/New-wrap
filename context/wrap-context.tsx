@@ -28,14 +28,6 @@ export const PURPOSES: PurposeMeta[] = [
   { id: "group", label: "GROUP & FAMILY CHAOS", tag: "the group chat unhinged", color: "var(--wr-purple)" },
 ]
 
-export const VIBES = [
-  { id: "hyperpop", label: "HYPERPOP OVERDRIVE", color: "var(--wr-pink)" },
-  { id: "lofi", label: "LATE NIGHT LO-FI", color: "var(--wr-purple)" },
-  { id: "stadium", label: "STADIUM ANTHEM", color: "var(--wr-green)" },
-  { id: "ystep", label: "Y2K DANCE STEP", color: "var(--wr-yellow)" },
-  { id: "cinema", label: "CINEMATIC SCORE", color: "var(--wr-orange)" },
-]
-
 export type LocalPhoto = { name: string; url: string }
 
 export type WrapData = {
@@ -49,7 +41,6 @@ export type WrapData = {
   // Stage 2
   userNames: string
   chatExportName: string
-  vibe: string
   anthemTitle: string
   anniversaryDate: string
   destinationCity: string
@@ -69,7 +60,6 @@ const initialData: WrapData = {
   purpose: null,
   userNames: "",
   chatExportName: "",
-  vibe: "",
   anthemTitle: "",
   anniversaryDate: "",
   destinationCity: "",
@@ -119,17 +109,15 @@ export function WrapProvider({ children }: { children: ReactNode }) {
   }, [])
 
   /** Call the Gemini API route to generate personalized wrap content */
-  const generateAiContent = useCallback(async (wrapData: WrapData): Promise<AiWrapContent | null> => {
+  const generateAiContent = useCallback(async (wrapData: WrapData): Promise<AiWrapContent> => {
     setAiLoading(true)
     try {
       const res = await fetch("/api/generate-wrap", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: wrapData.name,
           purpose: wrapData.purpose,
           userNames: wrapData.userNames,
-          vibe: wrapData.vibe,
           anthemTitle: wrapData.anthemTitle,
           anniversaryDate: wrapData.anniversaryDate,
           destinationCity: wrapData.destinationCity,
@@ -142,15 +130,13 @@ export function WrapProvider({ children }: { children: ReactNode }) {
       })
 
       if (!res.ok) {
-        console.warn("[wrap] AI generation failed, falling back to defaults")
-        return null
+        throw new Error(`AI generation failed with status ${res.status}`)
       }
 
       const json = await res.json()
       return json.content as AiWrapContent
     } catch (err) {
-      console.warn("[wrap] AI generation error, falling back to defaults:", err)
-      return null
+      throw new Error(`AI generation failed: ${err instanceof Error ? err.message : String(err)}`)
     } finally {
       setAiLoading(false)
     }
@@ -201,7 +187,6 @@ export function WrapProvider({ children }: { children: ReactNode }) {
       const payload = {
         user_names: data.userNames || null,
         chat_export_name: data.chatExportName || null,
-        vibe: data.vibe || null,
         anthem_title: data.anthemTitle || null,
         anniversary_date: data.anniversaryDate || null,
         destination_city: data.destinationCity || null,
@@ -217,7 +202,6 @@ export function WrapProvider({ children }: { children: ReactNode }) {
         if (err) throw err
       }
 
-      // Generate AI content in parallel with the DB update
       const content = await generateAiContent(data)
       setAiContent(content)
 
@@ -225,12 +209,8 @@ export function WrapProvider({ children }: { children: ReactNode }) {
       return true
     } catch (e) {
       console.log("[v0] submitStage2 error:", e)
-      // Don't hard-block the experience if the update fails — still let them play
-      // Try to generate AI content anyway
-      const content = await generateAiContent(data)
-      setAiContent(content)
-      setStage(3)
-      return true
+      setError("AI generation failed. Please try again.")
+      return false
     } finally {
       setLoading(false)
       setAiLoading(false)

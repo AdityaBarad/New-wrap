@@ -44,7 +44,7 @@ export function buildStats(data: WrapData): WrapStats {
   const rand = mulberry(seedFrom(key || "wrapped"))
   const int = (min: number, max: number) => Math.floor(rand() * (max - min + 1)) + min
   const pick = <T,>(arr: T[]) => arr[Math.floor(rand() * arr.length)]
-  const firstName = (data.name || data.userNames || "You").trim().split(/\s+/)[0]
+  const firstName = (data.userNames || "You").trim().split(/\s+/)[0]
 
   return {
     firstName,

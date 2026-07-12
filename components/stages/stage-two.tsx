@@ -5,9 +5,8 @@ import { motion } from "@/components/wrapped/motion"
 import { Starburst } from "@/components/wrapped/shapes"
 import { Field } from "@/components/wrapped/field"
 import { PhotoDropzone, TxtDropzone } from "@/components/wrapped/dropzone"
-import { PURPOSES, VIBES, useWrap } from "@/context/wrap-context"
+import { PURPOSES, useWrap } from "@/context/wrap-context"
 import { AiLoading } from "@/components/stages/ai-loading"
-import { cn } from "@/lib/utils"
 
 export function StageTwo() {
   const { data, update, submitStage2, loading, aiLoading, error } = useWrap()
@@ -65,32 +64,6 @@ export function StageTwo() {
               onChange={(e) => update({ userNames: e.target.value })}
             />
             <TxtDropzone fileName={data.chatExportName} onChange={(name) => update({ chatExportName: name })} />
-
-            {/* vibe cards */}
-            <div>
-              <span className="mb-2 block font-display text-xs font-black uppercase tracking-widest text-foreground/70">
-                Sonic Vibe
-              </span>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {VIBES.map((v) => {
-                  const active = data.vibe === v.id
-                  return (
-                    <button
-                      key={v.id}
-                      type="button"
-                      onClick={() => update({ vibe: v.id })}
-                      className={cn(
-                        "rounded-md border-2 px-3 py-3 text-left font-display text-xs font-black uppercase leading-tight transition-all",
-                        active ? "-rotate-1 scale-[1.03] border-ink text-ink" : "border-foreground/20 text-foreground hover:border-cream",
-                      )}
-                      style={active ? { backgroundColor: v.color } : undefined}
-                    >
-                      {v.label}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
           </div>
 
           {/* conditional divider */}

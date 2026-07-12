@@ -934,7 +934,7 @@ function Kaleidoscope() {
   )
 }
 
-function FinaleCard({ data, stats, bg, ai }: { data: WrapData; stats: WrapStats; bg: string; ai?: AiWrapContent | null }) {
+function FinaleCard({ data, stats, bg, ai }: { data: WrapData; stats: WrapStats; bg: string; ai: AiWrapContent }) {
   const { reset } = useWrap()
   const meta = PURPOSES.find((p) => p.id === (data.purpose ?? "life"))!
   const palette = PALETTES[bg] ?? PALETTES["var(--wr-yellow)"]
@@ -942,7 +942,7 @@ function FinaleCard({ data, stats, bg, ai }: { data: WrapData; stats: WrapStats;
   async function share() {
     const shareData = {
       title: "Your Life, Wrapped",
-      text: ai?.finale?.tagline ?? `${stats.firstName}'s year is officially wrapped. Your year. Unhinged.`,
+      text: ai.finale?.tagline ?? `Your year is officially wrapped. Your year. Unhinged.`,
       url: typeof window !== "undefined" ? window.location.origin : "",
     }
     try {
@@ -973,7 +973,7 @@ function FinaleCard({ data, stats, bg, ai }: { data: WrapData; stats: WrapStats;
             <span className="font-display text-2xl font-black text-ink">2025</span>
           </div>
           <p className="font-display text-4xl font-black uppercase leading-none text-ink">
-            {`${stats.firstName}'s wrapped`}
+            Your wrapped
           </p>
           <div className="relative mx-auto my-4 aspect-square w-full max-w-[14rem]">
             <Burst photo={data.photos[0]?.url} palette={palette} delay={0.2} className="h-full w-full" />
@@ -1033,138 +1033,76 @@ function FinaleCard({ data, stats, bg, ai }: { data: WrapData; stats: WrapStats;
 /* page builder — one elite 8-slide sequence for every purpose        */
 /* ================================================================== */
 
-const DEMO_ARTISTS = ["sombr", "Karol G", "Cyril Kamer"]
-const DEMO_SONGS = ["back to friends", "Golden", "Bad Romance"]
-const DEMO_GAMES = [
-  { rank: 1, team1: "Barcelona", team2: "Inter Milan", competition: "UEFA Champions League Semi Final" },
-  { rank: 2, team1: "Arsenal", team2: "Real Madrid", competition: "UEFA Champions League Quarter Final" },
-  { rank: 3, team1: "PSG", team2: "Chelsea", competition: "FIFA Club World Cup Final" },
-  { rank: 4, team1: "PSG", team2: "Inter Milan", competition: "UEFA Champions League Final" },
-]
-
-function bigMetric(data: WrapData, stats: WrapStats) {
+function bigMetric(data: WrapData, stats: WrapStats, ai: AiWrapContent) {
   const purpose = data.purpose ?? "life"
   if (purpose === "couple") {
     const days = daysSince(data.anniversaryDate) || stats.int(200, 2400)
-    return { value: days, label: "Days together", note: `That's ${fmt(days * 24)} hours of being disgustingly cute. Certified menace behavior.` }
+    return { value: days, label: ai.dataHighlight.label, note: ai.dataHighlight.note }
   }
   if (purpose === "travel") {
     const hours = Number(data.travelHours) || stats.int(60, 380)
-    return { value: hours, label: "Hours in transit", note: `Enough time to watch ${fmt(Math.round(hours / 2))} movies you fell asleep during.` }
+    return { value: hours, label: ai.dataHighlight.label, note: ai.dataHighlight.note }
   }
   if (purpose === "birthday") {
     const age = data.birthYear ? Math.max(1, new Date().getFullYear() - Number(data.birthYear)) : stats.int(18, 60)
-    return { value: age, label: "Trips around the sun", note: `And a documented top ${stats.topPercent}% level of chaos this year alone.` }
+    return { value: age, label: ai.dataHighlight.label, note: ai.dataHighlight.note }
   }
   if (purpose === "group") {
-    return { value: stats.streakDays, label: "Days in the chat", note: `${stats.int(4, 12)} certified members, zero notifications silenced. Wrapped.` }
+    return { value: stats.streakDays, label: ai.dataHighlight.label, note: ai.dataHighlight.note }
   }
-  return { value: stats.streakDays, label: "Day streak", note: `And a documented top ${stats.topPercent}% level of chaos this year alone.` }
+  return { value: stats.streakDays, label: ai.dataHighlight.label, note: ai.dataHighlight.note }
 }
 
-export function buildPages(data: WrapData, ai?: AiWrapContent | null): WrapPage[] {
+export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
   const stats = buildStats(data)
-  const names = data.userNames || stats.firstName
   const purpose = data.purpose ?? "life"
   const photos = data.photos.map((p) => p.url)
   const photo0 = photos[0]
 
-  const isGroup = purpose === "group"
-  const isCouple = purpose === "couple"
-  const isTravel = purpose === "travel"
-
   // ─── SLIDE 1: INTRO ───
-  const introKicker = ai?.intro?.kicker ?? (
-    isCouple
-      ? "Now streaming"
-      : isTravel
-        ? "Boarding now"
-        : isGroup
-          ? "The group chat"
-          : purpose === "birthday"
-            ? "Happy birthday"
-            : "Now streaming"
-  )
-
-  const introLines: string[] = ai?.intro?.lines ?? (
-    isTravel
-      ? ["The", (data.destinationCity || "world").slice(0, 14), "universe"]
-      : isGroup
-        ? ["The", "chaos", "universe"]
-        : ["The", `${names}`, "universe"]
-  )
-
-  const introSub = ai?.intro?.sub ?? (
-    isCouple
-      ? "Two people, one unhinged storyline. Here's your love story, wrapped and ready to post."
-      : isTravel
-        ? `${data.destinationCity || "The world"} didn't stand a chance. Here's your year in transit, wrapped.`
-        : isGroup
-          ? "The people who ruin your notifications in the best way. Wrapped."
-          : "Your year had range. Villain arc, glow up, redemption. All of it. Wrapped."
-  )
+  const introKicker = ai.intro.kicker
+  const introLines = ai.intro.lines
+  const introSub = ai.intro.sub
 
   // ─── SLIDE 2: DATA HIGHLIGHT ───
-  const big = bigMetric(data, stats)
-  const dataKicker = ai?.dataHighlight?.kicker ?? (isCouple ? "Days in your era" : "Time on the clock")
-  const dataLabel = ai?.dataHighlight?.label ?? big.label
-  const dataNote = ai?.dataHighlight?.note ?? big.note
+  const big = bigMetric(data, stats, ai)
+  const dataKicker = ai.dataHighlight.kicker
+  const dataLabel = big.label
+  const dataNote = big.note
 
   // ─── SLIDE 3: TOP TRACK ───
   const anthem = data.anthemTitle || "Your Anthem"
-  const vibeName = data.vibe ? data.vibe.replace(/-/g, " ") : "Hyperpop"
-  const trackKicker = ai?.topTrack?.kicker ?? "Your top track"
-  const trackArtistLine = ai?.topTrack?.artistLine ?? `${vibeName} · on repeat`
+  const trackKicker = ai.topTrack.kicker
+  const trackArtistLine = ai.topTrack.artistLine
 
   // ─── SLIDE 4: RECEIPTS ───
-  const receiptTitle = ai?.receipts?.title ?? (
-    isCouple ? "Chat wrapped" : isTravel ? "Trip wrapped" : isGroup ? "Group wrapped" : "Life wrapped"
-  )
-
-  const fallbackReceiptRows = isTravel
-    ? [
-        { label: "Km traveled", value: fmt(stats.int(8000, 62000)), pct: stats.int(70, 96) },
-        { label: "Sunsets caught", value: fmt(stats.int(40, 190)), pct: stats.int(45, 80) },
-        { label: "Snacks demolished", value: fmt(stats.int(120, 620)), pct: stats.int(60, 92) },
-        { label: "Night owl", value: `${stats.nightOwlPct}%`, pct: stats.nightOwlPct },
-      ]
-    : [
-        { label: "Words yapped", value: fmt(stats.wordsYapped), pct: stats.int(72, 98) },
-        { label: "Texted first", value: `${stats.int(51, 84)}%`, pct: stats.int(51, 84) },
-        { label: "Double texts", value: fmt(stats.int(300, 1200)), pct: stats.int(55, 90) },
-        { label: "Night owl", value: `${stats.nightOwlPct}%`, pct: stats.nightOwlPct },
-      ]
-
-  const receiptRows = ai?.receipts?.rows
-    ? ai.receipts.rows.slice(0, 4).map((r, i) => ({
-        label: r.label,
-        value: r.value,
-        pct: stats.int(50, 98 - i * 5),
-      }))
-    : fallbackReceiptRows
+  const receiptTitle = ai.receipts.title
+  const receiptRows = ai.receipts.rows.slice(0, 4).map((r, i) => ({
+    label: r.label,
+    value: r.value,
+    pct: stats.int(50, 98 - i * 5),
+  }))
 
   // ─── SLIDE 5: VERSUS ───
-  const versusKicker = ai?.versus?.kicker ?? "Most watched league"
-  const versusLeft = ai?.versus?.left ?? "Arsenal"
-  const versusRight = ai?.versus?.right ?? "Real Madrid"
-  const versusLeagueTitle = ai?.versus?.leagueTitle ?? "English Premier League"
+  const versusKicker = ai.versus.kicker
+  const versusLeft = ai.versus.left
+  const versusRight = ai.versus.right
+  const versusLeagueTitle = ai.versus.leagueTitle
 
   // ─── SLIDE 6: VERSUS BOARD ───
-  const vsBoardKicker = ai?.versusBoard?.kicker ?? "The matchups"
-  const vsBoardTitle = ai?.versusBoard?.title ?? "Top games"
-  const vsBoardGames = ai?.versusBoard?.games
-    ? ai.versusBoard.games.slice(0, 4).map((g, i) => ({
-        rank: i + 1,
-        team1: g.team1,
-        team2: g.team2,
-        competition: g.competition,
-      }))
-    : DEMO_GAMES
+  const vsBoardKicker = ai.versusBoard.kicker
+  const vsBoardTitle = ai.versusBoard.title
+  const vsBoardGames = ai.versusBoard.games.slice(0, 4).map((g, i) => ({
+    rank: i + 1,
+    team1: g.team1,
+    team2: g.team2,
+    competition: g.competition,
+  }))
 
   // ─── SLIDE 7: DASHBOARD ───
-  const dashboardArtists = ai?.dashboard?.topArtists?.slice(0, 3) ?? DEMO_ARTISTS
-  const dashboardSongs = ai?.dashboard?.topSongs?.slice(0, 3) ?? DEMO_SONGS
-  const dashboardGenre = ai?.dashboard?.topGenre ?? vibeName
+  const dashboardArtists = ai.dashboard.topArtists.slice(0, 3)
+  const dashboardSongs = ai.dashboard.topSongs.slice(0, 3)
+  const dashboardGenre = ai.dashboard.topGenre
 
   return [
     {
