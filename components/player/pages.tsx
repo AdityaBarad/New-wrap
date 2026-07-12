@@ -859,7 +859,6 @@ function VersusBoard({
 function DashboardTicket({
   bg,
   ink,
-  year,
   photo,
   topArtists,
   topSongs,
@@ -877,104 +876,129 @@ function DashboardTicket({
 }) {
   const cardRef = useRef<HTMLDivElement>(null)
   const inView = useInView(cardRef, { once: true })
+  const red = "#ff3f31"
+  const cream = "var(--wr-cream)"
+
+  const rankedLine = (item: string, i: number) => (
+    <p key={`${item}-${i}`} className="flex min-w-0 items-baseline gap-2 font-display leading-[1.05]" style={{ color: ink }}>
+      <span className="w-4 shrink-0 text-right text-lg font-black md:text-xl">{i + 1}</span>
+      <span className="min-w-0 truncate text-lg font-black md:text-xl">{item}</span>
+    </p>
+  )
+
   return (
     <Shell>
-      <Halftone dark />
+      <div className="absolute inset-0" style={{ backgroundColor: bg }} />
+      <motion.div
+        aria-hidden="true"
+        className="absolute inset-[-30%] opacity-25"
+        style={{
+          background:
+            "repeating-radial-gradient(circle at 42% 48%, transparent 0 34px, rgba(238,238,228,0.72) 34px 48px, transparent 48px 82px)",
+          transformOrigin: "42% 48%",
+        }}
+        animate={{ scale: [0.82, 1.2], opacity: [0.16, 0.28, 0.16] }}
+        transition={{ duration: 5.8, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+      />
+
       <div className="relative flex h-full w-full items-center justify-center px-4 py-6 md:px-8">
         <motion.div
           ref={cardRef}
-          initial={{ opacity: 0, y: -40, scaleY: 0.2 }}
-          animate={{ opacity: 1, y: 0, scaleY: 1 }}
+          initial={{ opacity: 0, y: 28, scale: 0.96 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ type: "spring", stiffness: 140, damping: 18 }}
-          style={{ transformOrigin: "top", backgroundColor: "var(--wr-cream)" }}
-          className="relative w-full max-w-sm overflow-hidden border-4 shadow-2xl"
+          style={{ backgroundColor: cream }}
+          className="relative w-full max-w-sm overflow-hidden shadow-2xl"
         >
-          <div
-            className="h-3 w-full"
-            style={{ background: `repeating-linear-gradient(90deg, ${ink}, ${ink} 20px, transparent 20px, transparent 40px)` }}
-          />
-          <div className="flex items-center justify-between px-6 pt-5">
-            <p className="font-display text-xs font-black uppercase tracking-widest" style={{ color: ink, opacity: 0.6 }}>
-              The Lineup
-            </p>
-            <span className="font-display text-3xl font-black leading-none" style={{ color: ink }}>
-              {year}
-            </span>
+          <div className="absolute -left-10 -top-7 z-20 select-none overflow-hidden font-display text-[9.5rem] font-black uppercase leading-[0.78] md:text-[10.5rem]" style={{ color: red }}>
+            <span className="block [writing-mode:vertical-rl]">wrap</span>
           </div>
 
-          <div className="mx-6 my-4 aspect-square overflow-hidden border-4" style={{ borderColor: ink }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={photo || "/wrapped-portrait-1.png"}
-              alt="Wrapped headliner"
-              className="h-full w-full object-cover"
-              crossOrigin="anonymous"
+          <div className="relative h-[21.5rem] overflow-hidden md:h-[22.5rem]">
+            <motion.div
+              aria-hidden="true"
+              className="absolute -inset-20"
+              style={{
+                background:
+                  "repeating-radial-gradient(circle at 74% 50%, var(--wr-cream) 0 13px, var(--wr-cream) 13px 29px, var(--wr-ink) 29px 43px, var(--wr-ink) 43px 58px)",
+                transformOrigin: "74% 50%",
+              }}
+              animate={{ scale: [0.88, 1.24], opacity: [1, 1, 0.88] }}
+              transition={{ duration: 5.4, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
             />
+            <div className="absolute left-1/2 top-9 z-30 aspect-square w-[72%] max-w-[18.5rem] -translate-x-1/2 overflow-hidden shadow-[0_8px_0_rgba(0,0,0,0.04)]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={photo || "/wrapped-portrait-1.png"}
+                alt="Wrapped headliner"
+                className="h-full w-full object-cover"
+                crossOrigin="anonymous"
+              />
+            </div>
           </div>
 
           <motion.div
-            className="space-y-4 px-6 pb-2"
+            className="relative z-30 px-7 pb-8 pt-8 md:px-8"
             initial="hidden"
             animate={inView ? "show" : "hidden"}
-            variants={{ show: { transition: { staggerChildren: 0.12, delayChildren: 0.25 } } }}
+            variants={{ show: { transition: { staggerChildren: 0.1, delayChildren: 0.22 } } }}
           >
             <motion.div
               variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: SPRING } }}
-              className="grid grid-cols-2 gap-6 border-b-[3px] pb-4"
-              style={{ borderColor: ink }}
+              className="grid grid-cols-2 gap-5"
             >
-              <div className="flex flex-col gap-2">
-                <p className="font-display text-xs font-black uppercase tracking-wider" style={{ color: ink }}>
+              <div className="min-w-0">
+                <p className="mb-3 font-display text-sm font-black leading-none" style={{ color: ink }}>
                   Top Artists
                 </p>
-                {topArtists.slice(0, 3).map((a, i) => (
-                  <p key={i} className="font-display text-sm font-bold leading-tight" style={{ color: ink }}>
-                    {i + 1} {a}
-                  </p>
-                ))}
+                <div className="space-y-1">{topArtists.map(rankedLine)}</div>
               </div>
-              <div className="flex flex-col gap-2">
-                <p className="font-display text-xs font-black uppercase tracking-wider" style={{ color: ink }}>
+              <div className="min-w-0">
+                <p className="mb-3 font-display text-sm font-black leading-none" style={{ color: ink }}>
                   Top Songs
                 </p>
-                {topSongs.slice(0, 3).map((s, i) => (
-                  <p key={i} className="font-display text-sm font-bold leading-tight" style={{ color: ink }}>
-                    {i + 1} {s}
-                  </p>
-                ))}
+                <div className="space-y-1">{topSongs.map(rankedLine)}</div>
               </div>
             </motion.div>
 
             <motion.div
               variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: SPRING } }}
-              className="flex items-center justify-between"
+              className="mt-9 grid grid-cols-2 items-start gap-5"
             >
-              <p className="font-display text-xs font-black uppercase tracking-wider" style={{ color: ink }}>
-                Minutes Listened
-              </p>
-              <p className="font-display text-lg font-black tabular-nums" style={{ color: ink }}>
-                {minutesListened}
-              </p>
+              <div className="min-w-0">
+                <p className="mb-3 font-display text-sm font-black leading-none" style={{ color: ink }}>
+                  Minutes Listened
+                </p>
+                <p className="font-display text-[2.45rem] font-black leading-none tracking-normal tabular-nums md:text-[2.85rem]" style={{ color: ink }}>
+                  {minutesListened}
+                </p>
+              </div>
+              <div className="min-w-0">
+                <p className="mb-3 font-display text-sm font-black leading-none" style={{ color: ink }}>
+                  Top Genre
+                </p>
+                <p className="truncate font-display text-[2.45rem] font-black leading-none md:text-[2.85rem]" style={{ color: ink }}>
+                  {topGenre}
+                </p>
+              </div>
             </motion.div>
+
             <motion.div
               variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: SPRING } }}
-              className="flex items-center justify-between border-t-2 pt-3"
-              style={{ borderColor: ink }}
+              className="mt-12 flex items-center justify-between gap-4"
             >
-              <p className="font-display text-xs font-black uppercase tracking-wider" style={{ color: ink }}>
-                Top Genre
-              </p>
-              <p className="font-display text-sm font-black" style={{ color: ink }}>
-                {topGenre}
+              <div className="flex size-11 shrink-0 items-center justify-center rounded-full" style={{ backgroundColor: ink }}>
+                <svg viewBox="0 0 64 64" aria-hidden="true" className="size-8" fill="none">
+                  <path d="M17 25.5c10.5-3.2 21.5-2.4 31.7 2.5" stroke={cream} strokeWidth="5.2" strokeLinecap="round" />
+                  <path d="M19.8 33.1c8.6-2.3 17.1-1.7 25.5 2" stroke={cream} strokeWidth="4.3" strokeLinecap="round" />
+                  <path d="M22.3 40.2c6.4-1.5 12.5-1.1 18.9 1.6" stroke={cream} strokeWidth="3.7" strokeLinecap="round" />
+                </svg>
+              </div>
+              <p className="font-display text-lg font-black uppercase tracking-normal md:text-xl" style={{ color: ink }}>
+                spotify.com/wrapped
               </p>
             </motion.div>
           </motion.div>
-
-          <div className="mt-3 border-t-2 px-6 py-3 text-center" style={{ borderColor: ink }}>
-            <p className="font-display text-xs font-black uppercase tracking-widest" style={{ color: ink, opacity: 0.55 }}>
-              {HASHTAG}
-            </p>
-          </div>
         </motion.div>
       </div>
     </Shell>
