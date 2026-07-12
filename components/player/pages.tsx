@@ -276,40 +276,116 @@ function IntroUniverse({
 }
 
 /* ================================================================== */
-/* SLIDE 2 — DATA HIGHLIGHT (kinetic grid + count up)                 */
+/* SLIDE 2 — DATA HIGHLIGHT (Wrapped 2024 pixel frame + count up)     */
 /* ================================================================== */
 
-function FloatingCube({
-  size,
-  x,
-  y,
-  color,
-  ink,
-  delay,
+const PIXEL_ROWS = [
+  "clamp(9rem, 46vw, 42rem)",
+  "clamp(7rem, 35vw, 31rem)",
+  "clamp(5.5rem, 25vw, 22rem)",
+  "clamp(4rem, 16vw, 14rem)",
+  "clamp(2.75rem, 9vw, 8rem)",
+]
+
+function PixelStair({
+  corner,
+  delay = 0,
+  accent,
 }: {
-  size: number
-  x: string
-  y: string
-  color: string
-  ink: string
-  delay: number
+  corner: "top-left" | "top-right" | "bottom-left" | "bottom-right"
+  delay?: number
+  accent: string
 }) {
+  const isTop = corner.startsWith("top")
+  const isRight = corner.endsWith("right")
+  const enterX = isRight ? 70 : -70
+  const enterY = isTop ? -28 : 28
+  const rows = isTop ? PIXEL_ROWS : [...PIXEL_ROWS].reverse()
+  const columnDirection = isRight ? "flex-row-reverse" : "flex-row"
+  const outerColumn = isRight
+    ? "linear-gradient(90deg, #1d4ed8 0%, #22d3ee 100%)"
+    : "linear-gradient(90deg, #22d3ee 0%, #1d4ed8 100%)"
+  const innerColumn = isRight
+    ? "linear-gradient(90deg, #1d4ed8 0%, #1e1b4b 100%)"
+    : "linear-gradient(90deg, #1e1b4b 0%, #1d4ed8 100%)"
+
   return (
-    <motion.div
+    <div
       aria-hidden="true"
-      className="pointer-events-none absolute"
-      style={{ left: x, top: y }}
-      initial={{ opacity: 0, scale: 0.4 }}
-      animate={{ opacity: 0.9, scale: 1, y: [0, -12, 0], rotate: [0, 8, 0] }}
-      transition={{
-        opacity: { ...SPRING, delay },
-        scale: { ...SPRING, delay },
-        y: { duration: 4.5 + delay, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" },
-        rotate: { duration: 6 + delay, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" },
-      }}
+      className={`pointer-events-none absolute ${isTop ? "top-0" : "bottom-0"} ${
+        isRight ? "right-0 items-end" : "left-0 items-start"
+      } z-0 flex w-[58vw] max-w-[46rem] flex-col overflow-hidden`}
     >
-      <div style={{ width: size, height: size, background: color, boxShadow: `${size * 0.14}px ${size * 0.14}px 0 ${ink}` }} />
-    </motion.div>
+      {rows.map((width, i) => (
+        <motion.div
+          key={`${corner}-${i}`}
+          initial={{ opacity: 0, x: enterX, y: enterY }}
+          animate={{
+            opacity: 1,
+            x: 0,
+            y: 0,
+          }}
+          transition={{
+            opacity: { ...SPRING, delay: delay + i * 0.08 },
+            x: { ...SPRING, delay: delay + i * 0.08 },
+            y: { ...SPRING, delay: delay + i * 0.08 },
+          }}
+          className={`flex h-9 ${columnDirection} sm:h-[2.7rem] md:h-[3.15rem] lg:h-[3.6rem]`}
+          style={{
+            width,
+          }}
+        >
+          <motion.div
+            className="h-full w-1/2"
+            animate={{ filter: ["saturate(1)", "saturate(1.18)", "saturate(1)"] }}
+            transition={{
+              duration: 5.5,
+              repeat: Number.POSITIVE_INFINITY,
+              ease: "linear",
+              delay: delay + i * 0.08,
+            }}
+            style={{
+              backgroundImage: outerColumn,
+            }}
+          />
+          <motion.div
+            className="h-full w-1/2"
+            animate={{ filter: ["saturate(1.08)", "saturate(1)", "saturate(1.08)"] }}
+            transition={{
+              duration: 6.2,
+              repeat: Number.POSITIVE_INFINITY,
+              ease: "linear",
+              delay: delay + i * 0.08,
+            }}
+            style={{
+              backgroundImage: innerColumn,
+            }}
+          />
+        </motion.div>
+      ))}
+    </div>
+  )
+}
+
+function PixelFrame({ accent, bg }: { accent: string; bg: string }) {
+  return (
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden" style={{ backgroundColor: bg }}>
+      <motion.div
+        className="absolute inset-0 opacity-10"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(0,0,0,0.16) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.16) 1px, transparent 1px)",
+          backgroundSize: "20px 20px",
+          maskImage: "radial-gradient(circle at center, transparent 0 34%, black 66%)",
+        }}
+        animate={{ backgroundPosition: ["0px 0px", "20px 20px"] }}
+        transition={{ duration: 6, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+      />
+      <PixelStair corner="top-left" accent={accent} delay={0.04} />
+      <PixelStair corner="top-right" accent={accent} delay={0.1} />
+      <PixelStair corner="bottom-left" accent={accent} delay={0.16} />
+      <PixelStair corner="bottom-right" accent={accent} delay={0.22} />
+    </div>
   )
 }
 
@@ -333,49 +409,54 @@ function DataHighlight({
   const count = useCountUp(value, 1500)
   return (
     <Shell>
-      {/* scrolling grid wall */}
-      <motion.div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
-        style={{
-          backgroundImage: `linear-gradient(${ink}22 1px, transparent 1px), linear-gradient(90deg, ${ink}22 1px, transparent 1px)`,
-          backgroundSize: "44px 44px",
-        }}
-        animate={{ backgroundPosition: ["0px 0px", "44px 44px"] }}
-        transition={{ duration: 6, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-      />
-      <FloatingCube size={54} x="12%" y="18%" color={accent} ink={ink} delay={0.2} />
-      <FloatingCube size={34} x="82%" y="24%" color={accent} ink={ink} delay={0.6} />
-      <FloatingCube size={44} x="76%" y="70%" color={accent} ink={ink} delay={0.4} />
-      <FloatingCube size={28} x="16%" y="72%" color={accent} ink={ink} delay={0.8} />
+      <PixelFrame accent={accent} bg={bg} />
 
-      <div className="relative flex h-full w-full flex-col items-center justify-center px-6 text-center">
-        <Kicker ink={ink}>{kicker}</Kicker>
-        <p
-          className="my-1 font-display text-[26vw] font-black leading-[0.8] tracking-tighter tabular-nums md:text-[15rem]"
-          style={{ color: ink }}
+      <div className="relative z-10 flex h-full w-full flex-col items-center justify-center px-5 py-14 text-center md:px-10">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.72, rotate: -3 }}
+          animate={{ opacity: 1, scale: 1, rotate: 0 }}
+          transition={{ type: "spring", stiffness: 150, damping: 16, delay: 0.18 }}
+          className="relative flex w-full max-w-[42rem] flex-col items-center justify-center px-7 py-9 md:px-10"
         >
-          {fmt(count)}
-        </p>
-        <motion.p
-          initial={{ opacity: 0, y: 20, scale: 0.94 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ ...SPRING, delay: 0.9 }}
-          className="font-display text-2xl font-black uppercase tracking-tight md:text-4xl"
-          style={{ color: ink }}
-        >
-          {label}
-        </motion.p>
-        <motion.p
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ ...SPRING, delay: 1.15 }}
-          className="mt-4 max-w-md font-sans text-base font-semibold leading-relaxed"
-          style={{ color: ink, opacity: 0.85 }}
-        >
-          {note}
-        </motion.p>
-        <div className="absolute bottom-8 left-6 md:left-14">
+          <motion.p
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 0.92, y: 0 }}
+            transition={{ ...SPRING, delay: 0.52 }}
+            className="relative z-10 font-display text-[clamp(1rem,4.7vw,1.72rem)] font-black leading-none tracking-normal md:text-[1.9rem]"
+            style={{ color: ink }}
+          >
+            {kicker}
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0, y: 28, scale: 0.82 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ ...SPRING, delay: 0.68 }}
+            className="relative z-10 my-1 font-display text-[clamp(4.2rem,21vw,8rem)] font-black leading-[0.78] tracking-normal tabular-nums md:text-[9rem]"
+            style={{ color: ink }}
+          >
+            {fmt(count)}
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0, y: 20, scale: 0.94 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ ...SPRING, delay: 0.9 }}
+            className="relative z-10 font-display text-[clamp(1.15rem,5vw,2rem)] font-black uppercase leading-[0.95] tracking-normal md:text-[2.35rem]"
+            style={{ color: ink }}
+          >
+            {label}
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 0.82, y: 0 }}
+            transition={{ ...SPRING, delay: 1.12 }}
+            className="relative z-10 mt-4 max-w-[20rem] font-sans text-[clamp(0.78rem,3.1vw,1rem)] font-bold leading-snug md:text-base"
+            style={{ color: ink }}
+          >
+            {note}
+          </motion.p>
+        </motion.div>
+
+        <div className="absolute bottom-7 left-6 md:left-14">
           <WrapFooter ink={ink} hashtag={HASHTAG} />
         </div>
       </div>
@@ -1124,12 +1205,12 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
     },
     {
       key: "s2",
-      bg: "var(--wr-ink)",
+      bg: "var(--wr-yellow)",
       node: (
         <DataHighlight
-          bg="var(--wr-ink)"
-          ink="var(--wr-green)"
-          accent="var(--wr-pink)"
+          bg="var(--wr-yellow)"
+          ink="var(--wr-ink)"
+          accent="#18ddec"
           kicker={dataKicker}
           value={big.value}
           label={dataLabel}
