@@ -4,11 +4,12 @@ import { useEffect, useRef, useState, type ReactNode } from "react"
 import { motion, useInView } from "framer-motion"
 import { RotateCcw, Share2 } from "lucide-react"
 import { Burst, Halftone, WrapFooter, type BurstPalette } from "@/components/player/burst"
+import { SpiralRibbon } from "@/components/player/spiral-ribbon"
 import { useWrap, type WrapData } from "@/context/wrap-context"
 import { PURPOSES } from "@/context/wrap-context"
 import { buildStats, fmt, type WrapStats } from "@/lib/wrap-stats"
 import type { AiWrapContent } from "@/lib/ai-types"
-import spiralOpeningSrc from "@/photos/page_3/Screenshot 2026-07-12 234445.png"
+
 
 export type WrapPage = { key: string; bg: string; node: ReactNode }
 
@@ -1395,7 +1396,11 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
     {
       key: "s3-global-artists",
       bg: "#f8cdd6",
-      node: <GlobalArtists />,
+      node: (
+        <SpiralRibbon>
+          <GlobalArtists />
+        </SpiralRibbon>
+      ),
     },
     {
       key: "s3",
