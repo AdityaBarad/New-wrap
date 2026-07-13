@@ -8,6 +8,7 @@ import { useWrap, type WrapData } from "@/context/wrap-context"
 import { PURPOSES } from "@/context/wrap-context"
 import { buildStats, fmt, type WrapStats } from "@/lib/wrap-stats"
 import type { AiWrapContent } from "@/lib/ai-types"
+import spiralOpeningSrc from "@/photos/page_3/Screenshot 2026-07-12 234445.png"
 
 export type WrapPage = { key: string; bg: string; node: ReactNode }
 
@@ -465,7 +466,156 @@ function DataHighlight({
 }
 
 /* ================================================================== */
-/* SLIDE 3 — TOP TRACK (typography wall + spinning vinyl)             */
+/* SLIDE 3 — SPOTIFY WRAPPED GLOBAL ARTISTS                           */
+/* ================================================================== */
+
+const GLOBAL_ARTISTS = ["Bad Bunny", "Taylor Swift", "BTS", "Drake", "Justin Bieber"]
+
+function SpotifyMark() {
+  return (
+    <svg viewBox="0 0 64 64" aria-hidden="true" className="h-[7.7cqw] w-[7.7cqw] shrink-0">
+      <circle cx="32" cy="32" r="30" fill="currentColor" />
+      <path
+        d="M18.5 25.2c9.2-2.6 21.5-1.4 29.1 3"
+        fill="none"
+        stroke="#f8cdd6"
+        strokeLinecap="round"
+        strokeWidth="5.2"
+      />
+      <path
+        d="M20.6 33.2c7.8-2 17.5-1.1 24.2 2.4"
+        fill="none"
+        stroke="#f8cdd6"
+        strokeLinecap="round"
+        strokeWidth="4.4"
+      />
+      <path
+        d="M22.2 40.8c6.2-1.5 13.6-.7 18.6 1.9"
+        fill="none"
+        stroke="#f8cdd6"
+        strokeLinecap="round"
+        strokeWidth="3.8"
+      />
+    </svg>
+  )
+}
+
+function WrappedSparkleRibbon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 h-full w-full"
+      viewBox="0 0 392 392"
+      preserveAspectRatio="none"
+    >
+      <defs>
+        <mask id="global-artists-ribbon-mask">
+          <rect width="392" height="392" fill="black" />
+          <path
+            d="M432 165C346 166 247 184 254 227c5 31 74 39 99 74 25 36-4 75-64 104"
+            fill="none"
+            stroke="white"
+            strokeLinecap="round"
+            strokeWidth="86"
+          />
+          <path
+            d="M-54 322c59 7 128 21 176 39 48 17 81 38 118 57"
+            fill="none"
+            stroke="white"
+            strokeLinecap="round"
+            strokeWidth="83"
+          />
+        </mask>
+        <path id="sparkle-shape" d="M0-33C7-9 9-7 33 0C9 7 7 9 0 33C-7 9-9 7-33 0C-9-7-7-9 0-33Z" />
+      </defs>
+
+      <g mask="url(#global-artists-ribbon-mask)">
+        <rect width="392" height="392" fill="transparent" />
+        <path
+          d="M432 165C346 166 247 184 254 227c5 31 74 39 99 74 25 36-4 75-64 104"
+          fill="none"
+          stroke="#030303"
+          strokeLinecap="round"
+          strokeWidth="86"
+        />
+        <path
+          d="M-54 322c59 7 128 21 176 39 48 17 81 38 118 57"
+          fill="none"
+          stroke="#030303"
+          strokeLinecap="round"
+          strokeWidth="83"
+        />
+        <g fill="#ff1234">
+          <use href="#sparkle-shape" transform="translate(330 172) scale(1.05)" />
+          <use href="#sparkle-shape" transform="translate(374 180) scale(1.3)" />
+          <use href="#sparkle-shape" transform="translate(235 229) scale(.72)" />
+          <use href="#sparkle-shape" transform="translate(339 211) scale(.4)" />
+          <use href="#sparkle-shape" transform="translate(342 315) scale(.92)" />
+          <use href="#sparkle-shape" transform="translate(296 355) scale(.64)" />
+          <use href="#sparkle-shape" transform="translate(32 338) scale(.98)" />
+          <use href="#sparkle-shape" transform="translate(90 350) scale(1.18)" />
+          <use href="#sparkle-shape" transform="translate(137 356) scale(.55)" />
+        </g>
+      </g>
+    </svg>
+  )
+}
+
+function GlobalArtists() {
+  return (
+    <Shell>
+      <div className="flex h-full w-full items-center justify-center overflow-hidden bg-[#f8cdd6] text-[#050505]">
+        <div className="relative aspect-square h-auto max-h-full w-[min(100vw,100dvh)] max-w-full overflow-hidden bg-[#f8cdd6] [container-type:size]">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.28, delay: 0.12, ease: "easeOut" }}
+            className="absolute inset-0"
+          >
+            <WrappedSparkleRibbon />
+          </motion.div>
+
+          <motion.header
+            initial={{ opacity: 0, y: "-3cqw" }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...SPRING, delay: 0.18 }}
+            className="relative z-10 flex items-center justify-between px-[5.2cqw] pt-[5.2cqw] font-display"
+          >
+            <div className="flex items-center gap-[1.6cqw] text-[#050505]">
+              <SpotifyMark />
+              <span className="text-[5.1cqw] font-black leading-none tracking-normal">Spotify</span>
+            </div>
+            <span className="text-[3.55cqw] font-black uppercase leading-none tracking-normal">#SPOTIFYWRAPPED</span>
+          </motion.header>
+
+          <motion.main
+            initial={{ opacity: 0, y: "4.6cqw" }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...SPRING, delay: 0.32 }}
+            className="relative z-10 px-[5.2cqw] pt-[7.8cqw] font-display"
+          >
+            <h2 className="max-w-[72cqw] text-[7.55cqw] font-black leading-[1.01] tracking-normal text-[#050505]">
+              Most Streamed
+              <br />
+              Artists Globally
+            </h2>
+            <ol className="mt-[4.2cqw] grid gap-[.3cqw] text-[4.05cqw] font-black leading-[1.08] tracking-normal">
+              {GLOBAL_ARTISTS.map((artist, index) => (
+                <li key={artist} className="grid grid-cols-[4.2cqw_1fr] items-baseline gap-[2cqw]">
+                  <span>{index + 1}</span>
+                  <span>{artist}</span>
+                </li>
+              ))}
+            </ol>
+          </motion.main>
+        </div>
+      </div>
+    </Shell>
+  )
+}
+
+/* ================================================================== */
+/* SLIDE 4 — TOP TRACK (typography wall + spinning vinyl)             */
 /* ================================================================== */
 
 function MarqueeRow({
@@ -1241,6 +1391,11 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
           note={dataNote}
         />
       ),
+    },
+    {
+      key: "s3-global-artists",
+      bg: "#f8cdd6",
+      node: <GlobalArtists />,
     },
     {
       key: "s3",
