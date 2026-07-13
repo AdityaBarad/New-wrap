@@ -5,6 +5,7 @@ import { motion, useInView } from "framer-motion"
 import { RotateCcw, Share2 } from "lucide-react"
 import { Burst, Halftone, WrapFooter, type BurstPalette } from "@/components/player/burst"
 import { SpiralRibbon } from "@/components/player/spiral-ribbon"
+import { ArtistStatsCard } from "@/components/player/artist-stats"
 import { useWrap, type WrapData } from "@/context/wrap-context"
 import { PURPOSES } from "@/context/wrap-context"
 import { buildStats, fmt, type WrapStats } from "@/lib/wrap-stats"
@@ -54,7 +55,7 @@ function useCountUp(target: number, duration = 1500) {
 
 /* ---------- shared primitives ---------- */
 
-function Shell({ children }: { children: ReactNode }) {
+export function Shell({ children }: { children: ReactNode }) {
   return <div className="relative h-full w-full overflow-hidden">{children}</div>
 }
 
@@ -1400,6 +1401,20 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
         <SpiralRibbon>
           <GlobalArtists />
         </SpiralRibbon>
+      ),
+    },
+    {
+      key: "s3-artist-stats",
+      bg: "#E9148C",
+      node: (
+        <ArtistStatsCard
+          artistName={dashboardArtists[0] || "Top Artist"}
+          photoUrl={photo0}
+          streams={stats.int(50, 400) + stats.int(0, 9) / 10}
+          hours={stats.int(5, 50) + stats.int(0, 9) / 10}
+          listeners={stats.int(10, 100) + stats.int(0, 9) / 10}
+          countries={stats.int(30, 100)}
+        />
       ),
     },
     {
