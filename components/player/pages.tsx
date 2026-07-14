@@ -290,57 +290,76 @@ const PIXEL_ROWS = [
   "clamp(4rem, 16vw, 14rem)",
   "clamp(2.75rem, 9vw, 8rem)",
 ]
+const PIXEL_ROW_HEIGHT = "clamp(2.1375rem, 3.8vw, 3.42rem)"
 
 function PixelStair({
   corner,
   delay = 0,
   accent,
+  shutterPhase,
 }: {
   corner: "top-left" | "top-right" | "bottom-left" | "bottom-right"
   delay?: number
   accent: string
+  shutterPhase?: "closing" | "opening"
 }) {
   const isTop = corner.startsWith("top")
   const isRight = corner.endsWith("right")
   const enterX = isRight ? 70 : -70
   const enterY = isTop ? -28 : 28
+  const isShutter = Boolean(shutterPhase)
+  const isClosing = shutterPhase === "closing"
   const rows = isTop ? PIXEL_ROWS : [...PIXEL_ROWS].reverse()
   const columnDirection = isRight ? "flex-row-reverse" : "flex-row"
   const outerColumn = isRight
-    ? "linear-gradient(90deg, #1d4ed8 0%, #22d3ee 100%)"
-    : "linear-gradient(90deg, #22d3ee 0%, #1d4ed8 100%)"
+    ? "linear-gradient(90deg, #174ee8 0%, #0789f5 58%, #20e7ed 100%)"
+    : "linear-gradient(90deg, #20e7ed 0%, #0789f5 42%, #174ee8 100%)"
   const innerColumn = isRight
-    ? "linear-gradient(90deg, #1d4ed8 0%, #1e1b4b 100%)"
-    : "linear-gradient(90deg, #1e1b4b 0%, #1d4ed8 100%)"
+    ? "linear-gradient(90deg, #174ee8 0%, #5424ed 52%, #10093f 100%)"
+    : "linear-gradient(90deg, #10093f 0%, #5424ed 48%, #174ee8 100%)"
 
   return (
     <div
       aria-hidden="true"
       className={`pointer-events-none absolute ${isTop ? "top-0" : "bottom-0"} ${
         isRight ? "right-0 items-end" : "left-0 items-start"
-      } z-0 flex w-[58vw] max-w-[46rem] flex-col overflow-hidden`}
+      } z-0 flex flex-col ${isShutter ? "w-full overflow-visible" : "w-[58vw] max-w-[46rem] overflow-hidden"}`} 
     >
       {rows.map((width, i) => (
         <motion.div
           key={`${corner}-${i}`}
-          initial={{ opacity: 0, x: enterX, y: enterY }}
+          initial={isShutter ? { opacity: 1, x: 0, y: 0, width, height: PIXEL_ROW_HEIGHT } : { opacity: 0, x: enterX, y: enterY }}
           animate={{
             opacity: 1,
             x: 0,
             y: 0,
+            width: isClosing ? `${isTop ? 42 + i * 4.8 : 61.2 - i * 4.8}vw` : width,
+            height: PIXEL_ROW_HEIGHT,
           }}
-          transition={{
-            opacity: { ...SPRING, delay: delay + i * 0.08 },
-            x: { ...SPRING, delay: delay + i * 0.08 },
-            y: { ...SPRING, delay: delay + i * 0.08 },
-          }}
-          className={`flex h-9 ${columnDirection} sm:h-[2.7rem] md:h-[3.15rem] lg:h-[3.6rem]`}
+          transition={
+            isShutter
+              ? {
+                  width: {
+                    duration: isClosing ? 1.2 : 1.3,
+                    delay: isClosing ? i * 0.035 : (rows.length - 1 - i) * 0.025,
+                    ease: [0.76, 0, 0.24, 1],
+                  },
+
+                }
+              : {
+                  opacity: { ...SPRING, delay: delay + i * 0.08 },
+                  x: { ...SPRING, delay: delay + i * 0.08 },
+                  y: { ...SPRING, delay: delay + i * 0.08 },
+                }
+          }
+          className={`flex ${columnDirection}`}
           style={{
             width,
+            height: PIXEL_ROW_HEIGHT,
           }}
         >
           <motion.div
-            className="h-full w-1/2"
+            className="h-full w-[60%] shrink-0"
             animate={{ filter: ["saturate(1)", "saturate(1.18)", "saturate(1)"] }}
             transition={{
               duration: 5.5,
@@ -353,7 +372,7 @@ function PixelStair({
             }}
           />
           <motion.div
-            className="h-full w-1/2"
+            className="h-full flex-1"
             animate={{ filter: ["saturate(1.08)", "saturate(1)", "saturate(1.08)"] }}
             transition={{
               duration: 6.2,
@@ -367,6 +386,91 @@ function PixelStair({
           />
         </motion.div>
       ))}
+    </div>
+  )
+}
+
+function CenterClosingStrips({ phase }: { phase: "closing" | "opening" }) {
+  const isClosing = phase === "closing"
+  const rows = Array.from({ length: 4 })
+
+  return (
+    <div
+      className="absolute inset-x-0 top-1/2 flex -translate-y-1/2 flex-col overflow-hidden"
+      style={{ height: `calc(4 * ${PIXEL_ROW_HEIGHT})` }}
+    >
+      {rows.map((_, i) => {
+        const distanceFromCenter = Math.abs(i - (rows.length - 1) / 2)
+        const width = 72.5 - distanceFromCenter * 5
+        const delay = i * 0.035
+
+        return (
+          <motion.div
+            key={i}
+            className="relative shrink-0"
+            style={{ height: PIXEL_ROW_HEIGHT }}
+            initial={{ opacity: 1 }}
+            animate={{ opacity: 1 }}
+          >
+            <motion.div
+              className="absolute inset-y-0 left-0 flex"
+              initial={{ x: "-100%" }}
+              animate={{ x: isClosing ? "0%" : "-100%" }}
+              transition={{ duration: isClosing ? 1.2 : 1.3, delay, ease: [0.76, 0, 0.24, 1] }}
+              style={{ width: `${width}vw` }}
+            >
+              <div
+                className="h-full w-[60%] shrink-0"
+                style={{ backgroundImage: "linear-gradient(90deg, #20e7ed 0%, #0789f5 42%, #174ee8 100%)" }}
+              />
+              <div
+                className="h-full flex-1"
+                style={{ backgroundImage: "linear-gradient(90deg, #10093f 0%, #5424ed 48%, #174ee8 100%)" }}
+              />
+            </motion.div>
+            <motion.div
+              className="absolute inset-y-0 right-0 flex flex-row-reverse"
+              initial={{ x: "100%" }}
+              animate={{ x: isClosing ? "0%" : "100%" }}
+              transition={{ duration: isClosing ? 1.2 : 1.3, delay, ease: [0.76, 0, 0.24, 1] }}
+              style={{ width: `${width}vw` }}
+            >
+              <div
+                className="h-full w-[60%] shrink-0"
+                style={{ backgroundImage: "linear-gradient(90deg, #174ee8 0%, #0789f5 58%, #20e7ed 100%)" }}
+              />
+              <div
+                className="h-full flex-1"
+                style={{ backgroundImage: "linear-gradient(90deg, #174ee8 0%, #5424ed 52%, #10093f 100%)" }}
+              />
+            </motion.div>
+          </motion.div>
+        )
+      })}
+    </div>
+  )
+}
+
+export function PixelTransitionShutter({ phase }: { phase: "closing" | "opening" }) {
+  const isClosing = phase === "closing"
+
+  return (
+    <div aria-hidden="true" className="pointer-events-auto absolute inset-0 z-[25] overflow-hidden">
+      <motion.div
+        className="absolute inset-0"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isClosing ? 1 : 0 }}
+        transition={{ duration: isClosing ? 0.45 : 0.75, delay: isClosing ? 0.72 : 0.12 }}
+        style={{
+          backgroundImage:
+            "linear-gradient(90deg, #20e7ed 0%, #0789f5 23%, #174ee8 34%, #5424ed 44%, #10093f 49%, #10093f 51%, #5424ed 56%, #174ee8 66%, #0789f5 77%, #20e7ed 100%)",
+        }}
+      />
+      <CenterClosingStrips phase={phase} />
+      <PixelStair corner="top-left" accent="#18ddec" shutterPhase={phase} />
+      <PixelStair corner="top-right" accent="#18ddec" shutterPhase={phase} />
+      <PixelStair corner="bottom-left" accent="#18ddec" shutterPhase={phase} />
+      <PixelStair corner="bottom-right" accent="#18ddec" shutterPhase={phase} />
     </div>
   )
 }
@@ -469,7 +573,79 @@ function DataHighlight({
 }
 
 /* ================================================================== */
-/* SLIDE 3 — SPOTIFY WRAPPED GLOBAL ARTISTS                           */
+/* SLIDE 3 — TOP SONG REVEAL (pixel frame + portrait)                  */
+/* ================================================================== */
+
+function TopSongReveal({
+  photo,
+  title,
+  artist,
+  topPercent,
+}: {
+  photo?: string
+  title: string
+  artist: string
+  topPercent: number
+}) {
+  const ink = "var(--wr-ink)"
+
+  return (
+    <Shell>
+      <PixelFrame accent="#18ddec" bg="var(--wr-yellow)" />
+
+      <div className="relative z-10 flex h-full w-full flex-col items-center justify-center px-6 pb-16 pt-20 text-center sm:px-10 md:pb-20 md:pt-24">
+        <motion.div
+          initial={{ opacity: 0, y: 30, scale: 0.86 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ type: "spring", stiffness: 125, damping: 17, delay: 0.18 }}
+          className="relative aspect-square w-[clamp(11.5rem,42vw,20rem)] overflow-hidden shadow-[0_1.25rem_2.5rem_rgba(11,11,11,0.18)]"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={photo || "/wrapped-portrait-1.png"}
+            alt={`${title} cover`}
+            className="h-full w-full object-cover"
+            crossOrigin="anonymous"
+          />
+          <motion.div
+            aria-hidden="true"
+            className="absolute inset-0 bg-gradient-to-tr from-cyan-400/25 via-transparent to-yellow-200/20 mix-blend-screen"
+            animate={{ opacity: [0.25, 0.6, 0.25] }}
+            transition={{ duration: 3.2, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+          />
+        </motion.div>
+
+        <motion.h2
+          initial={{ opacity: 0, y: 22 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...SPRING, delay: 0.5 }}
+          className="mt-6 max-w-[34rem] font-display text-[clamp(1.15rem,4.4vw,2.25rem)] font-black leading-[1.02] tracking-tight text-balance"
+          style={{ color: ink }}
+        >
+          Your top song was {title}
+          <span className="block">by {artist}</span>
+        </motion.h2>
+
+        <motion.p
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 0.82, y: 0 }}
+          transition={{ ...SPRING, delay: 0.72 }}
+          className="mt-5 max-w-[21rem] font-sans text-[clamp(0.72rem,2.6vw,0.95rem)] font-semibold leading-snug"
+          style={{ color: ink }}
+        >
+          You were in the top {topPercent}% of listeners globally.
+        </motion.p>
+
+        <div className="absolute bottom-7 left-1/2 -translate-x-1/2 md:bottom-9">
+          <WrapFooter ink={ink} hashtag={HASHTAG} />
+        </div>
+      </div>
+    </Shell>
+  )
+}
+
+/* ================================================================== */
+/* SLIDE 4 — SPOTIFY WRAPPED GLOBAL ARTISTS                           */
 /* ================================================================== */
 
 const GLOBAL_ARTISTS = ["Bad Bunny", "Taylor Swift", "BTS", "Drake", "Justin Bieber"]
@@ -1396,7 +1572,19 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
       ),
     },
     {
-      key: "s3-global-artists",
+      key: "s3-top-song",
+      bg: "var(--wr-yellow)",
+      node: (
+        <TopSongReveal
+          photo={photo0}
+          title={anthem}
+          artist={trackArtistLine}
+          topPercent={stats.topPercent}
+        />
+      ),
+    },
+    {
+      key: "s4-global-artists",
       bg: "#f8cdd6",
       node: (
         <SpiralRibbon>

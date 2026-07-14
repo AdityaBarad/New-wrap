@@ -1,12 +1,16 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { AnimatePresence, motion } from "framer-motion"
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
 import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react"
 import { useWrap } from "@/context/wrap-context"
-import { buildPages } from "@/components/player/pages"
+import { buildPages, PixelTransitionShutter } from "@/components/player/pages"
 
 const PAGE_MS = 7000
+const CURTAIN_CLOSE_MS = 1400
+const CURTAIN_OPEN_MS = 1300
+
+type CurtainPhase = "closing" | "opening" | null
 
 export function StageThree() {
   const { data, aiContent } = useWrap()
@@ -15,31 +19,70 @@ export function StageThree() {
   const [dir, setDir] = useState(1)
   const [paused, setPaused] = useState(false)
   const [progress, setProgress] = useState(0)
+  const [curtainPhase, setCurtainPhase] = useState<CurtainPhase>(null)
+  const reducedMotion = useReducedMotion()
   const raf = useRef<number | null>(null)
   const start = useRef<number>(0)
   const elapsedBefore = useRef<number>(0)
+  const transitionLock = useRef(false)
+  const transitionTimers = useRef<ReturnType<typeof setTimeout>[]>([])
+
+  const commitPage = useCallback((next: number, d: number) => {
+    setDir(d)
+    setIndex(next)
+    setProgress(0)
+    elapsedBefore.current = 0
+    start.current = performance.now()
+  }, [])
 
   const go = useCallback(
     (next: number, d: number) => {
-      if (next < 0 || next >= pages.length) return
-      setDir(d)
-      setIndex(next)
-      setProgress(0)
-      elapsedBefore.current = 0
-      start.current = performance.now()
+      if (next < 0 || next >= pages.length || transitionLock.current) return
+
+      const usesPixelShutter =
+        !reducedMotion && d > 0 && pages[index]?.key === "s2" && pages[next]?.key === "s3-top-song"
+
+      if (!usesPixelShutter) {
+        commitPage(next, d)
+        return
+      }
+
+      transitionLock.current = true
+      setProgress(1)
+      setCurtainPhase("closing")
+
+      const closeTimer = setTimeout(() => {
+        commitPage(next, d)
+        setCurtainPhase("opening")
+
+        const openTimer = setTimeout(() => {
+          setCurtainPhase(null)
+          transitionLock.current = false
+          start.current = performance.now()
+        }, CURTAIN_OPEN_MS)
+        transitionTimers.current.push(openTimer)
+      }, CURTAIN_CLOSE_MS)
+      transitionTimers.current.push(closeTimer)
     },
-    [pages.length],
+    [commitPage, index, pages, reducedMotion],
   )
 
   const advance = useCallback(() => go(index + 1, 1), [go, index])
   const back = useCallback(() => go(index - 1, -1), [go, index])
+
+  useEffect(() => {
+    return () => {
+      transitionTimers.current.forEach(clearTimeout)
+      transitionTimers.current = []
+    }
+  }, [])
 
   // autoplay progress
   useEffect(() => {
     start.current = performance.now()
     elapsedBefore.current = 0
     const tick = (now: number) => {
-      if (!paused) {
+      if (!paused && !curtainPhase) {
         const elapsed = elapsedBefore.current + (now - start.current)
         const p = Math.min(1, elapsed / PAGE_MS)
         setProgress(p)
@@ -60,7 +103,7 @@ export function StageThree() {
     return () => {
       if (raf.current) cancelAnimationFrame(raf.current)
     }
-  }, [index, paused, pages.length, go])
+  }, [index, paused, pages.length, go, curtainPhase])
 
   // keyboard
   useEffect(() => {
@@ -123,6 +166,10 @@ export function StageThree() {
         >
           {current.node}
         </motion.div>
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {curtainPhase && <PixelTransitionShutter key="pixel-shutter" phase={curtainPhase} />}
       </AnimatePresence>
 
       {/* top-right glassmorphism controls */}
