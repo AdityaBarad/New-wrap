@@ -6,6 +6,7 @@ import { RotateCcw, Share2 } from "lucide-react"
 import { Burst, Halftone, WrapFooter, type BurstPalette } from "@/components/player/burst"
 import { SpiralRibbon } from "@/components/player/spiral-ribbon"
 import { ArtistStatsCard } from "@/components/player/artist-stats"
+import { WorldCitizen } from "@/components/player/world-citizen"
 import { useWrap, type WrapData } from "@/context/wrap-context"
 import { PURPOSES } from "@/context/wrap-context"
 import { buildStats, fmt, type WrapStats } from "@/lib/wrap-stats"
@@ -1414,6 +1415,15 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
           hours={stats.int(5, 50) + stats.int(0, 9) / 10}
           listeners={stats.int(10, 100) + stats.int(0, 9) / 10}
           countries={stats.int(30, 100)}
+        />
+      ),
+    },
+    {
+      key: "s-world-citizen",
+      bg: "#2D8C7E",
+      node: (
+        <WorldCitizen
+          countriesCount={stats.int(24, 58)}
         />
       ),
     },
