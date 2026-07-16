@@ -20,6 +20,7 @@ export function StageThree() {
   const [paused, setPaused] = useState(false)
   const [progress, setProgress] = useState(0)
   const [curtainPhase, setCurtainPhase] = useState<CurtainPhase>(null)
+  const [zoomingThroughIntro, setZoomingThroughIntro] = useState(false)
   const reducedMotion = useReducedMotion()
   const raf = useRef<number | null>(null)
   const start = useRef<number>(0)
@@ -39,8 +40,29 @@ export function StageThree() {
     (next: number, d: number) => {
       if (next < 0 || next >= pages.length || transitionLock.current) return
 
+      const usesIntroZoom =
+        !reducedMotion && d > 0 && pages[index]?.key === "s1" && pages[next]?.key === "s2-share"
       const usesPixelShutter =
         !reducedMotion && d > 0 && pages[index]?.key === "s2" && pages[next]?.key === "s3-top-song"
+
+      if (usesIntroZoom) {
+        transitionLock.current = true
+        setProgress(1)
+        setZoomingThroughIntro(true)
+
+        const zoomTimer = setTimeout(() => {
+          commitPage(next, d)
+
+          const settleTimer = setTimeout(() => {
+            setZoomingThroughIntro(false)
+            transitionLock.current = false
+            start.current = performance.now()
+          }, 550)
+          transitionTimers.current.push(settleTimer)
+        }, 900)
+        transitionTimers.current.push(zoomTimer)
+        return
+      }
 
       if (!usesPixelShutter) {
         commitPage(next, d)
@@ -82,7 +104,7 @@ export function StageThree() {
     start.current = performance.now()
     elapsedBefore.current = 0
     const tick = (now: number) => {
-      if (!paused && !curtainPhase) {
+      if (!paused && !curtainPhase && !zoomingThroughIntro) {
         const elapsed = elapsedBefore.current + (now - start.current)
         const p = Math.min(1, elapsed / PAGE_MS)
         setProgress(p)
@@ -103,7 +125,7 @@ export function StageThree() {
     return () => {
       if (raf.current) cancelAnimationFrame(raf.current)
     }
-  }, [index, paused, pages.length, go, curtainPhase])
+  }, [index, paused, pages.length, go, curtainPhase, zoomingThroughIntro])
 
   // keyboard
   useEffect(() => {
@@ -157,10 +179,26 @@ export function StageThree() {
         <motion.div
           key={current.key}
           custom={dir}
-          initial={{ opacity: 0, x: dir * 120, scale: 0.92, rotate: dir * 2 }}
-          animate={{ opacity: 1, x: 0, scale: 1, rotate: 0 }}
-          exit={{ opacity: 0, x: dir * -120, scale: 0.92, rotate: dir * -2 }}
-          transition={{ type: "spring", stiffness: 260, damping: 26, mass: 0.9 }}
+          initial={
+            current.key === "s2-share" && zoomingThroughIntro
+              ? { opacity: 0, x: 0, scale: 1.42, rotate: 0, filter: "blur(10px)" }
+              : { opacity: 0, x: dir * 120, scale: 0.92, rotate: dir * 2, filter: "blur(0px)" }
+          }
+          animate={
+            zoomingThroughIntro && current.key === "s1"
+              ? { opacity: 0, x: 0, scale: 3.8, rotate: 0, filter: "blur(9px)" }
+              : { opacity: 1, x: 0, scale: 1, rotate: 0, filter: "blur(0px)" }
+          }
+          exit={
+            zoomingThroughIntro && current.key === "s1"
+              ? { opacity: 0, x: 0, scale: 4.2, rotate: 0, filter: "blur(12px)" }
+              : { opacity: 0, x: dir * -120, scale: 0.92, rotate: dir * -2, filter: "blur(0px)" }
+          }
+          transition={
+            zoomingThroughIntro && current.key === "s1"
+              ? { duration: 0.9, ease: [0.76, 0, 0.24, 1] }
+              : { type: "spring", stiffness: 260, damping: 26, mass: 0.9 }
+          }
           className="absolute inset-0 flex items-center justify-center"
           style={{ backgroundColor: current.bg }}
         >

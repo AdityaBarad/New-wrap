@@ -280,7 +280,134 @@ function IntroUniverse({
 }
 
 /* ================================================================== */
-/* SLIDE 2 — DATA HIGHLIGHT (Wrapped 2024 pixel frame + count up)     */
+/* SLIDE 2 — SHARE YOUR WRAPPED (animated campaign card)               */
+/* ================================================================== */
+
+const SHARE_BLOCKS = [
+  { left: "5%", top: "0%", delay: 0 },
+  { left: "10%", top: "17%", delay: 0.15 },
+  { left: "1%", top: "34%", delay: 0.28 },
+  { left: "9%", top: "52%", delay: 0.08 },
+  { left: "4%", top: "72%", delay: 0.22 },
+  { right: "6%", top: "0%", delay: 0.12 },
+  { right: "1%", top: "18%", delay: 0.3 },
+  { right: "8%", top: "36%", delay: 0.04 },
+  { right: "2%", top: "55%", delay: 0.18 },
+  { right: "7%", top: "74%", delay: 0.34 },
+]
+
+const SHARE_ORBS = [
+  { left: "-3%", top: "-9%", delay: 0 },
+  { right: "-3%", top: "-9%", delay: 0.3 },
+  { left: "-4%", top: "40%", delay: 0.55 },
+  { right: "-4%", top: "40%", delay: 0.15 },
+  { left: "-3%", bottom: "-11%", delay: 0.4 },
+  { right: "-3%", bottom: "-11%", delay: 0.7 },
+]
+
+function ShareSpotifyLogo() {
+  return (
+    <div className="flex items-center gap-[1.2cqw] text-[#101010]">
+      <svg viewBox="0 0 64 64" aria-hidden="true" className="size-[clamp(2.5rem,6cqw,4rem)]">
+        <circle cx="32" cy="32" r="30" fill="currentColor" />
+        <path d="M17 25c10-3 22-2 31 2.5" fill="none" stroke="#ff861b" strokeLinecap="round" strokeWidth="5" />
+        <path d="M20 33c8-2 17-1.3 25 2" fill="none" stroke="#ff861b" strokeLinecap="round" strokeWidth="4.2" />
+        <path d="M22 41c6-1.5 13-.8 19 1.7" fill="none" stroke="#ff861b" strokeLinecap="round" strokeWidth="3.6" />
+      </svg>
+      <span className="font-display text-[clamp(1.7rem,4.2cqw,3rem)] font-black tracking-tight">Spotify</span>
+    </div>
+  )
+}
+
+function ShareWrappedSlide() {
+  return (
+    <Shell>
+      <div className="relative flex h-full w-full items-center justify-center overflow-hidden bg-[#101010] [container-type:size]">
+        {SHARE_BLOCKS.map((block, index) => (
+          <motion.div
+            key={index}
+            aria-hidden="true"
+            className="absolute aspect-square w-[clamp(3rem,9cqw,7rem)] bg-[#7200c9]"
+            style={block}
+            initial={{ opacity: 0, scale: 0.4, rotate: -20 }}
+            animate={{ opacity: 1, scale: [1, 1.08, 1], rotate: [0, 5, -4, 0], y: [0, -8, 0] }}
+            transition={{
+              opacity: { duration: 0.3, delay: block.delay },
+              scale: { duration: 4.5, repeat: Number.POSITIVE_INFINITY, delay: block.delay },
+              rotate: { duration: 6, repeat: Number.POSITIVE_INFINITY, delay: block.delay },
+              y: { duration: 3.8, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut", delay: block.delay },
+            }}
+          />
+        ))}
+
+        {SHARE_ORBS.map((orb, index) => (
+          <motion.div
+            key={index}
+            aria-hidden="true"
+            className="absolute z-[2] aspect-square w-[clamp(4.5rem,12cqw,8rem)] rounded-full bg-[#efff38]"
+            style={orb}
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: [1, 1.08, 0.96, 1], x: [0, index % 2 === 0 ? 8 : -8, 0] }}
+            transition={{
+              opacity: { duration: 0.3, delay: 0.15 + orb.delay },
+              scale: { duration: 4.2, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut", delay: orb.delay },
+              x: { duration: 5.2, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut", delay: orb.delay },
+            }}
+          />
+        ))}
+
+        <motion.div
+          aria-hidden="true"
+          className="absolute inset-[1.5%_4%] z-[3] bg-[#ff861b] [clip-path:polygon(7%_0,25%_7%,22%_0,78%_0,75%_8%,93%_0,88%_14%,100%_10%,91%_27%,100%_32%,91%_43%,100%_50%,91%_57%,100%_69%,90%_73%,96%_91%,77%_94%,75%_100%,24%_100%,22%_94%,4%_100%,10%_82%,0_76%,9%_63%,0_57%,10%_50%,0_42%,10%_35%,0_23%,11%_18%)]"
+          initial={{ scale: 0.25, rotate: -8 }}
+          animate={{ scale: [1, 1.018, 1], rotate: [0, 0.6, -0.5, 0] }}
+          transition={{
+            scale: {
+              duration: 4.8,
+              repeat: Number.POSITIVE_INFINITY,
+              ease: "easeInOut",
+              times: [0, 0.5, 1],
+              delay: 0.12,
+            },
+            rotate: { duration: 7, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut", delay: 0.9 },
+          }}
+        />
+
+        <div className="relative z-10 flex h-full w-full flex-col items-center justify-center px-[12%] text-center text-[#080808]">
+          <motion.h2
+            initial={{ opacity: 0, y: "8cqh", scale: 0.72 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ type: "spring", stiffness: 125, damping: 16, delay: 0.42 }}
+            className="font-display text-[clamp(2rem,6.3cqw,5.5rem)] font-black leading-[0.98] tracking-tight text-balance"
+          >
+            Share your
+            <span className="block">Spotify Wrapped</span>
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, letterSpacing: "0.8em" }}
+            animate={{ opacity: 1, letterSpacing: "0.16em" }}
+            transition={{ duration: 0.65, delay: 0.72, ease: "easeOut" }}
+            className="mt-[2.2cqh] font-display text-[clamp(0.52rem,1.15cqw,0.8rem)] font-black uppercase"
+          >
+            #SpotifyWrapped
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: "5cqh", scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ type: "spring", stiffness: 120, damping: 15, delay: 0.92 }}
+            className="absolute bottom-[15%]"
+          >
+            <ShareSpotifyLogo />
+          </motion.div>
+        </div>
+      </div>
+    </Shell>
+  )
+}
+
+/* ================================================================== */
+/* SLIDE 3 — DATA HIGHLIGHT (Wrapped 2024 pixel frame + count up)     */
 /* ================================================================== */
 
 const PIXEL_ROWS = [
@@ -816,7 +943,116 @@ function GlobalArtists() {
 }
 
 /* ================================================================== */
-/* SLIDE 4 — TOP TRACK (typography wall + spinning vinyl)             */
+/* SLIDE 5 — MY TOP ARTISTS (portrait ranking card)                    */
+/* ================================================================== */
+
+function FlameStrip() {
+  return (
+    <motion.svg
+      aria-hidden="true"
+      viewBox="0 0 263 92"
+      preserveAspectRatio="none"
+      className="absolute inset-x-0 top-0 h-[clamp(4.75rem,20cqw,7rem)] w-full"
+      initial={{ y: "-100%" }}
+      animate={{ y: 0 }}
+      transition={{ type: "spring", stiffness: 95, damping: 15, delay: 0.05 }}
+    >
+      <path d="M0 0H263V58c-18-3-30-14-38-31-7 22-24 36-45 38-20 2-38-8-49-27-11 19-29 29-49 27-21-2-38-16-45-38C49 44 35 57 0 62Z" fill="#ed62b9" />
+      <g fill="#20206f">
+        <path d="M-7 10C7-2 29 2 35 17c4 10-1 20-10 25 1-9-2-14-9-17 2 8-1 14-8 17-9-7-11-18-5-27-4 1-7 3-10 6Z" />
+        <path d="M88-7c7 9 4 17-3 23 5 0 10-3 13-8 8 10 9 21 3 30-7 11-25 13-35 4-9-8-10-22-2-31 0 10 5 16 12 18-4-12 0-27 12-36Z" />
+        <path d="M270 8c-13-10-33-5-38 10-4 11 2 21 12 25-2-9 2-15 9-18-2 8 1 14 8 17 9-7 11-18 5-27 4 1 7 3 10 6Z" />
+        <path d="M244 51c-12 0-21-8-23-19-3 14 4 27 16 33 11 5 23 2 31-6-10 1-18-2-24-8Z" />
+        <path d="M19 51c12 0 21-8 23-19 3 14-4 27-16 33-11 5-23 2-31-6 10 1 18-2 24-8Z" />
+      </g>
+    </motion.svg>
+  )
+}
+
+function SmallSpotifyLogo() {
+  return (
+    <svg viewBox="0 0 42 42" aria-hidden="true" className="size-[7cqw] shrink-0">
+      <circle cx="21" cy="21" r="20" fill="currentColor" />
+      <path d="M10 17c8-2 17-1 23 2" fill="none" stroke="#95eab1" strokeLinecap="round" strokeWidth="3.3" />
+      <path d="M12 23c6-1.5 13-.8 19 1.8" fill="none" stroke="#95eab1" strokeLinecap="round" strokeWidth="2.8" />
+      <path d="M14 29c5-1 10-.5 15 1.5" fill="none" stroke="#95eab1" strokeLinecap="round" strokeWidth="2.3" />
+    </svg>
+  )
+}
+
+function TopArtistsList({ artists, photos }: { artists: string[]; photos: string[] }) {
+  const navy = "#20206f"
+
+  return (
+    <Shell>
+      <div className="flex h-full w-full items-center justify-center overflow-hidden bg-[#95eab1]">
+        <div className="relative h-full min-h-0 w-full overflow-hidden bg-[#95eab1] [container-type:size] sm:aspect-[263/465] sm:w-auto sm:max-w-full">
+          <FlameStrip />
+
+          <motion.h2
+            initial={{ opacity: 0, y: "4cqw" }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...SPRING, delay: 0.32 }}
+            className="absolute inset-x-4 top-[19.5%] text-center font-display text-[clamp(1.25rem,7.2cqw,2.15rem)] font-black leading-none tracking-tight"
+            style={{ color: navy }}
+          >
+            My Top Artists
+          </motion.h2>
+
+          <ol className="absolute inset-x-[8.5%] top-[28.5%] flex flex-col gap-[1.35cqw]">
+            {artists.slice(0, 5).map((artist, index) => (
+              <motion.li
+                key={`${artist}-${index}`}
+                initial={{ opacity: 0, x: index % 2 === 0 ? "-13cqw" : "13cqw" }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ type: "spring", stiffness: 125, damping: 17, delay: 0.45 + index * 0.12 }}
+                className="grid h-[18.1cqw] grid-cols-[11cqw_18.1cqw_1fr] items-center gap-[3cqw]"
+              >
+                <span className="text-right font-display text-[7.2cqw] font-black leading-none" style={{ color: navy }}>
+                  #{index + 1}
+                </span>
+                <motion.div
+                  initial={{ scale: 0.7, rotate: index % 2 === 0 ? -7 : 7 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ type: "spring", stiffness: 150, damping: 14, delay: 0.52 + index * 0.12 }}
+                  className="size-[18.1cqw] overflow-hidden bg-[#20206f]/10"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={photos[index] || `/wrapped-portrait-${(index % 3) + 1}.png`}
+                    alt={artist}
+                    className="h-full w-full object-cover"
+                    crossOrigin="anonymous"
+                  />
+                </motion.div>
+                <span className="min-w-0 overflow-hidden text-ellipsis font-display text-[clamp(0.72rem,4.15cqw,1.25rem)] font-black leading-[1.05] tracking-tight" style={{ color: "#07070d" }}>
+                  {artist}
+                </span>
+              </motion.li>
+            ))}
+          </ol>
+
+          <motion.footer
+            initial={{ opacity: 0, y: "4cqw" }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...SPRING, delay: 1.16 }}
+            className="absolute inset-x-[7.5%] bottom-[3.6%] flex items-center justify-between font-display font-black"
+            style={{ color: navy }}
+          >
+            <div className="flex items-center gap-[1.5cqw]">
+              <SmallSpotifyLogo />
+              <span className="text-[4.2cqw]">Spotify</span>
+            </div>
+            <span className="text-[3.15cqw] uppercase">spotify.com/wrapped</span>
+          </motion.footer>
+        </div>
+      </div>
+    </Shell>
+  )
+}
+
+/* ================================================================== */
+/* SLIDE 6 — TOP TRACK (typography wall + spinning vinyl)             */
 /* ================================================================== */
 
 function MarqueeRow({
@@ -1556,7 +1792,11 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
   }))
 
   // ─── SLIDE 7: DASHBOARD ───
-  const dashboardArtists = ai.dashboard.topArtists.slice(0, 3)
+  const dashboardArtists = ai.dashboard.topArtists.slice(0, 5)
+  const topArtists = Array.from(
+    { length: 5 },
+    (_, i) => dashboardArtists[i] || ["The Beatles", "George Harrison", "Cigarettes After Sex", "Queen", "John Lennon"][i],
+  )
   const dashboardSongs = ai.dashboard.topSongs.slice(0, 3)
   const dashboardGenre = ai.dashboard.topGenre
 
@@ -1577,6 +1817,11 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
           songStat={`${fmt(stats.int(100000, 5000000))} streams in ${data.destinationCity || "NYC"}`}
         />
       ),
+    },
+    {
+      key: "s2-share",
+      bg: "#101010",
+      node: <ShareWrappedSlide />,
     },
     {
       key: "s2",
@@ -1613,6 +1858,11 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
           <GlobalArtists />
         </SpiralRibbon>
       ),
+    },
+    {
+      key: "s5-top-artists",
+      bg: "#95eab1",
+      node: <TopArtistsList artists={topArtists} photos={photos} />,
     },
     {
       key: "s3-artist-stats",
