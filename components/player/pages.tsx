@@ -290,6 +290,14 @@ const PIXEL_ROWS = [
   "clamp(4rem, 16vw, 14rem)",
   "clamp(2.75rem, 9vw, 8rem)",
 ]
+
+const OUTER_PIXEL_ROWS = [
+  "clamp(6rem, 30vw, 30rem)",
+  "clamp(4.5rem, 22vw, 22rem)",
+  "clamp(3.25rem, 15vw, 15rem)",
+  "clamp(2rem, 8vw, 8rem)",
+  "clamp(1rem, 4vw, 4rem)",
+]
 const PIXEL_ROW_HEIGHT = "clamp(2.1375rem, 3.8vw, 3.42rem)"
 
 function PixelStair({
@@ -297,11 +305,13 @@ function PixelStair({
   delay = 0,
   accent,
   shutterPhase,
+  outward = false,
 }: {
   corner: "top-left" | "top-right" | "bottom-left" | "bottom-right"
   delay?: number
   accent: string
   shutterPhase?: "closing" | "opening"
+  outward?: boolean
 }) {
   const isTop = corner.startsWith("top")
   const isRight = corner.endsWith("right")
@@ -309,7 +319,8 @@ function PixelStair({
   const enterY = isTop ? -28 : 28
   const isShutter = Boolean(shutterPhase)
   const isClosing = shutterPhase === "closing"
-  const rows = isTop ? PIXEL_ROWS : [...PIXEL_ROWS].reverse()
+  const frameRows = outward ? OUTER_PIXEL_ROWS : PIXEL_ROWS
+  const rows = isTop ? frameRows : [...frameRows].reverse()
   const columnDirection = isRight ? "flex-row-reverse" : "flex-row"
   const outerColumn = isRight
     ? "linear-gradient(90deg, #174ee8 0%, #0789f5 58%, #20e7ed 100%)"
@@ -392,62 +403,73 @@ function PixelStair({
 
 function CenterClosingStrips({ phase }: { phase: "closing" | "opening" }) {
   const isClosing = phase === "closing"
-  const rows = Array.from({ length: 4 })
+  const responsiveGroups = [
+    { count: 14, className: "flex sm:hidden" },
+    { count: 10, className: "hidden sm:flex lg:hidden" },
+    { count: 6, className: "hidden lg:flex xl:hidden" },
+    { count: 4, className: "hidden xl:flex" },
+  ]
 
   return (
-    <div
-      className="absolute inset-x-0 top-1/2 flex -translate-y-1/2 flex-col overflow-hidden"
-      style={{ height: `calc(4 * ${PIXEL_ROW_HEIGHT})` }}
-    >
-      {rows.map((_, i) => {
-        const distanceFromCenter = Math.abs(i - (rows.length - 1) / 2)
-        const width = 72.5 - distanceFromCenter * 5
-        const delay = i * 0.035
+    <>
+      {responsiveGroups.map(({ count, className }) => {
+        const rows = Array.from({ length: count })
+        const maxDistance = (count - 1) / 2
+        const widthSpan = Math.max(1, maxDistance - 0.5)
 
         return (
-          <motion.div
-            key={i}
-            className="relative shrink-0"
-            style={{ height: PIXEL_ROW_HEIGHT }}
-            initial={{ opacity: 1 }}
-            animate={{ opacity: 1 }}
+          <div
+            key={count}
+            className={`absolute inset-x-0 top-1/2 -translate-y-1/2 flex-col overflow-hidden ${className}`}
+            style={{ height: `calc(${count} * ${PIXEL_ROW_HEIGHT})` }}
           >
-            <motion.div
-              className="absolute inset-y-0 left-0 flex"
-              initial={{ x: "-100%" }}
-              animate={{ x: isClosing ? "0%" : "-100%" }}
-              transition={{ duration: isClosing ? 1.2 : 1.3, delay, ease: [0.76, 0, 0.24, 1] }}
-              style={{ width: `${width}vw` }}
-            >
-              <div
-                className="h-full w-[60%] shrink-0"
-                style={{ backgroundImage: "linear-gradient(90deg, #20e7ed 0%, #0789f5 42%, #174ee8 100%)" }}
-              />
-              <div
-                className="h-full flex-1"
-                style={{ backgroundImage: "linear-gradient(90deg, #10093f 0%, #5424ed 48%, #174ee8 100%)" }}
-              />
-            </motion.div>
-            <motion.div
-              className="absolute inset-y-0 right-0 flex flex-row-reverse"
-              initial={{ x: "100%" }}
-              animate={{ x: isClosing ? "0%" : "100%" }}
-              transition={{ duration: isClosing ? 1.2 : 1.3, delay, ease: [0.76, 0, 0.24, 1] }}
-              style={{ width: `${width}vw` }}
-            >
-              <div
-                className="h-full w-[60%] shrink-0"
-                style={{ backgroundImage: "linear-gradient(90deg, #174ee8 0%, #0789f5 58%, #20e7ed 100%)" }}
-              />
-              <div
-                className="h-full flex-1"
-                style={{ backgroundImage: "linear-gradient(90deg, #174ee8 0%, #5424ed 52%, #10093f 100%)" }}
-              />
-            </motion.div>
-          </motion.div>
+            {rows.map((_, i) => {
+              const distanceFromCenter = Math.abs(i - maxDistance)
+              const centerProgress = (maxDistance - distanceFromCenter) / widthSpan
+              const width = 61.2 + centerProgress * 8.8
+              const delay = Math.min(i, count - 1 - i) * 0.035
+
+              return (
+                <motion.div key={i} className="relative shrink-0" style={{ height: PIXEL_ROW_HEIGHT }}>
+                  <motion.div
+                    className="absolute inset-y-0 left-0 flex"
+                    initial={{ x: "-100%" }}
+                    animate={{ x: isClosing ? "0%" : "-100%" }}
+                    transition={{ duration: isClosing ? 1.2 : 1.3, delay, ease: [0.76, 0, 0.24, 1] }}
+                    style={{ width: `${width}vw` }}
+                  >
+                    <div
+                      className="h-full w-[60%] shrink-0"
+                      style={{ backgroundImage: "linear-gradient(90deg, #20e7ed 0%, #0789f5 42%, #174ee8 100%)" }}
+                    />
+                    <div
+                      className="h-full flex-1"
+                      style={{ backgroundImage: "linear-gradient(90deg, #10093f 0%, #5424ed 48%, #174ee8 100%)" }}
+                    />
+                  </motion.div>
+                  <motion.div
+                    className="absolute inset-y-0 right-0 flex flex-row-reverse"
+                    initial={{ x: "100%" }}
+                    animate={{ x: isClosing ? "0%" : "100%" }}
+                    transition={{ duration: isClosing ? 1.2 : 1.3, delay, ease: [0.76, 0, 0.24, 1] }}
+                    style={{ width: `${width}vw` }}
+                  >
+                    <div
+                      className="h-full w-[60%] shrink-0"
+                      style={{ backgroundImage: "linear-gradient(90deg, #174ee8 0%, #0789f5 58%, #20e7ed 100%)" }}
+                    />
+                    <div
+                      className="h-full flex-1"
+                      style={{ backgroundImage: "linear-gradient(90deg, #174ee8 0%, #5424ed 52%, #10093f 100%)" }}
+                    />
+                  </motion.div>
+                </motion.div>
+              )
+            })}
+          </div>
         )
       })}
-    </div>
+    </>
   )
 }
 
@@ -467,15 +489,15 @@ export function PixelTransitionShutter({ phase }: { phase: "closing" | "opening"
         }}
       />
       <CenterClosingStrips phase={phase} />
-      <PixelStair corner="top-left" accent="#18ddec" shutterPhase={phase} />
-      <PixelStair corner="top-right" accent="#18ddec" shutterPhase={phase} />
-      <PixelStair corner="bottom-left" accent="#18ddec" shutterPhase={phase} />
-      <PixelStair corner="bottom-right" accent="#18ddec" shutterPhase={phase} />
+      <PixelStair corner="top-left" accent="#18ddec" shutterPhase={phase} outward={phase === "opening"} />
+      <PixelStair corner="top-right" accent="#18ddec" shutterPhase={phase} outward={phase === "opening"} />
+      <PixelStair corner="bottom-left" accent="#18ddec" shutterPhase={phase} outward={phase === "opening"} />
+      <PixelStair corner="bottom-right" accent="#18ddec" shutterPhase={phase} outward={phase === "opening"} />
     </div>
   )
 }
 
-function PixelFrame({ accent, bg }: { accent: string; bg: string }) {
+function PixelFrame({ accent, bg, outward = false }: { accent: string; bg: string; outward?: boolean }) {
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden" style={{ backgroundColor: bg }}>
       <motion.div
@@ -489,10 +511,10 @@ function PixelFrame({ accent, bg }: { accent: string; bg: string }) {
         animate={{ backgroundPosition: ["0px 0px", "20px 20px"] }}
         transition={{ duration: 6, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
       />
-      <PixelStair corner="top-left" accent={accent} delay={0.04} />
-      <PixelStair corner="top-right" accent={accent} delay={0.1} />
-      <PixelStair corner="bottom-left" accent={accent} delay={0.16} />
-      <PixelStair corner="bottom-right" accent={accent} delay={0.22} />
+      <PixelStair corner="top-left" accent={accent} delay={0.04} outward={outward} />
+      <PixelStair corner="top-right" accent={accent} delay={0.1} outward={outward} />
+      <PixelStair corner="bottom-left" accent={accent} delay={0.16} outward={outward} />
+      <PixelStair corner="bottom-right" accent={accent} delay={0.22} outward={outward} />
     </div>
   )
 }
@@ -591,7 +613,7 @@ function TopSongReveal({
 
   return (
     <Shell>
-      <PixelFrame accent="#18ddec" bg="var(--wr-yellow)" />
+      <PixelFrame accent="#18ddec" bg="var(--wr-yellow)" outward />
 
       <div className="relative z-10 flex h-full w-full flex-col items-center justify-center px-6 pb-16 pt-20 text-center sm:px-10 md:pb-20 md:pt-24">
         <motion.div
