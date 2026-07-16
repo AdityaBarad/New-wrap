@@ -1593,6 +1593,172 @@ function DashboardTicket({
 }
 
 /* ================================================================== */
+/* PENULTIMATE SLIDE — YOUR TOP GENRES                                */
+/* ================================================================== */
+
+const GENRE_WIDTHS = [68, 57, 77, 73, 68]
+
+/* Decorative circles — each tied to a genre bar, positioned at the bar's right edge.
+   They sit BEHIND the bars (z-5 < z-10). Black circles do a 3D rotateY flip.
+   offsetX is added to the bar's right edge. */
+const GENRE_CIRCLES: { genre: number; offsetX: string; offsetY: string; color: string; size: string }[] = [
+  { genre: 0, offsetX: "-2cqmin",  offsetY: "-1cqmin",  color: "#f20d2f", size: "7cqmin"  },  // red, peeking right of genre 1
+  { genre: 0, offsetX: "4cqmin",   offsetY: "4cqmin",   color: "#202020", size: "11cqmin" },  // black, below-right of genre 1
+  { genre: 2, offsetX: "-3cqmin",  offsetY: "-2cqmin",  color: "#f20d2f", size: "8cqmin"  },  // red, right of genre 3
+  { genre: 2, offsetX: "5cqmin",   offsetY: "5cqmin",   color: "#202020", size: "10cqmin" },  // black, below-right of genre 3
+  { genre: 4, offsetX: "-4cqmin",  offsetY: "-2cqmin",  color: "#f20d2f", size: "6cqmin"  },  // red, right of genre 5
+  { genre: 4, offsetX: "3cqmin",   offsetY: "3cqmin",   color: "#202020", size: "9cqmin"  },  // black, below-right of genre 5
+]
+
+function GenreSpotifyMark() {
+  return (
+    <svg viewBox="0 0 44 44" aria-hidden="true" className="size-[8cqmin] text-[#202020]">
+      <circle cx="22" cy="22" r="20" fill="currentColor" />
+      <path d="M11 17c8-2.3 17-1.4 23 2" fill="none" stroke="#f2f4e7" strokeLinecap="round" strokeWidth="3.2" />
+      <path d="M13 23c6.5-1.6 13.5-.9 19 1.7" fill="none" stroke="#f2f4e7" strokeLinecap="round" strokeWidth="2.7" />
+      <path d="M15 29c5-1.1 10-.6 14 1.2" fill="none" stroke="#f2f4e7" strokeLinecap="round" strokeWidth="2.2" />
+    </svg>
+  )
+}
+
+function TopGenresSlide({ genres }: { genres: string[] }) {
+  return (
+    <Shell>
+      <div className="flex h-full w-full items-center justify-center overflow-hidden bg-[#f2f4e7]">
+        <div className="relative h-full min-h-0 w-full overflow-hidden border-x-[clamp(2px,.8cqmin,5px)] border-r-[#83f21c] border-l-[#202020] bg-[#f2f4e7] text-[#202020] [container-type:size]" style={{ perspective: "800px" }}>
+          {/* Header — back arrow, spotify mark, speaker */}
+          <motion.header
+            initial={{ opacity: 0, y: "-8cqmin" }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...SPRING, delay: 0.08 }}
+            className="absolute inset-x-[5%] top-[3.5%] z-20 flex items-center justify-between"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true" className="size-[6.5cqmin]" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <path d="m15 5-7 7 7 7" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <GenreSpotifyMark />
+            <motion.svg
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              className="size-[7cqmin]"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.7"
+              animate={{ scale: [1, 1.12, 1] }}
+              transition={{ duration: 1.8, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+            >
+              <path d="M5 10v4h3l4 4V6L8 10H5Z" strokeLinejoin="round" />
+              <path d="M15 9c1.5 1.5 1.5 4.5 0 6M18 6c3 3 3 9 0 12" strokeLinecap="round" />
+            </motion.svg>
+          </motion.header>
+
+          {/* Title */}
+          <motion.h2
+            initial={{ opacity: 0, y: "4cqmin" }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...SPRING, delay: 0.24 }}
+            className="absolute inset-x-0 top-[12%] text-center font-display text-[7.3cqmin] font-black tracking-tight"
+          >
+            Your Top Genres
+          </motion.h2>
+
+          {/* Genre list — large text filling bars */}
+          <ol className="absolute inset-x-[6%] top-[21%] bottom-[22%] z-10 flex flex-col justify-evenly">
+            {genres.slice(0, 5).map((genre, index) => {
+              // Dynamic font size: short names → huge, long names → smaller (like Spotify Wrapped)
+              const len = genre.length
+              const fontSize = len <= 5 ? 14 : len <= 8 ? 11 : len <= 12 ? 9 : 7
+              return (
+              <motion.li
+                key={`${genre}-${index}`}
+                initial={{ opacity: 0, x: "-24cqmin" }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ type: "spring", stiffness: 135, damping: 17, delay: 0.38 + index * 0.12 }}
+                className="relative flex items-center"
+              >
+                <span className="w-[10cqmin] shrink-0 text-center font-display text-[5cqmin] font-black italic">{index + 1}</span>
+                <motion.div
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ duration: 0.48, delay: 0.45 + index * 0.12, ease: [0.76, 0, 0.24, 1] }}
+                  className="flex origin-left items-center bg-[#202020] px-[2.5cqmin] py-[1.5cqmin]"
+                  style={{ minWidth: `${GENRE_WIDTHS[index]}cqmin`, width: "fit-content" }}
+                >
+                  <motion.span
+                    initial={{ opacity: 0, y: "3cqmin" }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.72 + index * 0.12 }}
+                    className="font-display font-black italic leading-[0.92] tracking-tight text-[#f2f4e7]"
+                    style={{ fontSize: `clamp(0.75rem, ${fontSize}cqmin, 4rem)` }}
+                  >
+                    {genre}
+                  </motion.span>
+                </motion.div>
+
+                {/* Circles tied to THIS bar — sit behind it (z via parent stacking) */}
+                {GENRE_CIRCLES.filter(c => c.genre === index).map((circle, ci) => {
+                  const isBlack = circle.color === "#202020"
+                  return (
+                    <motion.span
+                      key={ci}
+                      className="absolute rounded-full"
+                      style={{
+                        left: `calc(${10 + GENRE_WIDTHS[index]}cqmin + ${circle.offsetX})`,
+                        top: circle.offsetY,
+                        width: circle.size,
+                        height: circle.size,
+                        backgroundColor: circle.color,
+                        zIndex: -1,
+                        transformStyle: "preserve-3d",
+                      }}
+                      initial={{ scale: 0, rotateY: isBlack ? -90 : 0 }}
+                      animate={{
+                        scale: 1,
+                        rotateY: isBlack ? [0, 180, 360] : 0,
+                        y: [0, -3, 0],
+                      }}
+                      transition={{
+                        scale: { type: "spring", stiffness: 180, damping: 12, delay: 0.8 + index * 0.1 + ci * 0.08 },
+                        rotateY: isBlack
+                          ? { duration: 3.5, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut", delay: 1.2 + ci * 0.3 }
+                          : undefined,
+                        y: { duration: 2.6 + ci * 0.35, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut", delay: 1.0 },
+                      }}
+                    />
+                  )
+                })}
+              </motion.li>
+              )
+            })}
+          </ol>
+
+          {/* Wavy lines at bottom */}
+          <svg aria-hidden="true" viewBox="0 0 180 40" preserveAspectRatio="none" className="absolute inset-x-0 bottom-[2%] h-[13%] w-full overflow-visible">
+            <motion.path d="M-8 31C33 22 60 5 104 11c30 4 49 17 87 5" fill="none" stroke="#202020" strokeWidth="1.2" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.2, delay: 1, ease: "easeOut" }} />
+            <motion.path d="M-10 37C28 29 53 14 91 15c38 1 57 14 101 3" fill="none" stroke="#202020" strokeWidth="1" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.3, delay: 1.12, ease: "easeOut" }} />
+          </svg>
+
+          {/* Share button */}
+          <motion.div
+            initial={{ opacity: 0, y: "5cqmin", scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, scale: [1, 1.04, 1] }}
+            transition={{
+              opacity: { duration: 0.3, delay: 1.15 },
+              y: { type: "spring", stiffness: 140, damping: 16, delay: 1.1 },
+              scale: { duration: 2.2, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut", delay: 1.4 },
+            }}
+            className="absolute bottom-[8.5%] left-1/2 z-20 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#202020] px-[6cqmin] py-[2.1cqmin] font-sans text-[2.9cqmin] font-semibold text-white"
+          >
+            Share this story
+          </motion.div>
+        </div>
+      </div>
+    </Shell>
+  )
+
+}
+
+/* ================================================================== */
 /* SLIDE 8 — GRAND FINALE (share card + kaleidoscope)                 */
 /* ================================================================== */
 
@@ -1799,6 +1965,10 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
   )
   const dashboardSongs = ai.dashboard.topSongs.slice(0, 3)
   const dashboardGenre = ai.dashboard.topGenre
+  const topGenres = Array.from(
+    { length: 5 },
+    (_, i) => [dashboardGenre || "K-Pop", "R&B", "Experimental Hip Hop", "Techno", "Hyperpop"][i],
+  )
 
   return [
     {
@@ -1954,6 +2124,11 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
           topGenre={dashboardGenre}
         />
       ),
+    },
+    {
+      key: "s-top-genres",
+      bg: "#f2f4e7",
+      node: <TopGenresSlide genres={topGenres} />,
     },
     {
       key: "s8",
