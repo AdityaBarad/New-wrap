@@ -514,7 +514,7 @@ function PixelStair({
       aria-hidden="true"
       className={`pointer-events-none absolute ${isTop ? "top-0" : "bottom-0"} ${
         isRight ? "right-0 items-end" : "left-0 items-start"
-      } z-0 flex flex-col ${isShutter ? "w-full overflow-visible" : "w-[58vw] max-w-[46rem] overflow-hidden"}`} 
+      } z-0 flex flex-col w-[50vw] overflow-hidden`} 
     >
       {rows.map((width, i) => {
         const shutterDelay = isClosing ? i * 0.07 : (rows.length - 1 - i) * 0.05
@@ -633,38 +633,42 @@ function CenterClosingStrips({ phase }: { phase: "closing" | "opening" }) {
 
               return (
                 <motion.div key={i} className="relative shrink-0" style={{ height: PIXEL_ROW_HEIGHT }}>
-                  <motion.div
-                    className="absolute inset-y-0 left-0 flex"
-                    initial={{ x: "-100%" }}
-                    animate={{ x: isClosing ? "0%" : "-100%" }}
-                    transition={{ duration, delay, ease: [0.76, 0, 0.24, 1] }}
-                    style={{ width: `${width}vw` }}
-                  >
-                    <div
-                      className="h-full w-[60%] shrink-0"
-                      style={{ backgroundImage: "linear-gradient(90deg, #20e7ed 0%, #0789f5 42%, #174ee8 100%)" }}
-                    />
-                    <div
-                      className="h-full flex-1"
-                      style={{ backgroundImage: "linear-gradient(90deg, #10093f 0%, #5424ed 48%, #174ee8 100%)" }}
-                    />
-                  </motion.div>
-                  <motion.div
-                    className="absolute inset-y-0 right-0 flex flex-row-reverse"
-                    initial={{ x: "100%" }}
-                    animate={{ x: isClosing ? "0%" : "100%" }}
-                    transition={{ duration, delay, ease: [0.76, 0, 0.24, 1] }}
-                    style={{ width: `${width}vw` }}
-                  >
-                    <div
-                      className="h-full w-[60%] shrink-0"
-                      style={{ backgroundImage: "linear-gradient(90deg, #174ee8 0%, #0789f5 58%, #20e7ed 100%)" }}
-                    />
-                    <div
-                      className="h-full flex-1"
-                      style={{ backgroundImage: "linear-gradient(90deg, #174ee8 0%, #5424ed 52%, #10093f 100%)" }}
-                    />
-                  </motion.div>
+                  <div className="absolute inset-y-0 left-0 w-[50vw] overflow-hidden">
+                    <motion.div
+                      className="absolute inset-y-0 left-0 flex"
+                      initial={{ x: "-100%" }}
+                      animate={{ x: isClosing ? "0%" : "-100%" }}
+                      transition={{ duration, delay, ease: [0.76, 0, 0.24, 1] }}
+                      style={{ width: `${width}vw` }}
+                    >
+                      <div
+                        className="h-full w-[60%] shrink-0"
+                        style={{ backgroundImage: "linear-gradient(90deg, #20e7ed 0%, #0789f5 42%, #174ee8 100%)" }}
+                      />
+                      <div
+                        className="h-full flex-1"
+                        style={{ backgroundImage: "linear-gradient(90deg, #10093f 0%, #5424ed 48%, #174ee8 100%)" }}
+                      />
+                    </motion.div>
+                  </div>
+                  <div className="absolute inset-y-0 right-0 w-[50vw] overflow-hidden">
+                    <motion.div
+                      className="absolute inset-y-0 right-0 flex flex-row-reverse"
+                      initial={{ x: "100%" }}
+                      animate={{ x: isClosing ? "0%" : "100%" }}
+                      transition={{ duration, delay, ease: [0.76, 0, 0.24, 1] }}
+                      style={{ width: `${width}vw` }}
+                    >
+                      <div
+                        className="h-full w-[60%] shrink-0"
+                        style={{ backgroundImage: "linear-gradient(270deg, #20e7ed 0%, #0789f5 42%, #174ee8 100%)" }}
+                      />
+                      <div
+                        className="h-full flex-1"
+                        style={{ backgroundImage: "linear-gradient(270deg, #10093f 0%, #5424ed 48%, #174ee8 100%)" }}
+                      />
+                    </motion.div>
+                  </div>
                 </motion.div>
               )
             })}
@@ -755,13 +759,13 @@ function DataHighlight({
         <motion.div
           initial={{ opacity: 0, scale: 0.72, rotate: -3 }}
           animate={{ opacity: 1, scale: 1, rotate: 0 }}
-          transition={{ type: "spring", stiffness: 150, damping: 16, delay: 0.18 }}
+          transition={{ type: "spring", stiffness: 150, damping: 16, delay: 1.38 }}
           className="relative flex w-full max-w-[42rem] flex-col items-center justify-center px-7 py-9 md:px-10"
         >
           <motion.p
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 0.92, y: 0 }}
-            transition={{ ...SPRING, delay: 0.52 }}
+            transition={{ ...SPRING, delay: 1.72 }}
             className="relative z-10 font-display text-[clamp(1rem,4.7vw,1.72rem)] font-black leading-none tracking-normal md:text-[1.9rem]"
             style={{ color: ink }}
           >
@@ -770,7 +774,7 @@ function DataHighlight({
           <motion.p
             initial={{ opacity: 0, y: 28, scale: 0.82 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ ...SPRING, delay: 0.68 }}
+            transition={{ ...SPRING, delay: 1.88 }}
             className="relative z-10 my-1 font-display text-[clamp(4.2rem,21vw,8rem)] font-black leading-[0.78] tracking-normal tabular-nums md:text-[9rem]"
             style={{ color: ink }}
           >
@@ -779,7 +783,7 @@ function DataHighlight({
           <motion.p
             initial={{ opacity: 0, y: 20, scale: 0.94 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ ...SPRING, delay: 0.9 }}
+            transition={{ ...SPRING, delay: 2.1 }}
             className="relative z-10 font-display text-[clamp(1.15rem,5vw,2rem)] font-black uppercase leading-[0.95] tracking-normal md:text-[2.35rem]"
             style={{ color: ink }}
           >
@@ -788,7 +792,7 @@ function DataHighlight({
           <motion.p
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 0.82, y: 0 }}
-            transition={{ ...SPRING, delay: 1.12 }}
+            transition={{ ...SPRING, delay: 2.32 }}
             className="relative z-10 mt-4 max-w-[20rem] font-sans text-[clamp(0.78rem,3.1vw,1rem)] font-bold leading-snug md:text-base"
             style={{ color: ink }}
           >
@@ -829,7 +833,7 @@ function TopSongReveal({
         <motion.div
           initial={{ opacity: 0, y: 30, scale: 0.86 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ type: "spring", stiffness: 125, damping: 17, delay: 0.18 }}
+          transition={{ type: "spring", stiffness: 125, damping: 17, delay: 1.38 }}
           className="relative aspect-square w-[clamp(11.5rem,42vw,20rem)] overflow-hidden shadow-[0_1.25rem_2.5rem_rgba(11,11,11,0.18)]"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -850,7 +854,7 @@ function TopSongReveal({
         <motion.h2
           initial={{ opacity: 0, y: 22 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ ...SPRING, delay: 0.5 }}
+          transition={{ ...SPRING, delay: 1.7 }}
           className="mt-6 max-w-[34rem] font-display text-[clamp(1.15rem,4.4vw,2.25rem)] font-black leading-[1.02] tracking-tight text-balance"
           style={{ color: ink }}
         >
@@ -861,7 +865,7 @@ function TopSongReveal({
         <motion.p
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 0.82, y: 0 }}
-          transition={{ ...SPRING, delay: 0.72 }}
+          transition={{ ...SPRING, delay: 1.92 }}
           className="mt-5 max-w-[21rem] font-sans text-[clamp(0.72rem,2.6vw,0.95rem)] font-semibold leading-snug"
           style={{ color: ink }}
         >
