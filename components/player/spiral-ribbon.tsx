@@ -3,10 +3,16 @@
 import { useEffect, useRef } from "react"
 
 // Constants for the animation
-const ANIM_DURATION_MS = 12000 // 12 seconds
-const TEXT = "2021" // Configurable text
+const ANIM_DURATION_MS = 6500 // 6.5 seconds
+const TEXT = "2024" // Configurable text
 
-export function SpiralRibbon({ children }: { children?: React.ReactNode }) {
+export function SpiralRibbon({ 
+  children,
+  phase = "opening"
+}: { 
+  children?: React.ReactNode
+  phase?: "closing" | "opening"
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -38,10 +44,9 @@ export function SpiralRibbon({ children }: { children?: React.ReactNode }) {
       canvas.width = cw * dpr
       canvas.height = ch * dpr
       ctx.scale(dpr, dpr)
-      
       // Calculate spiral parameters
       maxRadius = Math.sqrt(cw * cw + ch * ch) / 2 + 100 // ensure it covers corners
-      const turns = 4.5
+      const turns = cw < ch ? 7.5 : 4.5 // more turns on portrait so it coils properly
       maxTheta = turns * 2 * Math.PI
       b = maxRadius / maxTheta
       
@@ -117,13 +122,14 @@ export function SpiralRibbon({ children }: { children?: React.ReactNode }) {
       const elapsed = timestamp - startTime
       let progress = elapsed / ANIM_DURATION_MS
       
-      // Easing: easeOutCubic
-      progress = 1 - Math.pow(1 - Math.min(progress, 1), 3)
+      // Easing: moderate ease-in (starts a bit faster, still accelerates smoothly)
+      progress = Math.pow(Math.min(progress, 1), 1.6)
 
       ctx.clearRect(0, 0, cw, ch)
       
-      // Shift center slightly to the left (e.g. 10% of width)
-      const cx = (cw / 2) - (cw * 0.1)
+      // Shift center slightly to the right on landscape, but keep it centered on portrait
+      const isPortrait = cw < ch
+      const cx = isPortrait ? cw / 2 : (cw / 2) + (cw * 0.08)
       const cy = ch / 2
       
       const gap = b * 2 * Math.PI
@@ -133,8 +139,11 @@ export function SpiralRibbon({ children }: { children?: React.ReactNode }) {
       const ribbonWidth = gap * 0.82 // Pink ribbon is 82% of the gap, leaving an 18% black gap
 
       // Instead of growing maxTheta, we increase minTheta (the tail of the snake)
-      // so it slithers outwards and disappears.
-      const currentMinTheta = progress * maxTheta
+      // so it slithers outwards and disappears (opening).
+      // If closing, it slithers inwards from the outside edge.
+      const currentMinTheta = phase === "closing" 
+        ? (1 - progress) * maxTheta 
+        : progress * maxTheta
 
       // 1. Draw the ribbon background
       if (currentMinTheta < maxTheta) {
@@ -189,7 +198,7 @@ export function SpiralRibbon({ children }: { children?: React.ReactNode }) {
       // Calculate true arc length of the tail so text is perfectly glued to the ribbon
       const tailS = getS(currentMinTheta)
       
-      const patternSpacing = ribbonWidth * 4.5
+      const patternSpacing = ribbonWidth * 5.5
       // To cover the whole spiral, we need enough patterns from tailS up to maxS + some extra
       const maxPossiblePatterns = Math.floor(maxS / patternSpacing) + 5
       
@@ -206,7 +215,7 @@ export function SpiralRibbon({ children }: { children?: React.ReactNode }) {
         // Only draw if it hasn't fallen off the outer edge
         if (s <= maxS * 1.5) {
           
-          // 1. Draw "2021" curved along the path
+          // 1. Draw "2024" curved along the path
           let currentS = s
           for (let char of TEXT) {
             const charWidth = ctx.measureText(char).width
@@ -233,8 +242,10 @@ export function SpiralRibbon({ children }: { children?: React.ReactNode }) {
             currentS = charCenterS + charWidth / 2 + textHeight * 0.08
           }
           
-          // 2. Draw star cluster between texts
-          const starCenterS = s + patternSpacing / 2
+          const textEndS = currentS
+          
+          // 2. Draw star cluster halfway between the end of this text and the start of the next pattern
+          const starCenterS = (textEndS + (s + patternSpacing)) / 2
           if (starCenterS <= maxS + gap) {
             const t = getTheta(starCenterS)
             if (t >= currentMinTheta && t <= maxTheta + Math.PI) {
@@ -282,12 +293,16 @@ export function SpiralRibbon({ children }: { children?: React.ReactNode }) {
       window.removeEventListener("resize", resize)
       cancelAnimationFrame(animationFrameId)
     }
-  }, [])
+  }, [phase])
 
   return (
     <div className="relative h-full w-full overflow-hidden">
       {children}
-      <canvas ref={canvasRef} className="absolute inset-0 z-50 pointer-events-none block" />
+      <canvas 
+        ref={canvasRef} 
+        className="absolute inset-0 z-50 pointer-events-none block" 
+        style={{ width: "100%", height: "100%" }}
+      />
     </div>
   )
 }

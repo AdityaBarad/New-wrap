@@ -5,12 +5,13 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
 import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react"
 import { useWrap } from "@/context/wrap-context"
 import { buildPages, PixelTransitionShutter } from "@/components/player/pages"
+import { SpiralRibbon } from "@/components/player/spiral-ribbon"
 
 const PAGE_MS = 7000
 const CURTAIN_CLOSE_MS = 2700
 const CURTAIN_OPEN_MS = 3000
 
-type CurtainPhase = "closing" | "opening" | null
+type CurtainPhase = "closing" | "opening" | "spiral-closing" | "spiral-opening" | null
 
 export function StageThree() {
   const { data, aiContent } = useWrap()
@@ -55,29 +56,41 @@ export function StageThree() {
         ((pages[index]?.key === "s3-top-song" && pages[next]?.key === "s2") ||
          (pages[index]?.key === "s2" && pages[next]?.key === "s2-share"))
 
+      const isForwardSpiralShutter =
+        d > 0 && pages[index]?.key === "s3-top-song" && pages[next]?.key === "s4-global-artists"
+
+      const isBackwardSpiralShutter =
+        d < 0 && pages[index]?.key === "s4-global-artists" && pages[next]?.key === "s3-top-song"
+
       const usesPixelShutter =
         !reducedMotion && (isForwardShutter || isBackwardShutter)
 
-      if (!usesPixelShutter) {
+      const usesSpiralShutter =
+        !reducedMotion && (isForwardSpiralShutter || isBackwardSpiralShutter)
+
+      if (!usesPixelShutter && !usesSpiralShutter) {
         commitPage(next, d)
         return
       }
 
       transitionLock.current = true
       setProgress(1)
-      setCurtainPhase("closing")
+      setCurtainPhase(usesSpiralShutter ? "spiral-closing" : "closing")
+
+      const closeMs = usesSpiralShutter ? 6500 : CURTAIN_CLOSE_MS
+      const openMs = usesSpiralShutter ? 6500 : CURTAIN_OPEN_MS
 
       const closeTimer = setTimeout(() => {
         commitPage(next, d)
-        setCurtainPhase("opening")
+        setCurtainPhase(usesSpiralShutter ? "spiral-opening" : "opening")
 
         const openTimer = setTimeout(() => {
           setCurtainPhase(null)
           transitionLock.current = false
           start.current = performance.now()
-        }, CURTAIN_OPEN_MS)
+        }, openMs)
         transitionTimers.current.push(openTimer)
-      }, CURTAIN_CLOSE_MS)
+      }, closeMs)
       transitionTimers.current.push(closeTimer)
     },
     [commitPage, index, pages, reducedMotion],
@@ -276,14 +289,18 @@ export function StageThree() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {curtainPhase && (
+        {curtainPhase === "closing" || curtainPhase === "opening" ? (
           <PixelTransitionShutter
             key="pixel-shutter"
             phase={curtainPhase}
             outward={current.key === "s3-top-song"}
             slideInCorners={!(pages[index]?.key === "s2" || pages[index]?.key === "s3-top-song")}
           />
-        )}
+        ) : curtainPhase === "spiral-closing" || curtainPhase === "spiral-opening" ? (
+          <div key="spiral-shutter" className="pointer-events-auto absolute inset-0 z-[25]">
+            <SpiralRibbon phase={curtainPhase === "spiral-closing" ? "closing" : "opening"} />
+          </div>
+        ) : null}
       </AnimatePresence>
 
       {/* top-right glassmorphism controls */}

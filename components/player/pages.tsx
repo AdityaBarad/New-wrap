@@ -621,8 +621,11 @@ function CenterClosingStrips({ phase }: { phase: "closing" | "opening" }) {
         return (
           <div
             key={count}
-            className={`absolute inset-x-0 top-1/2 -translate-y-1/2 flex-col overflow-hidden ${className}`}
-            style={{ height: `calc(${count} * ${PIXEL_ROW_HEIGHT})` }}
+            className={`absolute inset-x-0 flex flex-col overflow-hidden ${className}`}
+            style={{ 
+              top: `calc(5 * ${PIXEL_ROW_HEIGHT})`, 
+              bottom: `calc(5 * ${PIXEL_ROW_HEIGHT})` 
+            }}
           >
             {rows.map((_, i) => {
               const distanceFromCenter = Math.abs(i - maxDistance)
@@ -632,7 +635,7 @@ function CenterClosingStrips({ phase }: { phase: "closing" | "opening" }) {
               const duration = isClosing ? 2.6 - delay : 2.8 - delay
 
               return (
-                <motion.div key={i} className="relative shrink-0" style={{ height: PIXEL_ROW_HEIGHT }}>
+                <motion.div key={i} className="relative flex-1 shrink-0">
                   <div className="absolute inset-y-0 left-0 w-[50vw] overflow-hidden">
                     <motion.div
                       className="absolute inset-y-0 left-0 flex"
@@ -2110,11 +2113,7 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
     {
       key: "s4-global-artists",
       bg: "#f8cdd6",
-      node: (
-        <SpiralRibbon>
-          <GlobalArtists />
-        </SpiralRibbon>
-      ),
+      node: <GlobalArtists />,
     },
     {
       key: "s5-top-artists",
