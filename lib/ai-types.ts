@@ -9,6 +9,10 @@ export type AiWrapContent = {
     lines: [string, string, string]
     sub: string
   }
+  share: {
+    title: string
+    hashtag: string
+  }
   dataHighlight: {
     kicker: string
     label: string
@@ -18,27 +22,36 @@ export type AiWrapContent = {
     kicker: string
     artistLine: string
   }
-  receipts: {
-    title: string
-    rows: { label: string; value: string }[]
+  globalArtistsTitle: string
+  globalArtists: string[]
+  artistStats: {
+    name: string
+    streams: string
+    hours: string
+    listeners: string
+    countries: string
   }
-  versus: {
-    kicker: string
-    left: string
-    right: string
-    leagueTitle: string
-  }
-  versusBoard: {
-    kicker: string
+  worldCitizen: {
     title: string
-    games: { team1: string; team2: string; competition: string }[]
+    description1: string
+    description2: string
+    countriesCount: number
+    artists: { name: string; country: string }[]
   }
   dashboard: {
+    topArtistsTitle: string
     topArtists: string[]
     topSongs: string[]
-    topGenre: string
+    topGenresTitle: string
+    topGenres: string[]
+    minutesListened: string
   }
   finale: {
+    title: string
     tagline: string
+    minutesLived: string
+    minutesLabel: string
+    topPercent: string
+    topPercentLabel: string
   }
 }

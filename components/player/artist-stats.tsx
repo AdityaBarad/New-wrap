@@ -23,24 +23,15 @@ function useCountUp(target: number, duration = 1500) {
   return val
 }
 
-function AnimatedNumber({ value, suffix = "", decimal = false }: { value: number, suffix?: string, decimal?: boolean }) {
-  const current = useCountUp(value, 2000)
-  
-  return (
-    <span>
-      {decimal ? current.toFixed(1) : Math.round(current)}
-      {suffix}
-    </span>
-  )
-}
+// AnimatedNumber removed as props are now strings
 
 interface ArtistStatsCardProps {
   artistName: string
   photoUrl: string
-  streams: number // in millions
-  hours: number // in millions
-  listeners: number // in millions
-  countries: number
+  streams: string
+  hours: string
+  listeners: string
+  countries: string
 }
 
 export function ArtistStatsCard({
@@ -133,10 +124,10 @@ export function ArtistStatsCard({
 
           <div className="grid grid-cols-4 gap-2">
             {[
-              { label: "STREAMS", value: streams, suffix: "M", dec: true, delay: 1.4 },
-              { label: "HOURS", value: hours, suffix: "M", dec: true, delay: 1.5 },
-              { label: "LISTENERS", value: listeners, suffix: "M", dec: true, delay: 1.6 },
-              { label: "COUNTRIES", value: countries, suffix: "", dec: false, delay: 1.7 },
+              { label: "STREAMS", value: streams, delay: 1.4 },
+              { label: "HOURS", value: hours, delay: 1.5 },
+              { label: "LISTENERS", value: listeners, delay: 1.6 },
+              { label: "COUNTRIES", value: countries, delay: 1.7 },
             ].map((stat, i) => (
               <motion.div 
                 key={i}
@@ -149,7 +140,7 @@ export function ArtistStatsCard({
                   {stat.label}
                 </span>
                 <span className="font-display text-xl font-black text-[#e4ff31] md:text-3xl">
-                  <AnimatedNumber value={stat.value} suffix={stat.suffix} decimal={stat.dec} />
+                  {stat.value}
                 </span>
               </motion.div>
             ))}

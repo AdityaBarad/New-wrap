@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useRef, useState, type ReactNode } from "react"
 import { motion, useInView } from "framer-motion"
@@ -344,7 +344,7 @@ function ShareSpotifyLogo() {
   )
 }
 
-function ShareWrappedSlide() {
+function ShareWrappedSlide({ title = "Share your\nSpotify Wrapped", hashtag = "#SpotifyWrapped" }: { title?: string, hashtag?: string }) {
   return (
     <div className="relative h-full w-full overflow-hidden">
       <div className="relative flex h-full w-full items-center justify-center bg-[#101010] overflow-visible [container-type:size]">
@@ -430,8 +430,7 @@ function ShareWrappedSlide() {
               transition={{ type: "spring", stiffness: 45, damping: 20, delay: 1.6 }}
               className="font-display text-[clamp(2.5rem,12vw,4.5rem)] font-black leading-[0.95] tracking-tight text-balance sm:text-[clamp(2.25rem,6.3cqw,5.5rem)]"
             >
-              Share your
-              <span className="block">Spotify Wrapped</span>
+              {title.split('\n').map((line, i) => <span key={i} className="block">{line}</span>)}
             </motion.h2>
             <motion.p
               initial={{ opacity: 0, letterSpacing: "0.8em" }}
@@ -439,7 +438,7 @@ function ShareWrappedSlide() {
               transition={{ duration: 1.1, delay: 2.2, ease: "easeOut" }}
               className="mt-3 font-display text-[clamp(0.6rem,2.6vw,0.85rem)] font-black uppercase sm:mt-[2.2cqh] sm:text-[clamp(0.55rem,1.15cqw,0.8rem)]"
             >
-              #SpotifyWrapped
+              {hashtag}
             </motion.p>
 
             <motion.div
@@ -887,8 +886,6 @@ function TopSongReveal({
 /* SLIDE 4 — SPOTIFY WRAPPED GLOBAL ARTISTS                           */
 /* ================================================================== */
 
-const GLOBAL_ARTISTS = ["Bad Bunny", "Taylor Swift", "BTS", "Drake", "Justin Bieber"]
-
 function SpotifyMark() {
   return (
     <svg viewBox="0 0 64 64" aria-hidden="true" className="h-[7.7cqw] w-[7.7cqw] shrink-0">
@@ -979,7 +976,7 @@ function WrappedSparkleRibbon() {
   )
 }
 
-function GlobalArtists() {
+function GlobalArtists({ title = "Most Streamed\nArtists Globally", artists }: { title?: string; artists: string[] }) {
   return (
     <Shell>
       <div className="flex h-full w-full items-center justify-center overflow-hidden bg-[#f8cdd6] text-[#050505]">
@@ -1013,12 +1010,10 @@ function GlobalArtists() {
             className="relative z-10 px-[5.2cqw] pt-[7.8cqw] font-display"
           >
             <h2 className="max-w-[72cqw] text-[7.55cqw] font-black leading-[1.01] tracking-normal text-[#050505]">
-              Most Streamed
-              <br />
-              Artists Globally
+              {title.split('\n').map((line, i) => <span key={i} className="block">{line}</span>)}
             </h2>
             <ol className="mt-[4.2cqw] grid gap-[.3cqw] text-[4.05cqw] font-black leading-[1.08] tracking-normal">
-              {GLOBAL_ARTISTS.map((artist, index) => (
+              {artists.map((artist, index) => (
                 <li key={artist} className="grid grid-cols-[4.2cqw_1fr] items-baseline gap-[2cqw]">
                   <span>{index + 1}</span>
                   <span>{artist}</span>
@@ -1070,7 +1065,7 @@ function SmallSpotifyLogo() {
   )
 }
 
-function TopArtistsList({ artists, photos }: { artists: string[]; photos: string[] }) {
+function TopArtistsList({ title = "My Top Artists", artists, photos }: { title?: string; artists: string[]; photos: string[] }) {
   const navy = "#20206f"
 
   return (
@@ -1086,7 +1081,7 @@ function TopArtistsList({ artists, photos }: { artists: string[]; photos: string
             className="absolute inset-x-4 top-[19.5%] text-center font-display text-[clamp(1.25rem,7.2cqw,2.15rem)] font-black leading-none tracking-tight"
             style={{ color: navy }}
           >
-            My Top Artists
+            {title}
           </motion.h2>
 
           <ol className="absolute inset-x-[8.5%] top-[28.5%] flex flex-col gap-[1.35cqw]">
@@ -1549,7 +1544,7 @@ function DashboardTicket({
   topArtists: string[]
   topSongs: string[]
   minutesListened: string
-  topGenre: string
+  topGenre: string[]
 }) {
   const cardRef = useRef<HTMLDivElement>(null)
   const inView = useInView(cardRef, { once: true })
@@ -1652,11 +1647,15 @@ function DashboardTicket({
               </div>
               <div className="min-w-0">
                 <p className="mb-3 font-display text-sm font-black leading-none" style={{ color: ink }}>
-                  Top Genre
+                  Top Genres
                 </p>
-                <p className="truncate font-display text-[2.45rem] font-black leading-none md:text-[2.85rem]" style={{ color: ink }}>
-                  {topGenre}
-                </p>
+                <div className="space-y-1">
+                  {topGenre.slice(0, 2).map((genre, i) => (
+                    <p key={`${genre}-${i}`} className="truncate font-display text-[1.45rem] font-black leading-[1.1] md:text-[1.65rem]" style={{ color: ink }}>
+                      {genre}
+                    </p>
+                  ))}
+                </div>
               </div>
             </motion.div>
 
@@ -1711,7 +1710,17 @@ function GenreSpotifyMark() {
   )
 }
 
-function TopGenresSlide({ genres }: { genres: string[] }) {
+function TopGenresSlide({
+  title = "Your Top Genres",
+  genres,
+  bg,
+  ink,
+}: {
+  title?: string
+  genres: string[]
+  bg: string
+  ink: string
+}) {
   return (
     <Shell>
       <div className="flex h-full w-full items-center justify-center overflow-hidden bg-[#f2f4e7]">
@@ -1749,7 +1758,7 @@ function TopGenresSlide({ genres }: { genres: string[] }) {
             transition={{ ...SPRING, delay: 0.24 }}
             className="absolute inset-x-0 top-[12%] text-center font-display text-[7.3cqmin] font-black tracking-tight"
           >
-            Your Top Genres
+            {title}
           </motion.h2>
 
           {/* Genre list — large text filling bars */}
@@ -1882,10 +1891,26 @@ function Kaleidoscope() {
   )
 }
 
-function FinaleCard({ data, stats, bg, ai }: { data: WrapData; stats: WrapStats; bg: string; ai: AiWrapContent }) {
+function FinaleCard({
+  meta,
+  data,
+  stats,
+  ai,
+  palette,
+  title = "Your wrapped",
+  minutesLabel = "min lived",
+  topPercentLabel = "main character"
+}: {
+  meta: any
+  data: WrapData
+  stats: WrapStats
+  ai: AiWrapContent
+  palette: BurstPalette
+  title?: string
+  minutesLabel?: string
+  topPercentLabel?: string
+}) {
   const { reset } = useWrap()
-  const meta = PURPOSES.find((p) => p.id === (data.purpose ?? "life"))!
-  const palette = PALETTES[bg] ?? PALETTES["var(--wr-yellow)"]
 
   async function share() {
     const shareData = {
@@ -1921,19 +1946,19 @@ function FinaleCard({ data, stats, bg, ai }: { data: WrapData; stats: WrapStats;
             <span className="font-display text-2xl font-black text-ink">2025</span>
           </div>
           <p className="font-display text-4xl font-black uppercase leading-none text-ink">
-            Your wrapped
+            {title}
           </p>
           <div className="relative mx-auto my-4 aspect-square w-full max-w-[14rem]">
             <Burst photo={data.photos[0]?.url} palette={palette} delay={0.2} className="h-full w-full" />
           </div>
           <div className="grid grid-cols-2 gap-2 font-display uppercase">
             <div className="bg-ink p-3">
-              <p className="text-2xl font-black text-green tabular-nums">{fmt(stats.minutesLived)}</p>
-              <p className="text-[10px] font-bold tracking-widest text-cream/70">min lived</p>
+              <p className="text-2xl font-black text-green tabular-nums">{ai.finale?.minutesLived || fmt(stats.minutesLived)}</p>
+              <p className="text-[10px] font-bold tracking-widest text-cream/70">{minutesLabel}</p>
             </div>
             <div className="bg-ink p-3">
-              <p className="text-2xl font-black text-pink">Top {stats.topPercent}%</p>
-              <p className="text-[10px] font-bold tracking-widest text-cream/70">main character</p>
+              <p className="text-2xl font-black text-pink">Top {ai.finale?.topPercent || stats.topPercent}%</p>
+              <p className="text-[10px] font-bold tracking-widest text-cream/70">{topPercentLabel}</p>
             </div>
           </div>
           <p className="mt-4 text-center font-display text-sm font-black uppercase tracking-widest text-ink/50">
@@ -2006,60 +2031,60 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
   const purpose = data.purpose ?? "life"
   const photos = data.photos.map((p) => p.url)
   const photo0 = photos[0]
+  const meta = PURPOSES.find((p) => p.id === (data.purpose ?? "life"))!
+  const palette = PALETTES["var(--wr-yellow)"]
 
-  // ─── SLIDE 1: INTRO ───
+  // SLIDE 1: INTRO
   const introKicker = ai.intro.kicker
   const introLines = ai.intro.lines
   const introSub = ai.intro.sub
 
-  // ─── SLIDE 2: DATA HIGHLIGHT ───
+  // SLIDE 2: DATA HIGHLIGHT
   const big = bigMetric(data, stats, ai)
   const dataKicker = ai.dataHighlight.kicker
   const dataLabel = big.label
   const dataNote = big.note
 
-  // ─── SLIDE 3: TOP TRACK ───
+  // SLIDE 3: TOP TRACK
   const anthem = data.anthemTitle || "Your Anthem"
   const trackKicker = ai.topTrack.kicker
   const trackArtistLine = ai.topTrack.artistLine
 
-  // ─── SLIDE 4: RECEIPTS ───
-  const receiptTitle = ai.receipts.title
-  const receiptRows = ai.receipts.rows.slice(0, 4).map((r, i) => ({
-    label: r.label,
-    value: r.value,
-    pct: stats.int(50, 98 - i * 5),
-  }))
+  // SLIDE 7: DASHBOARD
+  const dashboardArtists = ai.dashboard?.topArtists || ["The Beatles", "George Harrison", "Cigarettes After Sex", "Queen", "John Lennon"]
+  const topArtists = dashboardArtists
+  const dashboardSongs = (ai.dashboard?.topSongs || ["Song 1", "Song 2", "Song 3", "Song 4", "Song 5"]).slice(0, 5)
+  const topGenres = ai.dashboard?.topGenres || [(ai.dashboard as any)?.topGenre || "K-Pop", "R&B", "Experimental Hip Hop", "Techno", "Hyperpop"]
 
-  // ─── SLIDE 5: VERSUS ───
-  const versusKicker = ai.versus.kicker
-  const versusLeft = ai.versus.left
-  const versusRight = ai.versus.right
-  const versusLeagueTitle = ai.versus.leagueTitle
-
-  // ─── SLIDE 6: VERSUS BOARD ───
-  const vsBoardKicker = ai.versusBoard.kicker
-  const vsBoardTitle = ai.versusBoard.title
-  const vsBoardGames = ai.versusBoard.games.slice(0, 4).map((g, i) => ({
-    rank: i + 1,
-    team1: g.team1,
-    team2: g.team2,
-    competition: g.competition,
-  }))
-
-  // ─── SLIDE 7: DASHBOARD ───
-  const dashboardArtists = ai.dashboard.topArtists.slice(0, 5)
-  const topArtists = Array.from(
-    { length: 5 },
-    (_, i) => dashboardArtists[i] || ["The Beatles", "George Harrison", "Cigarettes After Sex", "Queen", "John Lennon"][i],
-  )
-  const dashboardSongs = ai.dashboard.topSongs.slice(0, 3)
-  const dashboardGenre = ai.dashboard.topGenre
-  const topGenres = Array.from(
-    { length: 5 },
-    (_, i) => [dashboardGenre || "K-Pop", "R&B", "Experimental Hip Hop", "Techno", "Hyperpop"][i],
-  )
-
+  // Fallbacks for newly added AI fields (to handle old cached sessions)
+  const globalArtists = ai.globalArtists || ["Bad Bunny", "Taylor Swift", "BTS", "Drake", "Justin Bieber"]
+  const artistStats = ai.artistStats || {
+    name: dashboardArtists[0] || "Top Artist",
+    streams: String(stats.int(50, 400) + stats.int(0, 9) / 10),
+    hours: String(stats.int(5, 50) + stats.int(0, 9) / 10),
+    listeners: String(stats.int(10, 100) + stats.int(0, 9) / 10),
+    countries: String(stats.int(30, 100))
+  }
+  const worldCitizen = ai.worldCitizen || {
+    countriesCount: stats.int(24, 58),
+    artists: [
+      { name: "Avicii", country: "Sweden" },
+      { name: "BTS", country: "South Korea" },
+      { name: "Shakira", country: "Colombia" },
+      { name: "Adele", country: "United Kingdom" },
+      { name: "Stromae", country: "Belgium" },
+      { name: "Bad Bunny", country: "Puerto Rico" },
+    ]
+  }
+  const minutesListened = ai.dashboard?.minutesListened || fmt(stats.int(40000, 90000))
+  const finaleTitle = ai.finale?.title || "Your wrapped"
+  const finaleMinutesLabel = ai.finale?.minutesLabel || "min lived"
+  const finaleTopPercentLabel = ai.finale?.topPercentLabel || "main character"
+  const shareTitle = ai.share?.title || "Share your\nSpotify Wrapped"
+  const shareHashtag = ai.share?.hashtag || "#SpotifyWrapped"
+  const globalArtistsTitle = ai.globalArtistsTitle || "Most Streamed\nArtists Globally"
+  const topArtistsTitle = ai.dashboard?.topArtistsTitle || "My Top Artists"
+  const topGenresTitle = ai.dashboard?.topGenresTitle || "Your Top Genres"
   return [
     {
       key: "s1",
@@ -2081,7 +2106,7 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
     {
       key: "s2-share",
       bg: "#101010",
-      node: <ShareWrappedSlide />,
+      node: <ShareWrappedSlide title={shareTitle} hashtag={shareHashtag} />,
     },
     {
       key: "s2",
@@ -2113,24 +2138,24 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
     {
       key: "s4-global-artists",
       bg: "#f8cdd6",
-      node: <GlobalArtists />,
+      node: <GlobalArtists title={globalArtistsTitle} artists={globalArtists} />,
     },
     {
       key: "s5-top-artists",
       bg: "#95eab1",
-      node: <TopArtistsList artists={topArtists} photos={photos} />,
+      node: <TopArtistsList title={topArtistsTitle} artists={topArtists} photos={photos} />,
     },
     {
       key: "s3-artist-stats",
       bg: "#E9148C",
       node: (
         <ArtistStatsCard
-          artistName={dashboardArtists[0] || "Top Artist"}
+          artistName={artistStats.name}
           photoUrl={photo0}
-          streams={stats.int(50, 400) + stats.int(0, 9) / 10}
-          hours={stats.int(5, 50) + stats.int(0, 9) / 10}
-          listeners={stats.int(10, 100) + stats.int(0, 9) / 10}
-          countries={stats.int(30, 100)}
+          streams={artistStats.streams}
+          hours={artistStats.hours}
+          listeners={artistStats.listeners}
+          countries={artistStats.countries}
         />
       ),
     },
@@ -2139,7 +2164,11 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
       bg: "#2D8C7E",
       node: (
         <WorldCitizen
-          countriesCount={stats.int(24, 58)}
+          title={ai.worldCitizen?.title || "World Citizen"}
+          description1={ai.worldCitizen?.description1 || "When it comes to your music, borders disappear."}
+          description2={ai.worldCitizen?.description2 || "You've listened to artists from {count} countries."}
+          countriesCount={worldCitizen.countriesCount}
+          artists={worldCitizen.artists}
         />
       ),
     },
@@ -2159,43 +2188,6 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
       ),
     },
     {
-      key: "s4",
-      bg: "var(--wr-green)",
-      node: (
-        <Receipts bg="var(--wr-green)" ink="var(--wr-ink)" kicker="The receipts" title={receiptTitle} rows={receiptRows} />
-      ),
-    },
-    {
-      key: "s5",
-      bg: "var(--wr-yellow)",
-      node: (
-        <VersusLeague
-          bg="var(--wr-yellow)"
-          ink="var(--wr-ink)"
-          accent="var(--wr-pink)"
-          kicker={versusKicker}
-          left={versusLeft}
-          right={versusRight}
-          leagueTitle={versusLeagueTitle}
-          photo={photo0}
-        />
-      ),
-    },
-    {
-      key: "s6",
-      bg: "var(--wr-orange)",
-      node: (
-        <VersusBoard
-          bg="var(--wr-orange)"
-          ink="var(--wr-ink)"
-          accent="var(--wr-purple)"
-          kicker={vsBoardKicker}
-          title={vsBoardTitle}
-          games={vsBoardGames}
-        />
-      ),
-    },
-    {
       key: "s7",
       bg: "var(--wr-ink)",
       node: (
@@ -2206,20 +2198,38 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
           photo={photo0}
           topArtists={dashboardArtists}
           topSongs={dashboardSongs}
-          minutesListened={fmt(stats.int(40000, 90000))}
-          topGenre={dashboardGenre}
+          minutesListened={minutesListened}
+          topGenre={topGenres}
         />
       ),
     },
     {
       key: "s-top-genres",
       bg: "#f2f4e7",
-      node: <TopGenresSlide genres={topGenres} />,
+      node: (
+        <TopGenresSlide
+          title={topGenresTitle}
+          genres={topGenres}
+          bg="#f2f4e7"
+          ink="#202020"
+        />
+      ),
     },
     {
       key: "s8",
       bg: "var(--wr-ink)",
-      node: <FinaleCard data={data} stats={stats} bg="var(--wr-ink)" ai={ai} />,
+      node: (
+        <FinaleCard
+          meta={meta}
+          data={data}
+          stats={stats}
+          ai={ai}
+          palette={palette}
+          title={finaleTitle}
+          minutesLabel={finaleMinutesLabel}
+          topPercentLabel={finaleTopPercentLabel}
+        />
+      ),
     },
   ]
 }

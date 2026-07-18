@@ -60,6 +60,10 @@ Return ONLY a valid JSON object (no markdown, no backticks, no explanation) with
     "lines": ["Word1", "Word2", "Word3"],
     "sub": "1-2 sentence witty subtitle that references their story. Make it personal and cinematic."
   },
+  "share": {
+    "title": "Creative 2-4 word title (e.g. 'Share your unhinged era')",
+    "hashtag": "A personalized hashtag (e.g. '#YourLifeWrapped')"
+  },
   "dataHighlight": {
     "kicker": "2-4 word label for the big number slide (e.g. 'Time on the clock', 'The receipts are in')",
     "label": "What the number represents (e.g. 'Days of chaos', 'Hours in transit')",
@@ -69,49 +73,61 @@ Return ONLY a valid JSON object (no markdown, no backticks, no explanation) with
     "kicker": "2-3 word label (e.g. 'Your anthem', 'On repeat')",
     "artistLine": "A creative subtitle for the track card (e.g. 'the soundtrack of your villain arc')"
   },
-  "receipts": {
-    "title": "A creative title for the stats receipt (e.g. 'The damage report', 'Chat wrapped')",
-    "rows": [
-      { "label": "Creative metric name personalized to their story", "value": "A fun made-up stat value" },
-      { "label": "Another personalized metric", "value": "Another stat" },
-      { "label": "Third metric", "value": "Third stat" },
-      { "label": "Fourth metric", "value": "Fourth stat" }
-    ]
+
+  "globalArtistsTitle": "Creative title for global artists (e.g. 'Your Main Character Influences')",
+  "globalArtists": [
+    "Artist 1 or funny personality archetype",
+    "Artist 2",
+    "Artist 3",
+    "Artist 4",
+    "Artist 5"
+  ],
+  "artistStats": {
+    "name": "Top artist name or main character persona",
+    "streams": "A funny made-up number (e.g. '420.6')",
+    "hours": "A funny made-up number (e.g. '69.4')",
+    "listeners": "A funny made-up number (e.g. '100')",
+    "countries": "A funny made-up number (e.g. '42')"
   },
-  "versus": {
-    "kicker": "2-3 word label (e.g. 'The main event', 'Head to head')",
-    "left": "Left side name — something from their story or a personality trait (1-3 words)",
-    "right": "Right side name — opposing thing (1-3 words)",
-    "leagueTitle": "A funny league/competition name relevant to their life"
-  },
-  "versusBoard": {
-    "kicker": "2-3 word label",
-    "title": "Creative board title (e.g. 'Top matchups', 'The bracket')",
-    "games": [
-      { "team1": "Something from their life", "team2": "Opposing thing", "competition": "Funny context" },
-      { "team1": "Another thing", "team2": "Another opposing", "competition": "Another context" },
-      { "team1": "Third thing", "team2": "Third opposing", "competition": "Third context" },
-      { "team1": "Fourth thing", "team2": "Fourth opposing", "competition": "Fourth context" }
+  "worldCitizen": {
+    "title": "Creative title for the globe slide (e.g. 'Mr. Worldwide')",
+    "description1": "1 sentence describing their global footprint (e.g. 'When it comes to your chaos, borders disappear.')",
+    "description2": "1 sentence describing their reach. MUST include '{count}' as a placeholder (e.g. 'Your delusions have traveled to {count} countries.')",
+    "countriesCount": 42,
+    "artists": [
+      { "name": "Artist 1", "country": "Country 1" },
+      { "name": "Artist 2", "country": "Country 2" },
+      { "name": "Artist 3", "country": "Country 3" },
+      { "name": "Artist 4", "country": "Country 4" },
+      { "name": "Artist 5", "country": "Country 5" },
+      { "name": "Artist 6", "country": "Country 6" }
     ]
   },
   "dashboard": {
-    "topArtists": ["3 creative artist names or personality archetypes from their story"],
-    "topSongs": ["3 creative 'song titles' that are actually life moments from their story"],
-    "topGenre": "A funny made-up genre that describes their year (e.g. 'Chaotic Soft Pop')"
+    "topArtistsTitle": "Creative title for top artists (e.g. 'Your Holy Trinity (Plus Two)')",
+    "topArtists": ["Artist 1", "Artist 2", "Artist 3", "Artist 4", "Artist 5"],
+    "topSongs": ["Song 1 (life moment)", "Song 2", "Song 3", "Song 4", "Song 5"],
+    "topGenresTitle": "Creative title for top genres (e.g. 'Your Chaotic Vibes')",
+    "topGenres": ["Genre 1 (e.g. Chaotic Soft Pop)", "Genre 2", "Genre 3", "Genre 4", "Genre 5"],
+    "minutesListened": "A funny made-up number (e.g. '69,420')"
   },
   "finale": {
-    "tagline": "An epic, emotional 1-sentence farewell line. Make it feel like the end of a movie."
+    "title": "Creative title for the final slide (e.g. 'Your 2025 Era')",
+    "tagline": "An epic, emotional 1-sentence farewell line. Make it feel like the end of a movie.",
+    "minutesLived": "A funny huge number (e.g. '525,600')",
+    "minutesLabel": "Creative label for minutes lived (e.g. 'min lived')",
+    "topPercent": "A funny number between 1 and 9 (e.g. '1')",
+    "topPercentLabel": "Creative label for top percent (e.g. 'main character')"
   }
 }
 
 CRITICAL: 
 - The "lines" array in "intro" MUST have exactly 3 short items (1-2 words each) — they're displayed as giant stacked text.
-- "receipts.rows" MUST have exactly 4 items.
-- "versusBoard.games" MUST have exactly 4 items.
-- "dashboard.topArtists" MUST have exactly 3 items.
-- "dashboard.topSongs" MUST have exactly 3 items.
-- Make "versus" entries feel like a personal battle/duality from their life, not generic sports.
-- Make "versusBoard.games" entries feel like life moments or personality clashes, not actual sports games.
+- "globalArtists" MUST have exactly 5 items.
+- "worldCitizen.artists" MUST have exactly 6 items.
+- "dashboard.topArtists" MUST have exactly 5 items.
+- "dashboard.topSongs" MUST have exactly 5 items.
+- "dashboard.topGenres" MUST have exactly 5 items.
 - Return ONLY the JSON. No markdown code fences. No explanation.`
 }
 
@@ -265,9 +281,6 @@ export async function POST(req: NextRequest) {
       !parsed.intro ||
       !parsed.dataHighlight ||
       !parsed.topTrack ||
-      !parsed.receipts ||
-      !parsed.versus ||
-      !parsed.versusBoard ||
       !parsed.dashboard ||
       !parsed.finale
     ) {

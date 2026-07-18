@@ -133,11 +133,17 @@ function CobeGlobe({
 /* ──────────────────────────────────────────────────────────────────── */
 
 interface WorldCitizenProps {
+  title?: string
+  description1?: string
+  description2?: string
   countriesCount: number
-  artists?: typeof WORLD_ARTISTS
+  artists?: { name: string; country: string }[]
 }
 
 export function WorldCitizen({
+  title = "World Citizen",
+  description1 = "When it comes to your music, borders disappear.",
+  description2 = "You've listened to artists from {count} countries.",
   countriesCount = 38,
   artists = WORLD_ARTISTS,
 }: WorldCitizenProps) {
@@ -214,7 +220,7 @@ export function WorldCitizen({
             className="mt-3 px-5"
           >
             <h2 className="font-display text-3xl font-black tracking-tight text-[#0b0b0b]">
-              World Citizen
+              {title}
             </h2>
           </motion.div>
 
@@ -226,20 +232,25 @@ export function WorldCitizen({
             className="mt-3 px-5"
           >
             <p className="max-w-[16rem] font-sans text-sm font-semibold leading-relaxed text-[#0b0b0b]/80">
-              When it comes to your music, borders disappear.
+              {description1}
             </p>
             <p className="mt-3 font-sans text-sm font-semibold leading-relaxed text-[#0b0b0b]/80">
-              You&apos;ve listened to artists from{" "}
-              <motion.span
-                className="inline-block font-display text-2xl font-black text-[#e4ff31]"
-                style={{ textShadow: "0 2px 8px rgba(0,0,0,0.2)" }}
-                initial={{ scale: 0 }}
-                animate={settled ? { scale: 1 } : { scale: 0 }}
-                transition={{ type: "spring", stiffness: 200, damping: 12, delay: 1.0 }}
-              >
-                {count}
-              </motion.span>{" "}
-              countries.
+              {description2.split("{count}").map((part, i, arr) => (
+                <span key={i}>
+                  {part}
+                  {i < arr.length - 1 && (
+                    <motion.span
+                      className="inline-block font-display text-2xl font-black text-[#e4ff31]"
+                      style={{ textShadow: "0 2px 8px rgba(0,0,0,0.2)" }}
+                      initial={{ scale: 0 }}
+                      animate={settled ? { scale: 1 } : { scale: 0 }}
+                      transition={{ type: "spring", stiffness: 200, damping: 12, delay: 1.0 }}
+                    >
+                      {count}
+                    </motion.span>
+                  )}
+                </span>
+              ))}
             </p>
           </motion.div>
 
@@ -336,9 +347,9 @@ export function WorldCitizen({
               transition={{ ...SPRING, delay: 0.4 }}
               className="font-display text-5xl font-black tracking-tight text-[#0b0b0b] lg:text-6xl xl:text-7xl"
             >
-              World
-              <br />
-              Citizen
+              {title.split(' ').map((word, i) => (
+                <span key={i} className="block">{word}</span>
+              ))}
             </motion.h2>
 
             <motion.div
@@ -347,7 +358,7 @@ export function WorldCitizen({
               transition={{ ...SPRING, delay: 0.6 }}
             >
               <p className="max-w-[18rem] font-sans text-base font-semibold leading-relaxed text-[#0b0b0b]/80 lg:text-lg">
-                When it comes to your music, borders disappear.
+                {description1}
               </p>
             </motion.div>
 
@@ -357,17 +368,22 @@ export function WorldCitizen({
               transition={{ ...SPRING, delay: 0.8 }}
             >
               <p className="font-sans text-base font-semibold leading-relaxed text-[#0b0b0b]/80 lg:text-lg">
-                You&apos;ve listened to artists from{" "}
-                <motion.span
-                  className="inline-block font-display text-3xl font-black text-[#e4ff31] lg:text-4xl"
-                  style={{ textShadow: "0 2px 12px rgba(0,0,0,0.15)" }}
-                  initial={{ scale: 0 }}
-                  animate={settled ? { scale: 1 } : { scale: 0 }}
-                  transition={{ type: "spring", stiffness: 200, damping: 12, delay: 1.0 }}
-                >
-                  {count}
-                </motion.span>{" "}
-                countries.
+                {description2.split("{count}").map((part, i, arr) => (
+                  <span key={i}>
+                    {part}
+                    {i < arr.length - 1 && (
+                      <motion.span
+                        className="inline-block font-display text-3xl font-black text-[#e4ff31] lg:text-4xl"
+                        style={{ textShadow: "0 2px 12px rgba(0,0,0,0.15)" }}
+                        initial={{ scale: 0 }}
+                        animate={settled ? { scale: 1 } : { scale: 0 }}
+                        transition={{ type: "spring", stiffness: 200, damping: 12, delay: 1.0 }}
+                      >
+                        {count}
+                      </motion.span>
+                    )}
+                  </span>
+                ))}
               </p>
             </motion.div>
           </div>
