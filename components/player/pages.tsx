@@ -283,126 +283,177 @@ function IntroUniverse({
 /* SLIDE 2 — SHARE YOUR WRAPPED (animated campaign card)               */
 /* ================================================================== */
 
+/* block width/height for the checkerboard corner pattern */
+const BW = "clamp(2.5rem, 12vw, 5.5rem)"    /* block width */
+const BH = "clamp(1.6rem, 7vw, 3.2rem)"      /* block height */
+
+function cornerBlocks(
+  hSide: "left" | "right",
+  vSide: "top" | "bottom",
+) {
+  /* 3 rows × 3 cols staircase, alternating purple/dark */
+  const cols = 3
+  const rows = 3
+  const blocks: { style: Record<string, string>; color: string; delay: number }[] = []
+
+  for (let r = 0; r < rows; r++) {
+    const colsInRow = cols - r          /* staircase: 3, 2, 1 */
+    for (let c = 0; c < colsInRow; c++) {
+      const isPurple = (r + c) % 2 === 0
+      const hOff = `calc(${c} * ${BW})`
+      const vOff = `calc(${r} * ${BH})`
+      blocks.push({
+        style: { [hSide]: hOff, [vSide]: vOff },
+        color: isPurple ? "#7200c9" : "#1a1a2e",
+        delay: (r * cols + c) * 0.04,
+      })
+    }
+  }
+  return blocks
+}
+
 const SHARE_BLOCKS = [
-  { left: "5%", top: "0%", delay: 0 },
-  { left: "10%", top: "17%", delay: 0.15 },
-  { left: "1%", top: "34%", delay: 0.28 },
-  { left: "9%", top: "52%", delay: 0.08 },
-  { left: "4%", top: "72%", delay: 0.22 },
-  { right: "6%", top: "0%", delay: 0.12 },
-  { right: "1%", top: "18%", delay: 0.3 },
-  { right: "8%", top: "36%", delay: 0.04 },
-  { right: "2%", top: "55%", delay: 0.18 },
-  { right: "7%", top: "74%", delay: 0.34 },
+  ...cornerBlocks("left", "top"),
+  ...cornerBlocks("right", "top"),
+  ...cornerBlocks("left", "bottom"),
+  ...cornerBlocks("right", "bottom"),
 ]
 
 const SHARE_ORBS = [
-  { left: "-3%", top: "-9%", delay: 0 },
-  { right: "-3%", top: "-9%", delay: 0.3 },
-  { left: "-4%", top: "40%", delay: 0.55 },
-  { right: "-4%", top: "40%", delay: 0.15 },
-  { left: "-3%", bottom: "-11%", delay: 0.4 },
-  { right: "-3%", bottom: "-11%", delay: 0.7 },
+  /* corners — large, partially off-screen */
+  { left: "-6%", top: "14%", delay: 0 },
+  { right: "-6%", top: "14%", delay: 0.25 },
+  { left: "-6%", bottom: "14%", delay: 0.4 },
+  { right: "-6%", bottom: "14%", delay: 0.55 },
+  /* mid sides */
+  { left: "-8%", top: "42%", delay: 0.15 },
+  { right: "-8%", top: "42%", delay: 0.7 },
 ]
 
 function ShareSpotifyLogo() {
   return (
-    <div className="flex items-center gap-[1.2cqw] text-[#101010]">
-      <svg viewBox="0 0 64 64" aria-hidden="true" className="size-[clamp(2.5rem,6cqw,4rem)]">
+    <div className="flex items-center gap-2 text-[#101010] sm:gap-[1.2cqw]">
+      <svg viewBox="0 0 64 64" aria-hidden="true" className="size-[clamp(1.8rem,7vw,3rem)] sm:size-[clamp(2.5rem,6cqw,4rem)]">
         <circle cx="32" cy="32" r="30" fill="currentColor" />
         <path d="M17 25c10-3 22-2 31 2.5" fill="none" stroke="#ff861b" strokeLinecap="round" strokeWidth="5" />
         <path d="M20 33c8-2 17-1.3 25 2" fill="none" stroke="#ff861b" strokeLinecap="round" strokeWidth="4.2" />
         <path d="M22 41c6-1.5 13-.8 19 1.7" fill="none" stroke="#ff861b" strokeLinecap="round" strokeWidth="3.6" />
       </svg>
-      <span className="font-display text-[clamp(1.7rem,4.2cqw,3rem)] font-black tracking-tight">Spotify</span>
+      <span className="font-display text-[clamp(1.2rem,5vw,2.2rem)] font-black tracking-tight sm:text-[clamp(1.7rem,4.2cqw,3rem)]">Spotify</span>
     </div>
   )
 }
 
 function ShareWrappedSlide() {
   return (
-    <Shell>
-      <div className="relative flex h-full w-full items-center justify-center overflow-hidden bg-[#101010] [container-type:size]">
+    <div className="relative h-full w-full overflow-hidden">
+      <div className="relative flex h-full w-full items-center justify-center bg-[#101010] overflow-visible [container-type:size]">
+        {/* Checkerboard staircase blocks at corners */}
         {SHARE_BLOCKS.map((block, index) => (
           <motion.div
             key={index}
             aria-hidden="true"
-            className="absolute aspect-square w-[clamp(3rem,9cqw,7rem)] bg-[#7200c9]"
-            style={block}
-            initial={{ opacity: 0, scale: 0.4, rotate: -20 }}
-            animate={{ opacity: 1, scale: [1, 1.08, 1], rotate: [0, 5, -4, 0], y: [0, -8, 0] }}
+            className="absolute"
+            style={{
+              ...block.style,
+              width: BW,
+              height: BH,
+              backgroundColor: block.color,
+            }}
+            initial={{ opacity: 0, scale: 0.6 }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{
-              opacity: { duration: 0.3, delay: block.delay },
-              scale: { duration: 4.5, repeat: Number.POSITIVE_INFINITY, delay: block.delay },
-              rotate: { duration: 6, repeat: Number.POSITIVE_INFINITY, delay: block.delay },
-              y: { duration: 3.8, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut", delay: block.delay },
+              opacity: { duration: 0.25, delay: block.delay },
+              scale: { duration: 0.4, delay: block.delay, ease: "easeOut" },
             }}
           />
         ))}
 
-        {SHARE_ORBS.map((orb, index) => (
-          <motion.div
-            key={index}
-            aria-hidden="true"
-            className="absolute z-[2] aspect-square w-[clamp(4.5rem,12cqw,8rem)] rounded-full bg-[#efff38]"
-            style={orb}
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: [1, 1.08, 0.96, 1], x: [0, index % 2 === 0 ? 8 : -8, 0] }}
-            transition={{
-              opacity: { duration: 0.3, delay: 0.15 + orb.delay },
-              scale: { duration: 4.2, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut", delay: orb.delay },
-              x: { duration: 5.2, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut", delay: orb.delay },
-            }}
-          />
-        ))}
+        {/* Yellow orbs — large proper circles, bleeding off edges */}
+        {SHARE_ORBS.map((orb, index) => {
+          const { delay, ...pos } = orb
+          return (
+            <motion.div
+              key={index}
+              aria-hidden="true"
+              className="absolute z-[2] rounded-full bg-[#efff38]"
+              style={{
+                ...pos,
+                width: "clamp(5rem, 22vw, 12rem)",
+                height: "clamp(5rem, 22vw, 12rem)",
+              }}
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: [1, 1.06, 0.97, 1], x: [0, index % 2 === 0 ? 6 : -6, 0] }}
+              transition={{
+                opacity: { duration: 0.3, delay: 0.15 + delay },
+                scale: { duration: 4.2, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut", delay },
+                x: { duration: 5.2, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut", delay },
+              }}
+            />
+          )
+        })}
 
+        {/* Scale-carrying container for the shape and foreground content to prevent gaps/bleed */}
         <motion.div
-          aria-hidden="true"
-          className="absolute inset-[1.5%_4%] z-[3] bg-[#ff861b] [clip-path:polygon(7%_0,25%_7%,22%_0,78%_0,75%_8%,93%_0,88%_14%,100%_10%,91%_27%,100%_32%,91%_43%,100%_50%,91%_57%,100%_69%,90%_73%,96%_91%,77%_94%,75%_100%,24%_100%,22%_94%,4%_100%,10%_82%,0_76%,9%_63%,0_57%,10%_50%,0_42%,10%_35%,0_23%,11%_18%)]"
-          initial={{ scale: 0.25, rotate: -8 }}
-          animate={{ scale: [1, 1.018, 1], rotate: [0, 0.6, -0.5, 0] }}
-          transition={{
-            scale: {
-              duration: 4.8,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "easeInOut",
-              times: [0, 0.5, 1],
-              delay: 0.12,
-            },
-            rotate: { duration: 7, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut", delay: 0.9 },
-          }}
-        />
-
-        <div className="relative z-10 flex h-full w-full flex-col items-center justify-center px-[12%] text-center text-[#080808]">
-          <motion.h2
-            initial={{ opacity: 0, y: "8cqh", scale: 0.72 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ type: "spring", stiffness: 125, damping: 16, delay: 0.42 }}
-            className="font-display text-[clamp(2rem,6.3cqw,5.5rem)] font-black leading-[0.98] tracking-tight text-balance"
-          >
-            Share your
-            <span className="block">Spotify Wrapped</span>
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, letterSpacing: "0.8em" }}
-            animate={{ opacity: 1, letterSpacing: "0.16em" }}
-            transition={{ duration: 0.65, delay: 0.72, ease: "easeOut" }}
-            className="mt-[2.2cqh] font-display text-[clamp(0.52rem,1.15cqw,0.8rem)] font-black uppercase"
-          >
-            #SpotifyWrapped
-          </motion.p>
-
+          className="absolute inset-0 z-10 flex items-center justify-center overflow-visible"
+          initial={{ scale: 0, rotate: -8 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ duration: 3.2, ease: [0.76, 0, 0.24, 1], delay: 0.2 }}
+        >
+          {/* Jagged orange shape */}
           <motion.div
-            initial={{ opacity: 0, y: "5cqh", scale: 0.8 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ type: "spring", stiffness: 120, damping: 15, delay: 0.92 }}
-            className="absolute bottom-[15%]"
-          >
-            <ShareSpotifyLogo />
-          </motion.div>
-        </div>
+            aria-hidden="true"
+            className="absolute left-1/2 top-1/2 z-[3] aspect-square w-[135vw] sm:w-[145vh] bg-[#ff861b]"
+            style={{
+              clipPath:
+                "polygon(50.0% 0.0%,56.6% 8.5%,65.5% 2.4%,69.1% 12.6%,79.4% 9.5%,79.7% 20.3%,90.5% 20.6%,87.4% 30.9%,97.6% 34.5%,91.5% 43.4%,100.0% 50.0%,91.5% 56.6%,97.6% 65.5%,87.4% 69.1%,90.5% 79.4%,79.7% 79.7%,79.4% 90.5%,69.1% 87.4%,65.5% 97.6%,56.6% 91.5%,50.0% 100.0%,43.4% 91.5%,34.5% 97.6%,30.9% 87.4%,20.6% 90.5%,20.3% 79.7%,9.5% 79.4%,12.6% 69.1%,2.4% 65.5%,8.5% 56.6%,0.0% 50.0%,8.5% 43.4%,2.4% 34.5%,12.6% 30.9%,9.5% 20.6%,20.3% 20.3%,20.6% 9.5%,30.9% 12.6%,34.5% 2.4%,43.4% 8.5%)",
+              x: "-50%",
+              y: "-50%",
+            }}
+            animate={{ scale: [1, 1.018, 1], rotate: [0, 0.6, -0.5, 0] }}
+            transition={{
+              scale: {
+                duration: 4.8,
+                repeat: Number.POSITIVE_INFINITY,
+                ease: "easeInOut",
+                times: [0, 0.5, 1],
+              },
+              rotate: { duration: 7, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" },
+            }}
+          />
+
+          {/* Content */}
+          <div className="relative z-10 flex h-full w-full flex-col items-center justify-center px-[8%] text-center text-[#080808] sm:px-[12%]">
+            <motion.h2
+              initial={{ opacity: 0, y: 32, scale: 0.8 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ type: "spring", stiffness: 45, damping: 20, delay: 1.6 }}
+              className="font-display text-[clamp(2.5rem,12vw,4.5rem)] font-black leading-[0.95] tracking-tight text-balance sm:text-[clamp(2.25rem,6.3cqw,5.5rem)]"
+            >
+              Share your
+              <span className="block">Spotify Wrapped</span>
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, letterSpacing: "0.8em" }}
+              animate={{ opacity: 1, letterSpacing: "0.16em" }}
+              transition={{ duration: 1.1, delay: 2.2, ease: "easeOut" }}
+              className="mt-3 font-display text-[clamp(0.6rem,2.6vw,0.85rem)] font-black uppercase sm:mt-[2.2cqh] sm:text-[clamp(0.55rem,1.15cqw,0.8rem)]"
+            >
+              #SpotifyWrapped
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.8 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ type: "spring", stiffness: 45, damping: 18, delay: 2.7 }}
+              className="absolute bottom-[12%] sm:bottom-[15%]"
+            >
+              <ShareSpotifyLogo />
+            </motion.div>
+          </div>
+        </motion.div>
       </div>
-    </Shell>
+    </div>
   )
 }
 

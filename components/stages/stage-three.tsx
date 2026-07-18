@@ -17,10 +17,10 @@ export function StageThree() {
   const pages = useMemo(() => (aiContent ? buildPages(data, aiContent) : []), [data, aiContent])
   const [index, setIndex] = useState(0)
   const [dir, setDir] = useState(1)
+  const [isIntroZoom, setIsIntroZoom] = useState(false)
   const [paused, setPaused] = useState(false)
   const [progress, setProgress] = useState(0)
   const [curtainPhase, setCurtainPhase] = useState<CurtainPhase>(null)
-  const [zoomingThroughIntro, setZoomingThroughIntro] = useState(false)
   const reducedMotion = useReducedMotion()
   const raf = useRef<number | null>(null)
   const start = useRef<number>(0)
@@ -40,29 +40,13 @@ export function StageThree() {
     (next: number, d: number) => {
       if (next < 0 || next >= pages.length || transitionLock.current) return
 
-      const usesIntroZoom =
-        !reducedMotion && d > 0 && pages[index]?.key === "s1" && pages[next]?.key === "s2-share"
+      const nextIsIntro =
+        !reducedMotion &&
+        ((index === 0 && next === 1) || (index === 1 && next === 0))
+      setIsIntroZoom(nextIsIntro)
+
       const usesPixelShutter =
         !reducedMotion && d > 0 && pages[index]?.key === "s2" && pages[next]?.key === "s3-top-song"
-
-      if (usesIntroZoom) {
-        transitionLock.current = true
-        setProgress(1)
-        setZoomingThroughIntro(true)
-
-        const zoomTimer = setTimeout(() => {
-          commitPage(next, d)
-
-          const settleTimer = setTimeout(() => {
-            setZoomingThroughIntro(false)
-            transitionLock.current = false
-            start.current = performance.now()
-          }, 550)
-          transitionTimers.current.push(settleTimer)
-        }, 900)
-        transitionTimers.current.push(zoomTimer)
-        return
-      }
 
       if (!usesPixelShutter) {
         commitPage(next, d)
@@ -104,7 +88,7 @@ export function StageThree() {
     start.current = performance.now()
     elapsedBefore.current = 0
     const tick = (now: number) => {
-      if (!paused && !curtainPhase && !zoomingThroughIntro) {
+      if (!paused && !curtainPhase) {
         const elapsed = elapsedBefore.current + (now - start.current)
         const p = Math.min(1, elapsed / PAGE_MS)
         setProgress(p)
@@ -125,7 +109,7 @@ export function StageThree() {
     return () => {
       if (raf.current) cancelAnimationFrame(raf.current)
     }
-  }, [index, paused, pages.length, go, curtainPhase, zoomingThroughIntro])
+  }, [index, paused, pages.length, go, curtainPhase])
 
   // keyboard
   useEffect(() => {
@@ -145,6 +129,8 @@ export function StageThree() {
   const isLast = index === pages.length - 1
 
   if (!current) return null
+
+  const customData = { dir, isIntroZoom }
 
   return (
     <div className="fixed inset-0 z-50 h-[100dvh] w-screen overflow-hidden bg-ink select-none">
@@ -175,34 +161,107 @@ export function StageThree() {
       />
 
       {/* pages */}
-      <AnimatePresence mode="popLayout" custom={dir}>
+      <AnimatePresence mode="popLayout" custom={customData}>
         <motion.div
           key={current.key}
-          custom={dir}
-          initial={
-            current.key === "s2-share" && zoomingThroughIntro
-              ? { opacity: 0, x: 0, scale: 1.42, rotate: 0, filter: "blur(10px)" }
-              : { opacity: 0, x: dir * 120, scale: 0.92, rotate: dir * 2, filter: "blur(0px)" }
-          }
-          animate={
-            zoomingThroughIntro && current.key === "s1"
-              ? { opacity: 0, x: 0, scale: 3.8, rotate: 0, filter: "blur(9px)" }
-              : { opacity: 1, x: 0, scale: 1, rotate: 0, filter: "blur(0px)" }
-          }
-          exit={
-            zoomingThroughIntro && current.key === "s1"
-              ? { opacity: 0, x: 0, scale: 4.2, rotate: 0, filter: "blur(12px)" }
-              : { opacity: 0, x: dir * -120, scale: 0.92, rotate: dir * -2, filter: "blur(0px)" }
-          }
-          transition={
-            zoomingThroughIntro && current.key === "s1"
-              ? { duration: 0.9, ease: [0.76, 0, 0.24, 1] }
-              : { type: "spring", stiffness: 260, damping: 26, mass: 0.9 }
-          }
-          className="absolute inset-0 flex items-center justify-center"
+          custom={customData}
+          variants={{
+            initial: ({ dir, isIntroZoom }: { dir: number; isIntroZoom: boolean }) => {
+              if (isIntroZoom) {
+                return {
+                  clipPath: dir > 0 ? "circle(0% at 50% 50%)" : "circle(150% at 50% 50%)",
+                  zIndex: dir > 0 ? 10 : 1,
+                  x: 0,
+                  opacity: 1,
+                }
+              }
+              return {
+                clipPath: "circle(150% at 50% 50%)",
+                zIndex: 1,
+                x: dir * 120,
+                opacity: 0,
+              }
+            },
+            animate: ({ dir, isIntroZoom }: { dir: number; isIntroZoom: boolean }) => ({
+              clipPath: "circle(150% at 50% 50%)",
+              zIndex: dir > 0 ? 10 : 1,
+              x: 0,
+              opacity: 1,
+              transition: isIntroZoom
+                ? { duration: dir > 0 ? 3.2 : 1.0, ease: [0.76, 0, 0.24, 1] }
+                : { type: "spring", stiffness: 260, damping: 26, mass: 0.9 },
+            }),
+            exit: ({ dir, isIntroZoom }: { dir: number; isIntroZoom: boolean }) => {
+              if (isIntroZoom) {
+                return {
+                  clipPath: dir > 0 ? "circle(150% at 50% 50%)" : "circle(0% at 50% 50%)",
+                  zIndex: dir > 0 ? 1 : 10,
+                  x: 0,
+                  opacity: dir > 0 ? 0 : 1,
+                  transition: { duration: dir > 0 ? 3.2 : 1.0, ease: [0.76, 0, 0.24, 1] },
+                }
+              }
+              return {
+                clipPath: "circle(150% at 50% 50%)",
+                zIndex: 1,
+                x: dir * -120,
+                opacity: 0,
+                transition: { type: "spring", stiffness: 260, damping: 26, mass: 0.9 },
+              }
+            },
+          }}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          className="absolute inset-0 overflow-hidden"
           style={{ backgroundColor: current.bg }}
         >
-          {current.node}
+          <motion.div
+            custom={customData}
+            variants={{
+              initial: ({ dir, isIntroZoom }: { dir: number; isIntroZoom: boolean }) => {
+                if (isIntroZoom) {
+                  return {
+                    scale: dir > 0 ? 0.8 : 2.5,
+                    filter: dir > 0 ? "blur(0px)" : "blur(15px)",
+                    opacity: dir > 0 ? 1 : 0,
+                  }
+                }
+                return {
+                  scale: 0.92,
+                  filter: "blur(0px)",
+                  opacity: 1,
+                }
+              },
+              animate: ({ isIntroZoom, dir }: { isIntroZoom: boolean; dir: number }) => ({
+                scale: 1,
+                filter: "blur(0px)",
+                opacity: 1,
+                transition: isIntroZoom
+                  ? { duration: dir > 0 ? 3.2 : 1.0, ease: [0.76, 0, 0.24, 1] }
+                  : { type: "spring", stiffness: 260, damping: 26, mass: 0.9 },
+              }),
+              exit: ({ dir, isIntroZoom }: { dir: number; isIntroZoom: boolean }) => {
+                if (isIntroZoom) {
+                  return {
+                    scale: dir > 0 ? 2.5 : 0.8,
+                    filter: dir > 0 ? "blur(15px)" : "blur(0px)",
+                    opacity: dir > 0 ? 0 : 1,
+                    transition: { duration: dir > 0 ? 3.2 : 1.0, ease: [0.76, 0, 0.24, 1] },
+                  }
+                }
+                return {
+                  scale: 0.92,
+                  filter: "blur(0px)",
+                  opacity: 0,
+                  transition: { type: "spring", stiffness: 260, damping: 26, mass: 0.9 },
+                }
+              },
+            }}
+            className="absolute inset-0 flex items-center justify-center"
+          >
+            {current.node}
+          </motion.div>
         </motion.div>
       </AnimatePresence>
 
