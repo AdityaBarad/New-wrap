@@ -7,8 +7,8 @@ import { useWrap } from "@/context/wrap-context"
 import { buildPages, PixelTransitionShutter } from "@/components/player/pages"
 
 const PAGE_MS = 7000
-const CURTAIN_CLOSE_MS = 1400
-const CURTAIN_OPEN_MS = 1300
+const CURTAIN_CLOSE_MS = 2700
+const CURTAIN_OPEN_MS = 3000
 
 type CurtainPhase = "closing" | "opening" | null
 
@@ -45,8 +45,18 @@ export function StageThree() {
         ((index === 0 && next === 1) || (index === 1 && next === 0))
       setIsIntroZoom(nextIsIntro)
 
+      const isForwardShutter =
+        d > 0 &&
+        ((pages[index]?.key === "s2-share" && pages[next]?.key === "s2") ||
+         (pages[index]?.key === "s2" && pages[next]?.key === "s3-top-song"))
+
+      const isBackwardShutter =
+        d < 0 &&
+        ((pages[index]?.key === "s3-top-song" && pages[next]?.key === "s2") ||
+         (pages[index]?.key === "s2" && pages[next]?.key === "s2-share"))
+
       const usesPixelShutter =
-        !reducedMotion && d > 0 && pages[index]?.key === "s2" && pages[next]?.key === "s3-top-song"
+        !reducedMotion && (isForwardShutter || isBackwardShutter)
 
       if (!usesPixelShutter) {
         commitPage(next, d)
@@ -266,7 +276,14 @@ export function StageThree() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {curtainPhase && <PixelTransitionShutter key="pixel-shutter" phase={curtainPhase} />}
+        {curtainPhase && (
+          <PixelTransitionShutter
+            key="pixel-shutter"
+            phase={curtainPhase}
+            outward={current.key === "s3-top-song"}
+            slideInCorners={!(pages[index]?.key === "s2" || pages[index]?.key === "s3-top-song")}
+          />
+        )}
       </AnimatePresence>
 
       {/* top-right glassmorphism controls */}

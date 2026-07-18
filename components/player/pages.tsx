@@ -484,12 +484,14 @@ function PixelStair({
   accent,
   shutterPhase,
   outward = false,
+  slideInCorners = true,
 }: {
   corner: "top-left" | "top-right" | "bottom-left" | "bottom-right"
   delay?: number
   accent: string
   shutterPhase?: "closing" | "opening"
   outward?: boolean
+  slideInCorners?: boolean
 }) {
   const isTop = corner.startsWith("top")
   const isRight = corner.endsWith("right")
@@ -514,26 +516,46 @@ function PixelStair({
         isRight ? "right-0 items-end" : "left-0 items-start"
       } z-0 flex flex-col ${isShutter ? "w-full overflow-visible" : "w-[58vw] max-w-[46rem] overflow-hidden"}`} 
     >
-      {rows.map((width, i) => (
+      {rows.map((width, i) => {
+        const shutterDelay = isClosing ? i * 0.07 : (rows.length - 1 - i) * 0.05
+        const shutterDuration = isClosing ? 2.6 - shutterDelay : 2.8 - shutterDelay
+
+        return (
         <motion.div
           key={`${corner}-${i}`}
-          initial={isShutter ? { opacity: 1, x: 0, y: 0, width, height: PIXEL_ROW_HEIGHT } : { opacity: 0, x: enterX, y: enterY }}
+          initial={
+            isShutter
+              ? {
+                  opacity: 1,
+                  x: isClosing ? (slideInCorners ? (isRight ? "100%" : "-100%") : 0) : 0,
+                  y: 0,
+                  width: isClosing ? (slideInCorners ? 0 : width) : width,
+                  height: PIXEL_ROW_HEIGHT,
+                }
+              : { opacity: 0, x: enterX, y: enterY }
+          }
           animate={{
             opacity: 1,
-            x: 0,
+            x: isShutter && !isClosing && slideInCorners ? (isRight ? "100%" : "-100%") : 0,
             y: 0,
-            width: isClosing ? `${isTop ? 42 + i * 4.8 : 61.2 - i * 4.8}vw` : width,
+            width: isShutter 
+              ? (isClosing ? `${isTop ? 42 + i * 4.8 : 61.2 - i * 4.8}vw` : (slideInCorners ? 0 : width))
+              : width,
             height: PIXEL_ROW_HEIGHT,
           }}
           transition={
             isShutter
               ? {
-                  width: {
-                    duration: isClosing ? 1.2 : 1.3,
-                    delay: isClosing ? i * 0.035 : (rows.length - 1 - i) * 0.025,
+                  x: {
+                    duration: shutterDuration,
+                    delay: shutterDelay,
                     ease: [0.76, 0, 0.24, 1],
                   },
-
+                  width: {
+                    duration: shutterDuration,
+                    delay: shutterDelay,
+                    ease: [0.76, 0, 0.24, 1],
+                  },
                 }
               : {
                   opacity: { ...SPRING, delay: delay + i * 0.08 },
@@ -574,7 +596,8 @@ function PixelStair({
             }}
           />
         </motion.div>
-      ))}
+      )
+    })}
     </div>
   )
 }
@@ -605,7 +628,8 @@ function CenterClosingStrips({ phase }: { phase: "closing" | "opening" }) {
               const distanceFromCenter = Math.abs(i - maxDistance)
               const centerProgress = (maxDistance - distanceFromCenter) / widthSpan
               const width = 61.2 + centerProgress * 8.8
-              const delay = Math.min(i, count - 1 - i) * 0.035
+              const delay = Math.min(i, count - 1 - i) * 0.07
+              const duration = isClosing ? 2.6 - delay : 2.8 - delay
 
               return (
                 <motion.div key={i} className="relative shrink-0" style={{ height: PIXEL_ROW_HEIGHT }}>
@@ -613,7 +637,7 @@ function CenterClosingStrips({ phase }: { phase: "closing" | "opening" }) {
                     className="absolute inset-y-0 left-0 flex"
                     initial={{ x: "-100%" }}
                     animate={{ x: isClosing ? "0%" : "-100%" }}
-                    transition={{ duration: isClosing ? 1.2 : 1.3, delay, ease: [0.76, 0, 0.24, 1] }}
+                    transition={{ duration, delay, ease: [0.76, 0, 0.24, 1] }}
                     style={{ width: `${width}vw` }}
                   >
                     <div
@@ -629,7 +653,7 @@ function CenterClosingStrips({ phase }: { phase: "closing" | "opening" }) {
                     className="absolute inset-y-0 right-0 flex flex-row-reverse"
                     initial={{ x: "100%" }}
                     animate={{ x: isClosing ? "0%" : "100%" }}
-                    transition={{ duration: isClosing ? 1.2 : 1.3, delay, ease: [0.76, 0, 0.24, 1] }}
+                    transition={{ duration, delay, ease: [0.76, 0, 0.24, 1] }}
                     style={{ width: `${width}vw` }}
                   >
                     <div
@@ -651,7 +675,15 @@ function CenterClosingStrips({ phase }: { phase: "closing" | "opening" }) {
   )
 }
 
-export function PixelTransitionShutter({ phase }: { phase: "closing" | "opening" }) {
+export function PixelTransitionShutter({ 
+  phase, 
+  outward = false,
+  slideInCorners = true,
+}: { 
+  phase: "closing" | "opening"
+  outward?: boolean
+  slideInCorners?: boolean
+}) {
   const isClosing = phase === "closing"
 
   return (
@@ -660,17 +692,17 @@ export function PixelTransitionShutter({ phase }: { phase: "closing" | "opening"
         className="absolute inset-0"
         initial={{ opacity: 0 }}
         animate={{ opacity: isClosing ? 1 : 0 }}
-        transition={{ duration: isClosing ? 0.45 : 0.75, delay: isClosing ? 0.72 : 0.12 }}
+        transition={{ duration: isClosing ? 0.9 : 1.4, delay: isClosing ? 1.5 : 0.2 }}
         style={{
           backgroundImage:
             "linear-gradient(90deg, #20e7ed 0%, #0789f5 23%, #174ee8 34%, #5424ed 44%, #10093f 49%, #10093f 51%, #5424ed 56%, #174ee8 66%, #0789f5 77%, #20e7ed 100%)",
         }}
       />
       <CenterClosingStrips phase={phase} />
-      <PixelStair corner="top-left" accent="#18ddec" shutterPhase={phase} outward={phase === "opening"} />
-      <PixelStair corner="top-right" accent="#18ddec" shutterPhase={phase} outward={phase === "opening"} />
-      <PixelStair corner="bottom-left" accent="#18ddec" shutterPhase={phase} outward={phase === "opening"} />
-      <PixelStair corner="bottom-right" accent="#18ddec" shutterPhase={phase} outward={phase === "opening"} />
+      <PixelStair corner="top-left" accent="#18ddec" shutterPhase={phase} outward={outward} slideInCorners={slideInCorners} />
+      <PixelStair corner="top-right" accent="#18ddec" shutterPhase={phase} outward={outward} slideInCorners={slideInCorners} />
+      <PixelStair corner="bottom-left" accent="#18ddec" shutterPhase={phase} outward={outward} slideInCorners={slideInCorners} />
+      <PixelStair corner="bottom-right" accent="#18ddec" shutterPhase={phase} outward={outward} slideInCorners={slideInCorners} />
     </div>
   )
 }
