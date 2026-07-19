@@ -30,6 +30,8 @@ export const PURPOSES: PurposeMeta[] = [
 
 export type LocalPhoto = { name: string; url: string }
 
+export type SongData = { videoId: string; title: string; artist: string; thumbnail: string }
+
 export type WrapData = {
   // Stage 1
   id?: string
@@ -49,6 +51,8 @@ export type WrapData = {
   photos: LocalPhoto[]
   // AI personalization
   storyParagraph: string
+  // Selected song
+  song: SongData | null
 }
 
 const initialData: WrapData = {
@@ -66,6 +70,7 @@ const initialData: WrapData = {
   birthYear: "",
   photos: [],
   storyParagraph: "",
+  song: null,
 }
 
 type Stage = 1 | 2 | 3
@@ -123,6 +128,7 @@ export function WrapProvider({ children }: { children: ReactNode }) {
           birthYear: wrapData.birthYear,
           storyParagraph: wrapData.storyParagraph,
           photoCount: wrapData.photos.length,
+          song: wrapData.song ? `${wrapData.song.title} by ${wrapData.song.artist}` : null,
         }),
       })
 

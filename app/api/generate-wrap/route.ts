@@ -14,6 +14,7 @@ function buildPrompt(body: Record<string, unknown>): string {
     birthYear,
     storyParagraph,
     photoCount,
+    song,
   } = body
 
   const purposeLabels: Record<string, string> = {
@@ -37,6 +38,7 @@ ${travelHours ? `- **Travel hours**: ${travelHours}` : ""}
 ${delusionalHabit ? `- **Delusional habit / inside joke**: ${delusionalHabit}` : ""}
 ${birthYear ? `- **Birth year**: ${birthYear}` : ""}
 - **Photos uploaded**: ${photoCount || 0}
+${song ? `- **Chosen theme song**: ${song}` : ""}
 
 ## USER'S STORY (use this heavily — it's the soul of the wrap)
 "${storyParagraph || "No story provided — improvise based on the profile above."}"

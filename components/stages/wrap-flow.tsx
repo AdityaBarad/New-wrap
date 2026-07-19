@@ -7,9 +7,10 @@ import { StageOne } from "@/components/stages/stage-one"
 import { StageTwo } from "@/components/stages/stage-two"
 import { StageThree } from "@/components/stages/stage-three"
 import { IntroAnimation } from "@/components/stages/intro-animation"
+import { YoutubePlayer } from "@/components/wrapped/youtube-player"
 
 function Screens() {
-  const { stage } = useWrap()
+  const { stage, data } = useWrap()
   const [introComplete, setIntroComplete] = useState(false)
 
   // Reset intro when stage goes back to 1 (user starts over)
@@ -41,6 +42,8 @@ function Screens() {
             </motion.div>
           )}
         </AnimatePresence>
+        
+        {data.song && <YoutubePlayer videoId={data.song.videoId} />}
       </>
     )
   }

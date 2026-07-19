@@ -5,6 +5,7 @@ import { motion } from "@/components/wrapped/motion"
 import { Starburst } from "@/components/wrapped/shapes"
 import { Field } from "@/components/wrapped/field"
 import { SinglePhotoDropzone, TxtDropzone } from "@/components/wrapped/dropzone"
+import { SongSelector } from "@/components/wrapped/song-selector"
 import { PURPOSES, useWrap } from "@/context/wrap-context"
 import { AiLoading } from "@/components/stages/ai-loading"
 
@@ -214,6 +215,10 @@ export function StageTwo() {
               AI Personalization
             </span>
             <div className="h-1 flex-1 bg-foreground/10" />
+          </div>
+
+          <div className="mb-6">
+            <SongSelector accentColor={meta.color} />
           </div>
 
           <div className="flex flex-col gap-2">
