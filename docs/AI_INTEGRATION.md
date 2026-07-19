@@ -24,6 +24,7 @@ When a user submits the form on the landing page, we collect several fields. The
 - `photoCount`: The number of photos uploaded.
 
 ## 3. How We Send It (The System Prompt)
+hiiiiiiiii
 
 We format these inputs into a strict prompt template that acts as the "System Prompt" for Gemini. We use the `gemini-2.5-flash-lite` model for fast, creative text generation.
 
