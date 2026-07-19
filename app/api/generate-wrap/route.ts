@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 
-export const maxDuration = 60 // Vercel: allow up to 60s (Pro) / 10s graceful cap (Hobby)
-export const dynamic = "force-dynamic"
-
-const GEMINI_API_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
+const GROQ_MODEL = "llama-3.3-70b-versatile"
 
 function buildPrompt(body: Record<string, unknown>): string {
   const {
@@ -238,33 +235,17 @@ function repairJson(raw: string): string {
   return s
 }
 
-/** Extract the actual text content from Gemini response (handles 2.5 Flash thinking parts) */
-function extractGeminiText(response: Record<string, unknown>): string {
-  const parts = (response as any)?.candidates?.[0]?.content?.parts
-  if (!Array.isArray(parts) || parts.length === 0) return ""
-
-  // Gemini 2.5 Flash puts thinking in earlier parts, text in the last part
-  // Find the last part that has a "text" field (not a "thought" field)
-  for (let i = parts.length - 1; i >= 0; i--) {
-    if (parts[i].text !== undefined && !parts[i].thought) {
-      return parts[i].text
-    }
-  }
-  // Fallback: just grab the last text
-  for (let i = parts.length - 1; i >= 0; i--) {
-    if (parts[i].text !== undefined) {
-      return parts[i].text
-    }
-  }
-  return ""
+/** Extract text content from Groq/OpenAI-compatible response */
+function extractGroqText(response: Record<string, unknown>): string {
+  return (response as any)?.choices?.[0]?.message?.content ?? ""
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const apiKey = process.env.GEMINI_API_KEY
+    const apiKey = process.env.GROQ_API_KEY
     if (!apiKey) {
       return NextResponse.json(
-        { error: "GEMINI_API_KEY not configured" },
+        { error: "GROQ_API_KEY not configured" },
         { status: 500 },
       )
     }
@@ -273,25 +254,26 @@ export async function POST(req: NextRequest) {
     const prompt = buildPrompt(body)
 
     const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 25000) // 25s timeout — stays within Vercel limits
+    const timeout = setTimeout(() => controller.abort(), 45000)
 
-    const res = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+    const res = await fetch(GROQ_API_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`,
+      },
       signal: controller.signal,
       body: JSON.stringify({
-        contents: [
+        model: GROQ_MODEL,
+        messages: [
           {
-            parts: [{ text: prompt }],
+            role: "user",
+            content: prompt,
           },
         ],
-        generationConfig: {
-          temperature: 1.0,
-          topP: 0.95,
-          topK: 40,
-          maxOutputTokens: 8192,
-          responseMimeType: "application/json",
-        },
+        temperature: 1.0,
+        max_tokens: 8192,
+        response_format: { type: "json_object" },
       }),
     })
 
@@ -299,26 +281,19 @@ export async function POST(req: NextRequest) {
 
     if (!res.ok) {
       const errText = await res.text()
-      console.error("[generate-wrap] Gemini API error:", res.status, errText)
+      console.error("[generate-wrap] Groq API error:", res.status, errText)
       return NextResponse.json(
-        { error: `Gemini API returned ${res.status}` },
+        { error: `Groq API returned ${res.status}` },
         { status: 502 },
       )
     }
 
-    const geminiResponse = await res.json()
+    const groqResponse = await res.json()
 
-    // Check if the response was truncated (finish reason)
-    const finishReason = (geminiResponse as any)?.candidates?.[0]?.finishReason
-    if (finishReason && finishReason !== "STOP" && finishReason !== "END_TURN") {
-      console.warn("[generate-wrap] Non-standard finish reason:", finishReason)
-    }
-
-    // Extract the text from Gemini's response (handles 2.5 Flash thinking parts)
-    const rawText = extractGeminiText(geminiResponse)
+    const rawText = extractGroqText(groqResponse)
 
     if (!rawText) {
-      console.error("[generate-wrap] Empty response from Gemini. Full response:", JSON.stringify(geminiResponse).slice(0, 500))
+      console.error("[generate-wrap] Empty response from Groq. Full response:", JSON.stringify(groqResponse).slice(0, 500))
       return NextResponse.json(
         { error: "Empty response from AI" },
         { status: 502 },
@@ -341,7 +316,7 @@ export async function POST(req: NextRequest) {
         const repaired = repairJson(cleaned)
         parsed = JSON.parse(repaired)
         console.log("[generate-wrap] JSON repair succeeded")
-      } catch (e2) {
+      } catch {
         console.error("[generate-wrap] JSON repair also failed. Raw text (first 1000 chars):", cleaned.slice(0, 1000))
         return NextResponse.json(
           { error: "AI returned malformed JSON" },
