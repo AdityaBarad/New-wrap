@@ -49,8 +49,11 @@ export async function GET(req: NextRequest) {
     }))
 
     return NextResponse.json({ results: videos })
-  } catch (error) {
+  } catch (error: any) {
     console.error("[search-song] Error searching YouTube:", error)
-    return NextResponse.json({ error: "Failed to search YouTube" }, { status: 500 })
+    return NextResponse.json({ 
+      error: "Failed to search YouTube", 
+      details: error instanceof Error ? error.message : String(error) 
+    }, { status: 500 })
   }
 }
