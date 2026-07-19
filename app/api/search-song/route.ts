@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server"
-import ytSearch from "yt-search"
 
 export async function GET(req: NextRequest) {
   try {
@@ -38,10 +37,11 @@ export async function GET(req: NextRequest) {
 
     // Fallback to scraping locally if no API key is provided
     console.log("[search-song] Using yt-search scraping fallback")
+    const ytSearch = (await import("yt-search")).default
     const results = await ytSearch(q)
     
     // Filter to just videos and take top 5
-    const videos = results.videos.slice(0, 5).map((v) => ({
+    const videos = results.videos.slice(0, 5).map((v: any) => ({
       videoId: v.videoId,
       title: v.title,
       artist: v.author.name,
