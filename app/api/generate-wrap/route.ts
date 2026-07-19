@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
 
+export const maxDuration = 60 // Vercel: allow up to 60s (Pro) / 10s graceful cap (Hobby)
+export const dynamic = "force-dynamic"
+
 const GEMINI_API_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent"
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
 
 function buildPrompt(body: Record<string, unknown>): string {
   const {
@@ -270,7 +273,7 @@ export async function POST(req: NextRequest) {
     const prompt = buildPrompt(body)
 
     const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 45000) // 45s timeout for thinking model
+    const timeout = setTimeout(() => controller.abort(), 25000) // 25s timeout — stays within Vercel limits
 
     const res = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
       method: "POST",
