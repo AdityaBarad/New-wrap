@@ -10,7 +10,34 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Query parameter 'q' is required" }, { status: 400 })
     }
 
-    // Perform the search
+    const apiKey = process.env.YOUTUBE_API_KEY
+
+    if (apiKey) {
+      console.log("[search-song] Using official YouTube Data API")
+      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=${encodeURIComponent(
+        q
+      )}&type=video&key=${apiKey}`
+
+      const res = await fetch(url)
+      if (!res.ok) {
+        const errText = await res.text()
+        throw new Error(`YouTube API returned ${res.status}: ${errText}`)
+      }
+
+      const data = await res.json()
+      
+      const videos = (data.items || []).map((item: any) => ({
+        videoId: item.id.videoId,
+        title: item.snippet.title,
+        artist: item.snippet.channelTitle,
+        thumbnail: item.snippet.thumbnails?.medium?.url || item.snippet.thumbnails?.default?.url || "",
+      }))
+
+      return NextResponse.json({ results: videos })
+    }
+
+    // Fallback to scraping locally if no API key is provided
+    console.log("[search-song] Using yt-search scraping fallback")
     const results = await ytSearch(q)
     
     // Filter to just videos and take top 5
