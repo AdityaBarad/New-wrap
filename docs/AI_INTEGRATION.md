@@ -15,7 +15,6 @@ When a user submits the form on the landing page, we collect several fields. The
 **User Inputs:**
 - `purpose`: The theme of the wrap (e.g., "couple", "travel", "birthday", "life", "group").
 - `userNames`: Who the wrap is about.
-- `anthemTitle`: Their "song of the year".
 - `anniversaryDate` (Optional): A significant date.
 - `destinationCity` (Optional): A significant location.
 - `travelHours` (Optional): Time spent traveling.
@@ -36,7 +35,7 @@ We instruct Gemini to act as a **"world-class creative director for a viral 'Yea
 2. **User's Story:** The raw paragraph provided by the user. We tell Gemini to use this heavily as the "soul of the wrap".
 3. **Instructions:** Strict rules on tone, personalization, and JSON structure.
 4. **JSON Schema:** The exact JSON shape we expect back, complete with inline examples and hints on what each field should represent.
-5. **Critical Constraints:** Strict rules on array lengths (e.g., "receipts.rows MUST have exactly 4 items") to prevent the UI from breaking.
+5. **Critical Constraints:** Strict rules on array lengths (e.g., "globalArtists MUST have exactly 5 items") to prevent the UI from breaking.
 
 ## 4. Full Prompt Example
 
@@ -48,7 +47,6 @@ You are a world-class creative director for a viral "Year Wrapped" experience �
 ## USER PROFILE
 - Purpose: Couple / Love Story
 - People involved: Sarah and Mark
-- Anthem song: Espresso by Sabrina Carpenter
 - Anniversary/First date: October 12th
 - Destination city: Paris
 - Delusional habit / inside joke: Thinking we can walk 10 miles instead of taking the metro
@@ -85,32 +83,8 @@ Return ONLY a valid JSON object (no markdown, no backticks, no explanation) with
   },
   "topTrack": {
     "kicker": "2-3 word label (e.g. 'Your anthem', 'On repeat')",
-    "artistLine": "A creative subtitle for the track card (e.g. 'the soundtrack of your villain arc')"
-  },
-  "receipts": {
-    "title": "A creative title for the stats receipt (e.g. 'The damage report', 'Chat wrapped')",
-    "rows": [
-      { "label": "Creative metric name personalized to their story", "value": "A fun made-up stat value" },
-      { "label": "Another personalized metric", "value": "Another stat" },
-      { "label": "Third metric", "value": "Third stat" },
-      { "label": "Fourth metric", "value": "Fourth stat" }
-    ]
-  },
-  "versus": {
-    "kicker": "2-3 word label (e.g. 'The main event', 'Head to head')",
-    "left": "Left side name — something from their story or a personality trait (1-3 words)",
-    "right": "Right side name — opposing thing (1-3 words)",
-    "leagueTitle": "A funny league/competition name relevant to their life"
-  },
-  "versusBoard": {
-    "kicker": "2-3 word label",
-    "title": "Creative board title (e.g. 'Top matchups', 'The bracket')",
-    "games": [
-      { "team1": "Something from their life", "team2": "Opposing thing", "competition": "Funny context" },
-      { "team1": "Another thing", "team2": "Another opposing", "competition": "Another context" },
-      { "team1": "Third thing", "team2": "Third opposing", "competition": "Third context" },
-      { "team1": "Fourth thing", "team2": "Fourth opposing", "competition": "Fourth context" }
-    ]
+    "title": "A personalized song title that encapsulates their vibe or story (e.g. 'Espresso (But More Anxious)', 'Tokyo Drifting')",
+    "artistLine": "A creative subtitle/artist line for the track card (e.g. 'the soundtrack of your villain arc')"
   },
   "globalArtistsTitle": "Creative title for global artists (e.g. 'Your Main Character Influences')",
   "globalArtists": [
@@ -159,17 +133,11 @@ Return ONLY a valid JSON object (no markdown, no backticks, no explanation) with
   }
 }
 
-CRITICAL: 
-- The "lines" array in "intro" MUST have exactly 3 short items (1-2 words each) — they're displayed as giant stacked text.
-- "receipts.rows" MUST have exactly 4 items.
-- "versusBoard.games" MUST have exactly 4 items.
 - "globalArtists" MUST have exactly 5 items.
 - "worldCitizen.artists" MUST have exactly 6 items.
 - "dashboard.topArtists" MUST have exactly 5 items.
 - "dashboard.topSongs" MUST have exactly 5 items.
 - "dashboard.topGenres" MUST have exactly 5 items.
-- Make "versus" entries feel like a personal battle/duality from their life, not generic sports.
-- Make "versusBoard.games" entries feel like life moments or personality clashes, not actual sports games.
 - Return ONLY the JSON. No markdown code fences. No explanation.
 ```
 
@@ -195,32 +163,8 @@ Here is an example of what Gemini returns for the prompt above. Notice how it we
   },
   "topTrack": {
     "kicker": "Your anthem",
+    "title": "Espresso (But More Caffeinated)",
     "artistLine": "the soundtrack of your 3 AM reality TV binges"
-  },
-  "receipts": {
-    "title": "The Damage Report",
-    "rows": [
-      { "label": "Money spent on iced lattes", "value": "$$$$" },
-      { "label": "IKEA arguments won", "value": "0" },
-      { "label": "Times you got lost in Paris", "value": "Too many" },
-      { "label": "Reality TV seasons inhaled", "value": "12" }
-    ]
-  },
-  "versus": {
-    "kicker": "The main event",
-    "left": "Walking 10 miles",
-    "right": "Taking the metro",
-    "leagueTitle": "The 'We Can Walk It' Delusion League"
-  },
-  "versusBoard": {
-    "kicker": "Top matchups",
-    "title": "The Bracket",
-    "games": [
-      { "team1": "Sarah", "team2": "Mark", "competition": "Who assembled the MALM dresser faster?" },
-      { "team1": "Iced lattes", "team2": "Financial stability", "competition": "The daily battle" },
-      { "team1": "Reality TV", "team2": "Sleep schedule", "competition": "3 AM showdown" },
-      { "team1": "Paris bakery", "team2": "Google Maps", "competition": "The two-hour saga" }
-    ]
   },
   "globalArtistsTitle": "Your Main Character Influences",
   "globalArtists": [

@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react"
 
 // Constants for the animation
-const ANIM_DURATION_MS = 6500 // 6.5 seconds
+export const ANIM_DURATION_MS = 2167 // 3x faster (previously 6500)
 const TEXT = "2024" // Configurable text
 
 export function SpiralRibbon({ 

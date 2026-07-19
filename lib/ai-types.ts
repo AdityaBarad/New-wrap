@@ -20,6 +20,7 @@ export type AiWrapContent = {
   }
   topTrack: {
     kicker: string
+    title: string
     artistLine: string
   }
   globalArtistsTitle: string

@@ -7,7 +7,6 @@ function buildPrompt(body: Record<string, unknown>): string {
   const {
     purpose,
     userNames,
-    anthemTitle,
     anniversaryDate,
     destinationCity,
     travelHours,
@@ -27,12 +26,11 @@ function buildPrompt(body: Record<string, unknown>): string {
 
   const purposeLabel = purposeLabels[(purpose as string) ?? "life"] ?? "Personal Life Journey"
 
-  return `You are a world-class creative director for a viral "Year Wrapped" experience — think Spotify Wrapped but for someone's LIFE. Your job is to write punchy, Gen-Z, unhinged-but-heartfelt, meme-aware copy that makes every slide screenshot-worthy.
+  return `You are a world-class creative director for a viral "Life Wrapped" experience — think Spotify Wrapped but for someone's LIFE. Your job is to write punchy, Gen-Z, unhinged-but-heartfelt, meme-aware copy that makes every slide screenshot-worthy.
 
 ## USER PROFILE
 - **Purpose**: ${purposeLabel}
 - **People involved**: ${userNames || "the main character"}
-- **Anthem song**: ${anthemTitle || "their song"}
 ${anniversaryDate ? `- **Anniversary/First date**: ${anniversaryDate}` : ""}
 ${destinationCity ? `- **Destination city**: ${destinationCity}` : ""}
 ${travelHours ? `- **Travel hours**: ${travelHours}` : ""}
@@ -71,7 +69,8 @@ Return ONLY a valid JSON object (no markdown, no backticks, no explanation) with
   },
   "topTrack": {
     "kicker": "2-3 word label (e.g. 'Your anthem', 'On repeat')",
-    "artistLine": "A creative subtitle for the track card (e.g. 'the soundtrack of your villain arc')"
+    "title": "A personalized song title that encapsulates their vibe or story (e.g. 'Espresso (But More Anxious)', 'Tokyo Drifting')",
+    "artistLine": "A creative subtitle/artist line for the track card (e.g. 'the soundtrack of your villain arc')"
   },
 
   "globalArtistsTitle": "Creative title for global artists (e.g. 'Your Main Character Influences')",
@@ -118,6 +117,76 @@ Return ONLY a valid JSON object (no markdown, no backticks, no explanation) with
     "minutesLabel": "Creative label for minutes lived (e.g. 'min lived')",
     "topPercent": "A funny number between 1 and 9 (e.g. '1')",
     "topPercentLabel": "Creative label for top percent (e.g. 'main character')"
+  }
+}
+
+Full Response Example- refer this
+
+json
+{
+  "intro": {
+    "kicker": "COUPLE ALERT",
+    "lines": ["SARAH", "&", "MARK"],
+    "sub": "You survived IKEA and moving in together. Truly, a miracle."
+  },
+  "share": {
+    "title": "Share your \ncouple era",
+    "hashtag": "#SarahAndMarkSurvived"
+  },
+  "dataHighlight": {
+    "kicker": "The receipts are in",
+    "label": "Steps walked in Paris",
+    "note": "Because taking the metro is for the weak, apparently. Two hours for a bakery? Worth it."
+  },
+  "topTrack": {
+    "kicker": "Your anthem",
+    "title": "Espresso (But More Caffeinated)",
+    "artistLine": "the soundtrack of your 3 AM reality TV binges"
+  },
+  "globalArtistsTitle": "Your Main Character Influences",
+  "globalArtists": [
+    "The IKEA Instruction Manual",
+    "Your Barista",
+    "The Reality TV Villains",
+    "The Paris Metro Map",
+    "Sabrina Carpenter"
+  ],
+  "artistStats": {
+    "name": "Iced Latte Enthusiasts",
+    "streams": "365",
+    "hours": "700",
+    "listeners": "2",
+    "countries": "1 (But you walked 10 miles in it)"
+  },
+  "worldCitizen": {
+    "title": "Mr & Mrs Worldwide",
+    "description1": "When it comes to walking in circles, borders disappear.",
+    "description2": "Your delusions have traveled to {count} countries.",
+    "countriesCount": 1,
+    "artists": [
+      { "name": "The Lost Bakery", "country": "France" },
+      { "name": "MALM Dresser", "country": "Sweden" },
+      { "name": "Iced Latte", "country": "USA" },
+      { "name": "Reality TV Drama", "country": "UK" },
+      { "name": "Espresso", "country": "Global" },
+      { "name": "Google Maps (Failed)", "country": "Internet" }
+    ]
+  },
+  "dashboard": {
+    "topArtistsTitle": "Your Holy Trinity (Plus Two)",
+    "topArtists": ["Sabrina Carpenter", "The Barista", "IKEA Founder", "Reality TV Host", "Parisian Baker"],
+    "topSongs": ["Espresso", "The Sound of IKEA Allen Keys", "3 AM TV Intro Theme", "Walking in Circles BGM", "Metro Announcements"],
+    "topGenresTitle": "Your Chaotic Vibes",
+    "topGenres": ["Caffeinated Pop", "IKEA Assembly Rage", "Reality TV Trash", "Parisian Lost-core", "Delusional Walking Beats"],
+    "minutesListened": "8,760"
+  },
+  "finale": {
+    "title": "Your 2025 Era",
+    "tagline": "You didn't kill each other assembling furniture. That's true love.",
+    "minutesLived": "525,600",
+    "minutesLabel": "min survived together",
+    "topPercent": "1",
+    "topPercentLabel": "most delusional walkers"
   }
 }
 

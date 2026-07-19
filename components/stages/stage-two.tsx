@@ -4,7 +4,7 @@ import { ArrowUpRight, Sparkles } from "lucide-react"
 import { motion } from "@/components/wrapped/motion"
 import { Starburst } from "@/components/wrapped/shapes"
 import { Field } from "@/components/wrapped/field"
-import { PhotoDropzone, TxtDropzone } from "@/components/wrapped/dropzone"
+import { SinglePhotoDropzone, TxtDropzone } from "@/components/wrapped/dropzone"
 import { PURPOSES, useWrap } from "@/context/wrap-context"
 import { AiLoading } from "@/components/stages/ai-loading"
 
@@ -12,8 +12,6 @@ export function StageTwo() {
   const { data, update, submitStage2, loading, aiLoading, error } = useWrap()
   const purpose = data.purpose ?? "life"
   const meta = PURPOSES.find((p) => p.id === purpose)!
-
-  const photoMax = purpose === "travel" ? 8 : 5
 
   // Show the cinematic loading screen while AI is generating
   if (aiLoading) {
@@ -78,13 +76,7 @@ export function StageTwo() {
           {/* conditional fields */}
           <div className="flex flex-col gap-4">
             {purpose === "couple" && (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <Field
-                  label="Our Anthem Song Title"
-                  placeholder="the song that's YOURS"
-                  value={data.anthemTitle}
-                  onChange={(e) => update({ anthemTitle: e.target.value })}
-                />
+              <div className="grid grid-cols-1 gap-4">
                 <Field
                   label="Anniversary / First Date"
                   type="date"
@@ -130,18 +122,88 @@ export function StageTwo() {
               </div>
             )}
 
-            <PhotoDropzone
-              max={photoMax}
-              photos={data.photos}
-              onChange={(photos) => update({ photos })}
-              label={
-                purpose === "couple"
-                  ? "5 Shared Couple Pictures"
-                  : purpose === "travel"
-                    ? "8 Travel Landscape Pictures"
-                    : "5 Candid Portrait Pictures"
-              }
-            />
+            <div>
+              <span className="mb-2 block font-display text-[11px] font-black uppercase tracking-widest text-foreground/75">
+                5 slides images (Upload a unique photo for each slide)
+              </span>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+                <SinglePhotoDropzone
+                  label="1. Intro Slide"
+                  photo={data.photos?.[0]}
+                  accentColor={meta.color}
+                  onChange={(photo) => {
+                    const copy = [...(data.photos || [])]
+                    copy[0] = photo
+                    update({ photos: copy })
+                  }}
+                  onRemove={() => {
+                    const copy = [...(data.photos || [])]
+                    delete copy[0]
+                    update({ photos: copy })
+                  }}
+                />
+                <SinglePhotoDropzone
+                  label="2. Song Reveal"
+                  photo={data.photos?.[1]}
+                  accentColor={meta.color}
+                  onChange={(photo) => {
+                    const copy = [...(data.photos || [])]
+                    copy[1] = photo
+                    update({ photos: copy })
+                  }}
+                  onRemove={() => {
+                    const copy = [...(data.photos || [])]
+                    delete copy[1]
+                    update({ photos: copy })
+                  }}
+                />
+                <SinglePhotoDropzone
+                  label="3. Artist Stats"
+                  photo={data.photos?.[2]}
+                  accentColor={meta.color}
+                  onChange={(photo) => {
+                    const copy = [...(data.photos || [])]
+                    copy[2] = photo
+                    update({ photos: copy })
+                  }}
+                  onRemove={() => {
+                    const copy = [...(data.photos || [])]
+                    delete copy[2]
+                    update({ photos: copy })
+                  }}
+                />
+                <SinglePhotoDropzone
+                  label="4. Top Track"
+                  photo={data.photos?.[3]}
+                  accentColor={meta.color}
+                  onChange={(photo) => {
+                    const copy = [...(data.photos || [])]
+                    copy[3] = photo
+                    update({ photos: copy })
+                  }}
+                  onRemove={() => {
+                    const copy = [...(data.photos || [])]
+                    delete copy[3]
+                    update({ photos: copy })
+                  }}
+                />
+                <SinglePhotoDropzone
+                  label="5. Dashboard"
+                  photo={data.photos?.[4]}
+                  accentColor={meta.color}
+                  onChange={(photo) => {
+                    const copy = [...(data.photos || [])]
+                    copy[4] = photo
+                    update({ photos: copy })
+                  }}
+                  onRemove={() => {
+                    const copy = [...(data.photos || [])]
+                    delete copy[4]
+                    update({ photos: copy })
+                  }}
+                />
+              </div>
+            </div>
           </div>
 
           {/* ────── YOUR STORY paragraph ────── */}

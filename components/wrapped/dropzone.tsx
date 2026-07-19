@@ -147,3 +147,80 @@ export function TxtDropzone({
     </div>
   )
 }
+
+export function SinglePhotoDropzone({
+  photo,
+  onChange,
+  onRemove,
+  label,
+  accentColor,
+}: {
+  photo: LocalPhoto | undefined
+  onChange: (photo: LocalPhoto) => void
+  onRemove: () => void
+  label: string
+  accentColor?: string
+}) {
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [drag, setDrag] = useState(false)
+
+  function addFiles(files: FileList | null) {
+    const f = files?.[0]
+    if (f && f.type.startsWith("image/")) {
+      onChange({ name: f.name, url: URL.createObjectURL(f) })
+    }
+  }
+
+  return (
+    <div>
+      <span className="mb-1.5 flex items-baseline justify-between font-display text-[11px] font-black uppercase tracking-wider text-foreground/70">
+        {label}
+      </span>
+      
+      {photo ? (
+        <div className="relative aspect-square w-full overflow-hidden rounded-md border-2 border-ink group bg-ink/10">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={photo.url} alt={photo.name} className="h-full w-full object-cover" />
+          <button
+            type="button"
+            onClick={onRemove}
+            className="absolute right-1 top-1 rounded-full bg-ink/80 p-1 text-cream hover:bg-ink transition-colors"
+            aria-label="Remove image"
+          >
+            <X className="size-3.5" />
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          onDragOver={(e) => {
+            e.preventDefault()
+            setDrag(true)
+          }}
+          onDragLeave={() => setDrag(false)}
+          onDrop={(e) => {
+            e.preventDefault()
+            setDrag(false)
+            addFiles(e.dataTransfer.files)
+          }}
+          className={cn(
+            "flex aspect-square w-full flex-col items-center justify-center gap-1.5 rounded-md border-2 border-dashed px-2 py-4 transition-colors",
+            drag ? "border-green bg-green/10" : "border-foreground/25 hover:border-cream",
+          )}
+          style={{ borderColor: drag ? accentColor : undefined }}
+        >
+          <Upload className="size-5 text-foreground/40" style={{ color: accentColor }} />
+          <span className="font-display text-[10px] font-black uppercase text-foreground/60">Click / Drop</span>
+        </button>
+      )}
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        hidden
+        onChange={(e) => addFiles(e.target.files)}
+      />
+    </div>
+  )
+}

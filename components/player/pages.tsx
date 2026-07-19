@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useEffect, useRef, useState, type ReactNode } from "react"
 import { motion, useInView } from "framer-motion"
@@ -2029,8 +2029,12 @@ function bigMetric(data: WrapData, stats: WrapStats, ai: AiWrapContent) {
 export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
   const stats = buildStats(data)
   const purpose = data.purpose ?? "life"
-  const photos = data.photos.map((p) => p.url)
-  const photo0 = photos[0]
+  const photos = data.photos.map((p) => p?.url || "")
+  const photo1 = photos[0] || "/wrapped-portrait-1.png"
+  const photo2 = photos[1] || photo1
+  const photo3 = photos[2] || photo1
+  const photo4 = photos[3] || photo1
+  const photo5 = photos[4] || photo1
   const meta = PURPOSES.find((p) => p.id === (data.purpose ?? "life"))!
   const palette = PALETTES["var(--wr-yellow)"]
 
@@ -2046,7 +2050,7 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
   const dataNote = big.note
 
   // SLIDE 3: TOP TRACK
-  const anthem = data.anthemTitle || "Your Anthem"
+  const anthem = ai.topTrack.title || "Your Anthem"
   const trackKicker = ai.topTrack.kicker
   const trackArtistLine = ai.topTrack.artistLine
 
@@ -2096,7 +2100,7 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
           kicker={introKicker}
           lines={introLines}
           sub={introSub}
-          photo={photo0}
+          photo={photo1}
           songTitle={anthem}
           songArtist={trackArtistLine}
           songStat={`${fmt(stats.int(100000, 5000000))} streams in ${data.destinationCity || "NYC"}`}
@@ -2128,7 +2132,7 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
       bg: "var(--wr-yellow)",
       node: (
         <TopSongReveal
-          photo={photo0}
+          photo={photo2}
           title={anthem}
           artist={trackArtistLine}
           topPercent={stats.topPercent}
@@ -2151,7 +2155,7 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
       node: (
         <ArtistStatsCard
           artistName={artistStats.name}
-          photoUrl={photo0}
+          photoUrl={photo3}
           streams={artistStats.streams}
           hours={artistStats.hours}
           listeners={artistStats.listeners}
@@ -2183,7 +2187,7 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
           kicker={trackKicker}
           title={anthem}
           artist={trackArtistLine}
-          photo={photo0}
+          photo={photo4}
         />
       ),
     },
@@ -2195,7 +2199,7 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
           bg="var(--wr-ink)"
           ink="var(--wr-ink)"
           year="2025"
-          photo={photo0}
+          photo={photo5}
           topArtists={dashboardArtists}
           topSongs={dashboardSongs}
           minutesListened={minutesListened}

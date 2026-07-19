@@ -41,7 +41,6 @@ export type WrapData = {
   // Stage 2
   userNames: string
   chatExportName: string
-  anthemTitle: string
   anniversaryDate: string
   destinationCity: string
   travelHours: string
@@ -60,7 +59,6 @@ const initialData: WrapData = {
   purpose: null,
   userNames: "",
   chatExportName: "",
-  anthemTitle: "",
   anniversaryDate: "",
   destinationCity: "",
   travelHours: "",
@@ -118,7 +116,6 @@ export function WrapProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({
           purpose: wrapData.purpose,
           userNames: wrapData.userNames,
-          anthemTitle: wrapData.anthemTitle,
           anniversaryDate: wrapData.anniversaryDate,
           destinationCity: wrapData.destinationCity,
           travelHours: wrapData.travelHours,
@@ -187,7 +184,6 @@ export function WrapProvider({ children }: { children: ReactNode }) {
       const payload = {
         user_names: data.userNames || null,
         chat_export_name: data.chatExportName || null,
-        anthem_title: data.anthemTitle || null,
         anniversary_date: data.anniversaryDate || null,
         destination_city: data.destinationCity || null,
         travel_hours: data.travelHours || null,

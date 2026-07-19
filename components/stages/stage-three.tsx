@@ -5,7 +5,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
 import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react"
 import { useWrap } from "@/context/wrap-context"
 import { buildPages, PixelTransitionShutter } from "@/components/player/pages"
-import { SpiralRibbon } from "@/components/player/spiral-ribbon"
+import { SpiralRibbon, ANIM_DURATION_MS as SPIRAL_MS } from "@/components/player/spiral-ribbon"
 
 const PAGE_MS = 7000
 const CURTAIN_CLOSE_MS = 2700
@@ -77,8 +77,8 @@ export function StageThree() {
       setProgress(1)
       setCurtainPhase(usesSpiralShutter ? "spiral-closing" : "closing")
 
-      const closeMs = usesSpiralShutter ? 6500 : CURTAIN_CLOSE_MS
-      const openMs = usesSpiralShutter ? 6500 : CURTAIN_OPEN_MS
+      const closeMs = usesSpiralShutter ? SPIRAL_MS : CURTAIN_CLOSE_MS
+      const openMs = usesSpiralShutter ? SPIRAL_MS : CURTAIN_OPEN_MS
 
       const closeTimer = setTimeout(() => {
         commitPage(next, d)
