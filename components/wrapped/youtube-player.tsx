@@ -3,21 +3,25 @@
 import { useEffect, useRef, useState } from "react"
 import YouTube, { YouTubeEvent, YouTubeProps } from "react-youtube"
 
-export function YoutubePlayer({ videoId }: { videoId: string }) {
+export function YoutubePlayer({ videoId, isPaused = false }: { videoId: string; isPaused?: boolean }) {
   const [isPlaying, setIsPlaying] = useState(false)
   const playerRef = useRef<any>(null)
 
   const onReady: YouTubeProps["onReady"] = (event: YouTubeEvent) => {
     playerRef.current = event.target
-    // Try to play immediately when ready
-    event.target.playVideo()
+    // Try to play immediately when ready unless paused
+    if (!isPaused) {
+      event.target.playVideo()
+    }
   }
 
   const onStateChange: YouTubeProps["onStateChange"] = (event: YouTubeEvent) => {
     // 0 = ended, 1 = playing, 2 = paused, 3 = buffering, 5 = video cued
     if (event.data === 0) {
       // Loop video
-      event.target.playVideo()
+      if (!isPaused) {
+        event.target.playVideo()
+      }
     } else if (event.data === 1) {
       setIsPlaying(true)
     } else if (event.data === 2) {
@@ -28,9 +32,13 @@ export function YoutubePlayer({ videoId }: { videoId: string }) {
   // Effect to handle play/pause if needed
   useEffect(() => {
     if (playerRef.current) {
-      playerRef.current.playVideo()
+      if (isPaused) {
+        playerRef.current.pauseVideo()
+      } else {
+        playerRef.current.playVideo()
+      }
     }
-  }, [videoId])
+  }, [videoId, isPaused])
 
   const opts: YouTubeProps["opts"] = {
     height: "0",

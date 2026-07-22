@@ -6,20 +6,30 @@ import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react"
 import { useWrap } from "@/context/wrap-context"
 import { buildPages, PixelTransitionShutter } from "@/components/player/pages"
 import { SpiralRibbon, ANIM_DURATION_MS as SPIRAL_MS } from "@/components/player/spiral-ribbon"
+import { HypnoticRipple, ANIM_DURATION_MS as HYPNOTIC_MS } from "@/components/player/hypnotic-ripple"
+import { SweepTransition, ANIM_DURATION_MS as SWEEP_MS } from "@/components/player/sweep-transition"
 
 const PAGE_MS = 7000
 const CURTAIN_CLOSE_MS = 2700
 const CURTAIN_OPEN_MS = 3000
 
-type CurtainPhase = "closing" | "opening" | "spiral-closing" | "spiral-opening" | null
+type CurtainPhase = "closing" | "opening" | "spiral-closing" | "spiral-opening" | "hypnotic-closing" | "hypnotic-opening" | "sweep-closing" | "sweep-opening" | null
 
-export function StageThree() {
+export function StageThree({
+  isPaused = false,
+  setIsPaused,
+}: {
+  isPaused?: boolean
+  setIsPaused?: (val: boolean | ((prev: boolean) => boolean)) => void
+}) {
   const { data, aiContent } = useWrap()
   const pages = useMemo(() => (aiContent ? buildPages(data, aiContent) : []), [data, aiContent])
   const [index, setIndex] = useState(0)
   const [dir, setDir] = useState(1)
   const [isIntroZoom, setIsIntroZoom] = useState(false)
-  const [paused, setPaused] = useState(false)
+  const [localPaused, setLocalPaused] = useState(false)
+  const paused = setIsPaused ? isPaused : localPaused
+  const handleSetPaused = setIsPaused || setLocalPaused
   const [progress, setProgress] = useState(0)
   const [curtainPhase, setCurtainPhase] = useState<CurtainPhase>(null)
   const reducedMotion = useReducedMotion()
@@ -62,27 +72,45 @@ export function StageThree() {
       const isBackwardSpiralShutter =
         d < 0 && pages[index]?.key === "s4-global-artists" && pages[next]?.key === "s3-top-song"
 
+      const isForwardHypnoticShutter =
+        d > 0 && pages[index]?.key === "s-world-citizen" && pages[next]?.key === "s7"
+
+      const isBackwardHypnoticShutter =
+        d < 0 && pages[index]?.key === "s7" && pages[next]?.key === "s-world-citizen"
+
+      const isForwardSweepShutter =
+        d > 0 && pages[index]?.key === "s3-artist-stats" && pages[next]?.key === "s-world-citizen"
+
+      const isBackwardSweepShutter =
+        d < 0 && pages[index]?.key === "s-world-citizen" && pages[next]?.key === "s3-artist-stats"
+
       const usesPixelShutter =
         !reducedMotion && (isForwardShutter || isBackwardShutter)
 
       const usesSpiralShutter =
         !reducedMotion && (isForwardSpiralShutter || isBackwardSpiralShutter)
+        
+      const usesHypnoticShutter =
+        !reducedMotion && (isForwardHypnoticShutter || isBackwardHypnoticShutter)
 
-      if (!usesPixelShutter && !usesSpiralShutter) {
+      const usesSweepShutter =
+        !reducedMotion && (isForwardSweepShutter || isBackwardSweepShutter)
+
+      if (!usesPixelShutter && !usesSpiralShutter && !usesHypnoticShutter && !usesSweepShutter) {
         commitPage(next, d)
         return
       }
 
       transitionLock.current = true
       setProgress(1)
-      setCurtainPhase(usesSpiralShutter ? "spiral-closing" : "closing")
+      setCurtainPhase(usesSpiralShutter ? "spiral-closing" : usesHypnoticShutter ? "hypnotic-closing" : usesSweepShutter ? "sweep-closing" : "closing")
 
-      const closeMs = usesSpiralShutter ? SPIRAL_MS : CURTAIN_CLOSE_MS
-      const openMs = usesSpiralShutter ? SPIRAL_MS : CURTAIN_OPEN_MS
+      const closeMs = usesSpiralShutter ? SPIRAL_MS : usesHypnoticShutter ? HYPNOTIC_MS : usesSweepShutter ? SWEEP_MS : CURTAIN_CLOSE_MS
+      const openMs = usesSpiralShutter ? SPIRAL_MS : usesHypnoticShutter ? HYPNOTIC_MS : usesSweepShutter ? SWEEP_MS : CURTAIN_OPEN_MS
 
       const closeTimer = setTimeout(() => {
         commitPage(next, d)
-        setCurtainPhase(usesSpiralShutter ? "spiral-opening" : "opening")
+        setCurtainPhase(usesSpiralShutter ? "spiral-opening" : usesHypnoticShutter ? "hypnotic-opening" : usesSweepShutter ? "sweep-opening" : "opening")
 
         const openTimer = setTimeout(() => {
           setCurtainPhase(null)
@@ -119,7 +147,7 @@ export function StageThree() {
           if (index < pages.length - 1) {
             go(index + 1, 1)
           } else {
-            setPaused(true)
+            handleSetPaused(true)
           }
           return
         }
@@ -141,7 +169,7 @@ export function StageThree() {
       else if (e.key === "ArrowLeft") back()
       else if (e.key === " ") {
         e.preventDefault()
-        setPaused((p) => !p)
+        handleSetPaused((p) => !p)
       }
     }
     window.addEventListener("keydown", onKey)
@@ -194,42 +222,42 @@ export function StageThree() {
                 return {
                   clipPath: dir > 0 ? "circle(0% at 50% 50%)" : "circle(150% at 50% 50%)",
                   zIndex: dir > 0 ? 10 : 1,
-                  x: 0,
+                  y: 0,
                   opacity: 1,
                 }
               }
               return {
                 clipPath: "circle(150% at 50% 50%)",
-                zIndex: 1,
-                x: dir * 120,
-                opacity: 0,
+                zIndex: dir > 0 ? 10 : 1,
+                y: dir > 0 ? "100%" : "0%",
+                opacity: 1,
               }
             },
             animate: ({ dir, isIntroZoom }: { dir: number; isIntroZoom: boolean }) => ({
               clipPath: "circle(150% at 50% 50%)",
               zIndex: dir > 0 ? 10 : 1,
-              x: 0,
+              y: "0%",
               opacity: 1,
               transition: isIntroZoom
                 ? { duration: dir > 0 ? 3.2 : 1.0, ease: [0.76, 0, 0.24, 1] }
-                : { type: "spring", stiffness: 260, damping: 26, mass: 0.9 },
+                : { type: "spring", stiffness: 300, damping: 30, mass: 1 },
             }),
             exit: ({ dir, isIntroZoom }: { dir: number; isIntroZoom: boolean }) => {
               if (isIntroZoom) {
                 return {
                   clipPath: dir > 0 ? "circle(150% at 50% 50%)" : "circle(0% at 50% 50%)",
                   zIndex: dir > 0 ? 1 : 10,
-                  x: 0,
+                  y: 0,
                   opacity: dir > 0 ? 0 : 1,
                   transition: { duration: dir > 0 ? 3.2 : 1.0, ease: [0.76, 0, 0.24, 1] },
                 }
               }
               return {
                 clipPath: "circle(150% at 50% 50%)",
-                zIndex: 1,
-                x: dir * -120,
-                opacity: 0,
-                transition: { type: "spring", stiffness: 260, damping: 26, mass: 0.9 },
+                zIndex: dir > 0 ? 1 : 10,
+                y: dir > 0 ? "0%" : "100%",
+                opacity: 1,
+                transition: { type: "spring", stiffness: 300, damping: 30, mass: 1 },
               }
             },
           }}
@@ -251,9 +279,9 @@ export function StageThree() {
                   }
                 }
                 return {
-                  scale: 0.92,
+                  scale: dir > 0 ? 1 : 0.9,
                   filter: "blur(0px)",
-                  opacity: 1,
+                  opacity: dir > 0 ? 1 : 0,
                 }
               },
               animate: ({ isIntroZoom, dir }: { isIntroZoom: boolean; dir: number }) => ({
@@ -262,7 +290,7 @@ export function StageThree() {
                 opacity: 1,
                 transition: isIntroZoom
                   ? { duration: dir > 0 ? 3.2 : 1.0, ease: [0.76, 0, 0.24, 1] }
-                  : { type: "spring", stiffness: 260, damping: 26, mass: 0.9 },
+                  : { type: "spring", stiffness: 300, damping: 30, mass: 1 },
               }),
               exit: ({ dir, isIntroZoom }: { dir: number; isIntroZoom: boolean }) => {
                 if (isIntroZoom) {
@@ -274,10 +302,10 @@ export function StageThree() {
                   }
                 }
                 return {
-                  scale: 0.92,
+                  scale: dir > 0 ? 0.9 : 1,
                   filter: "blur(0px)",
-                  opacity: 0,
-                  transition: { type: "spring", stiffness: 260, damping: 26, mass: 0.9 },
+                  opacity: dir > 0 ? 0 : 1,
+                  transition: { type: "spring", stiffness: 300, damping: 30, mass: 1 },
                 }
               },
             }}
@@ -300,6 +328,10 @@ export function StageThree() {
           <div key="spiral-shutter" className="pointer-events-auto absolute inset-0 z-[25]">
             <SpiralRibbon phase={curtainPhase === "spiral-closing" ? "closing" : "opening"} />
           </div>
+        ) : curtainPhase === "hypnotic-closing" || curtainPhase === "hypnotic-opening" ? (
+          <HypnoticRipple key="hypnotic-shutter" phase={curtainPhase === "hypnotic-closing" ? "closing" : "opening"} />
+        ) : curtainPhase === "sweep-closing" || curtainPhase === "sweep-opening" ? (
+          <SweepTransition key="sweep-shutter" phase={curtainPhase === "sweep-closing" ? "closing" : "opening"} direction={dir} />
         ) : null}
       </AnimatePresence>
 
@@ -307,7 +339,7 @@ export function StageThree() {
       <div className="absolute right-3 top-8 z-30 flex items-center gap-2 md:right-4 md:top-10">
         <button
           type="button"
-          onClick={() => setPaused((p) => !p)}
+          onClick={() => handleSetPaused((p) => !p)}
           className="rounded-full border border-cream/30 bg-cream/10 p-2.5 text-cream shadow-lg backdrop-blur-md transition-colors hover:border-cream/70 hover:bg-cream/20"
           aria-label={paused ? "Play" : "Pause"}
         >

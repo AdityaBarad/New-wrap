@@ -12,6 +12,7 @@ import { YoutubePlayer } from "@/components/wrapped/youtube-player"
 function Screens() {
   const { stage, data } = useWrap()
   const [introComplete, setIntroComplete] = useState(false)
+  const [isPaused, setIsPaused] = useState(false)
 
   // Reset intro when stage goes back to 1 (user starts over)
   useEffect(() => {
@@ -38,12 +39,12 @@ function Screens() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ type: "spring", stiffness: 200, damping: 24, delay: 0.1 }}
             >
-              <StageThree />
+              <StageThree isPaused={isPaused} setIsPaused={setIsPaused} />
             </motion.div>
           )}
         </AnimatePresence>
         
-        {data.song && <YoutubePlayer videoId={data.song.videoId} />}
+        {data.song && <YoutubePlayer videoId={data.song.videoId} isPaused={isPaused} />}
       </>
     )
   }

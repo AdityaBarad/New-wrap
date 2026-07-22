@@ -7,6 +7,7 @@ import { Burst, Halftone, WrapFooter, type BurstPalette } from "@/components/pla
 import { SpiralRibbon } from "@/components/player/spiral-ribbon"
 import { ArtistStatsCard } from "@/components/player/artist-stats"
 import { WorldCitizen } from "@/components/player/world-citizen"
+import { Wrapped2023Slide } from "@/components/player/wrapped-2023-slide"
 import { useWrap, type WrapData } from "@/context/wrap-context"
 import { PURPOSES } from "@/context/wrap-context"
 import { buildStats, fmt, type WrapStats } from "@/lib/wrap-stats"
@@ -1561,16 +1562,12 @@ function DashboardTicket({
   return (
     <Shell>
       <div className="absolute inset-0" style={{ backgroundColor: bg }} />
-      <motion.div
+      <div
         aria-hidden="true"
-        className="absolute inset-[-30%] opacity-25"
+        className="absolute inset-0 opacity-[0.15] mix-blend-overlay"
         style={{
-          background:
-            "repeating-radial-gradient(circle at 42% 48%, transparent 0 34px, rgba(238,238,228,0.72) 34px 48px, transparent 48px 82px)",
-          transformOrigin: "42% 48%",
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
         }}
-        animate={{ scale: [0.82, 1.2], opacity: [0.16, 0.28, 0.16] }}
-        transition={{ duration: 5.8, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
       />
 
       <div className="relative flex h-full w-full items-center justify-center px-4 py-6 md:px-8">
@@ -2176,21 +2173,7 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
         />
       ),
     },
-    {
-      key: "s3",
-      bg: "var(--wr-purple)",
-      node: (
-        <TopTrack
-          bg="var(--wr-purple)"
-          ink="var(--wr-yellow)"
-          accent="var(--wr-green)"
-          kicker={trackKicker}
-          title={anthem}
-          artist={trackArtistLine}
-          photo={photo4}
-        />
-      ),
-    },
+
     {
       key: "s7",
       bg: "var(--wr-ink)",
@@ -2220,6 +2203,17 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
       ),
     },
     {
+      key: "s-wrapped-2023",
+      bg: "#FA5738",
+      node: (
+        <Wrapped2023Slide
+          year="2025"
+          title={ai.finale?.tagline || "Your Wrapped is here"}
+          subtitle="Ready to reveal the soundtrack of your year?"
+        />
+      ),
+    },
+    {
       key: "s8",
       bg: "var(--wr-ink)",
       node: (
@@ -2232,6 +2226,21 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
           title={finaleTitle}
           minutesLabel={finaleMinutesLabel}
           topPercentLabel={finaleTopPercentLabel}
+        />
+      ),
+    },
+    {
+      key: "s3",
+      bg: "var(--wr-purple)",
+      node: (
+        <TopTrack
+          bg="var(--wr-purple)"
+          ink="var(--wr-yellow)"
+          accent="var(--wr-green)"
+          kicker={trackKicker}
+          title={anthem}
+          artist={trackArtistLine}
+          photo={photo4}
         />
       ),
     },
