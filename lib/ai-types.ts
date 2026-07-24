@@ -55,4 +55,9 @@ export type AiWrapContent = {
     topPercent: string
     topPercentLabel: string
   }
+  personalityCard: {
+    title: string
+    description: string
+    imagePrompt: string
+  }
 }

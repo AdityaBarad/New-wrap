@@ -118,7 +118,11 @@ Return ONLY a valid JSON object (no markdown, no backticks, no explanation) with
     "minutesLived": "A funny huge number (e.g. '525,600')",
     "minutesLabel": "Creative label for minutes lived (e.g. 'min lived')",
     "topPercent": "A funny number between 1 and 9 (e.g. '1')",
-    "topPercentLabel": "Creative label for top percent (e.g. 'main character')"
+  },
+  "personalityCard": {
+    "title": "A 1-2 word personality archetype (e.g. 'Mastermind', 'Chaos Demon', 'Vampire')",
+    "description": "A punchy 1-2 sentence description of why they got this personality.",
+    "imagePrompt": "A highly detailed image generation prompt for Stable Diffusion. It MUST specify: 'Spotify Wrapped character card style, flat vector illustration, neon glowing colors on dark black background, surreal and mystical.' followed by the specific imagery for the archetype."
   }
 }
 
@@ -189,6 +193,11 @@ json
     "minutesLabel": "min survived together",
     "topPercent": "1",
     "topPercentLabel": "most delusional walkers"
+  },
+  "personalityCard": {
+    "title": "Chaos Demon",
+    "description": "Because anyone who willingly walks 10 miles instead of taking the metro thrives on pure, unadulterated chaos.",
+    "imagePrompt": "Spotify Wrapped character card style, flat vector illustration, neon glowing colors on dark black background, surreal and mystical. A mischievous glowing demon walking furiously, neon synthwave lights, highly detailed."
   }
 }
 
@@ -331,7 +340,8 @@ export async function POST(req: NextRequest) {
       !parsed.dataHighlight ||
       !parsed.topTrack ||
       !parsed.dashboard ||
-      !parsed.finale
+      !parsed.finale ||
+      !parsed.personalityCard
     ) {
       console.error("[generate-wrap] Invalid JSON structure. Keys found:", Object.keys(parsed))
       return NextResponse.json(

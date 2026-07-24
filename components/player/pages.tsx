@@ -8,6 +8,7 @@ import { SpiralRibbon } from "@/components/player/spiral-ribbon"
 import { ArtistStatsCard } from "@/components/player/artist-stats"
 import { WorldCitizen } from "@/components/player/world-citizen"
 import { Wrapped2023Slide } from "@/components/player/wrapped-2023-slide"
+import { PersonalityCardSlide } from "@/components/player/personality-card"
 import { useWrap, type WrapData } from "@/context/wrap-context"
 import { PURPOSES } from "@/context/wrap-context"
 import { buildStats, fmt, type WrapStats } from "@/lib/wrap-stats"
@@ -2086,6 +2087,11 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
   const globalArtistsTitle = ai.globalArtistsTitle || "Most Streamed\nArtists Globally"
   const topArtistsTitle = ai.dashboard?.topArtistsTitle || "My Top Artists"
   const topGenresTitle = ai.dashboard?.topGenresTitle || "Your Top Genres"
+
+  const personalityTitle = (ai as any).personalityCard?.title || "Mastermind"
+  const personalityDescription = (ai as any).personalityCard?.description || "You play the long game. You see everything."
+  const personalityImagePrompt = (ai as any).personalityCard?.imagePrompt || ""
+
   return [
     {
       key: "s1",
@@ -2210,6 +2216,17 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
           year="2025"
           title={ai.finale?.tagline || "Your Wrapped is here"}
           subtitle="Ready to reveal the soundtrack of your year?"
+        />
+      ),
+    },
+    {
+      key: "s-personality-card",
+      bg: "#050505",
+      node: (
+        <PersonalityCardSlide
+          title={personalityTitle}
+          description={personalityDescription}
+          imagePrompt={personalityImagePrompt}
         />
       ),
     },
