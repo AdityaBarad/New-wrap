@@ -55,7 +55,6 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
     const {
-      leadId,
       wrapData,
       aiContent,
       personalityImageBase64,
@@ -124,11 +123,24 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 4. Insert wrap row into database
+    // 4. Ensure user exists in users table (upsert)
+    const { error: userError } = await supabase
+      .from("users")
+      .upsert({
+        phone: wrapData.phone,
+        name: wrapData.name,
+      }, { onConflict: "phone" })
+      
+    if (userError) {
+      console.error("[save-wrap] User upsert error:", userError)
+      // Continue anyway, it might still work if the foreign key matches an existing row
+    }
+
+    // 5. Insert wrap row into database
     const { data: row, error: dbError } = await supabase
       .from("wraps")
       .insert({
-        lead_id: leadId || null,
+        phone: wrapData.phone,
         slug,
         name: wrapData.name,
         purpose: wrapData.purpose,
@@ -147,7 +159,7 @@ export async function POST(req: NextRequest) {
         ai_content: aiContent,
         personality_image_url: personalityImageUrl,
       })
-      .select("id, slug")
+      .select("slug")
       .single()
 
     if (dbError) {
@@ -163,7 +175,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       slug,
-      wrapId: row.id,
       url: wrapUrl,
     })
   } catch (err) {

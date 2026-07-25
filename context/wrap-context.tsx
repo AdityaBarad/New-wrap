@@ -177,39 +177,18 @@ export function WrapProvider({
     }
   }, [])
 
-  const submitStage1 = useCallback(async () => {
+  const submitStage1 = useCallback(async (verifiedPhone?: string) => {
     setError(null)
-    if (!data.name.trim() || !data.phone.trim() || !data.purpose) {
+    const phoneToUse = verifiedPhone || data.phone
+    if (!data.name.trim() || !phoneToUse.trim() || !data.purpose) {
       setError("Drop your name, number, and pick a vibe first.")
       return false
     }
-    setLoading(true)
-    try {
-      const supabase = createClient()
-      const { data: row, error: err } = await supabase
-        .from("leads")
-        .insert({
-          name: data.name,
-          phone: data.phone,
-          whats_this_for: data.whatsThisFor || null,
-          promo_code: data.promoCode || null,
-          purpose: data.purpose,
-          stage: 1,
-        })
-        .select("id")
-        .single()
-
-      if (err) throw err
-      update({ id: row.id as string })
-      setStage(2)
-      return true
-    } catch (e) {
-      console.log("[v0] submitStage1 error:", e)
-      setError("Something broke syncing your data. Try again.")
-      return false
-    } finally {
-      setLoading(false)
+    if (verifiedPhone) {
+      update({ phone: verifiedPhone })
     }
+    setStage(2)
+    return true
   }, [data, update])
 
   const submitStage2 = useCallback(async () => {
@@ -231,10 +210,7 @@ export function WrapProvider({
         stage: 3,
         updated_at: new Date().toISOString(),
       }
-      if (data.id) {
-        const { error: err } = await supabase.from("leads").update(payload).eq("id", data.id)
-        if (err) throw err
-      }
+      // (Removed legacy leads update)
 
       const content = await generateAiContent(data)
       setAiContent(content)

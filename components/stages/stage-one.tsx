@@ -6,6 +6,7 @@ import { Starburst, Checker } from "@/components/wrapped/shapes"
 import { Field } from "@/components/wrapped/field"
 import { PURPOSES, useWrap } from "@/context/wrap-context"
 import { cn } from "@/lib/utils"
+import { PhoneVerifier } from "@/components/auth/phone-verifier"
 
 export function StageOne() {
   const { data, update, submitStage1, loading, error } = useWrap()
@@ -71,13 +72,6 @@ export function StageOne() {
                 value={data.name}
                 onChange={(e) => update({ name: e.target.value })}
               />
-              <Field
-                label="Phone Number"
-                type="tel"
-                placeholder="+1 555 000 0000"
-                value={data.phone}
-                onChange={(e) => update({ phone: e.target.value })}
-              />
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field
                   label="What's this for?"
@@ -137,16 +131,23 @@ export function StageOne() {
                 </p>
               )}
 
-              <button
-                type="button"
-                onClick={submitStage1}
-                disabled={loading}
-                className="group mt-1 flex items-center justify-center gap-2 rounded-full bg-green px-7 py-4 font-display text-base font-black uppercase tracking-wide text-ink transition-transform hover:-rotate-1 hover:scale-[1.03] disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {loading ? "Syncing..." : "Start My Mix"}
-                <ArrowUpRight className="size-5 transition-transform group-hover:rotate-45" />
-              </button>
-              <p className="text-center font-sans text-[11px] font-medium text-foreground/40">
+              <div className="mt-4 border-t-2 border-cream/10 pt-6">
+                <span className="mb-4 block text-center font-display text-xs font-black uppercase tracking-widest text-cream">
+                  Verify & Continue
+                </span>
+                <PhoneVerifier 
+                  initialPhone={data.phone}
+                  buttonText="Start My Mix"
+                  disabled={!data.name.trim() || !data.purpose}
+                  disabledMessage="Drop your name and pick a vibe first."
+                  onSuccess={(phone) => {
+                    update({ phone })
+                    submitStage1(phone)
+                  }}
+                />
+              </div>
+
+              <p className="text-center font-sans text-[11px] font-medium text-foreground/40 mt-4">
                 By continuing you agree to have the best rollout of the year.
               </p>
             </div>
