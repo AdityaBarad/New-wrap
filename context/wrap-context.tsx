@@ -83,6 +83,8 @@ type WrapContextValue = {
   aiContent: AiWrapContent | null
   generatedImageUrl: string | null
   aiLoading: boolean
+  wrapSlug: string | null
+  wrapUrl: string | null
   update: (patch: Partial<WrapData>) => void
   setStage: (s: Stage) => void
   submitStage1: () => Promise<boolean>
@@ -92,14 +94,42 @@ type WrapContextValue = {
 
 const WrapContext = createContext<WrapContextValue | null>(null)
 
-export function WrapProvider({ children }: { children: ReactNode }) {
-  const [stage, setStage] = useState<Stage>(1)
-  const [data, setData] = useState<WrapData>(initialData)
+/** Convert a blob: URL to a base64 data URL string. */
+async function blobUrlToBase64(blobUrl: string): Promise<string> {
+  const res = await fetch(blobUrl)
+  const blob = await res.blob()
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onloadend = () => resolve(reader.result as string)
+    reader.onerror = reject
+    reader.readAsDataURL(blob)
+  })
+}
+
+export function WrapProvider({
+  children,
+  initialWrapData,
+  initialAiContent,
+  initialImageUrl,
+  initialWrapSlug,
+  initialWrapUrl,
+}: {
+  children: ReactNode
+  initialWrapData?: WrapData
+  initialAiContent?: AiWrapContent | null
+  initialImageUrl?: string | null
+  initialWrapSlug?: string | null
+  initialWrapUrl?: string | null
+}) {
+  const [stage, setStage] = useState<Stage>(initialWrapData && initialAiContent ? 3 : 1)
+  const [data, setData] = useState<WrapData>(initialWrapData || initialData)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [aiContent, setAiContent] = useState<AiWrapContent | null>(null)
-  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null)
+  const [aiContent, setAiContent] = useState<AiWrapContent | null>(initialAiContent || null)
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(initialImageUrl || null)
   const [aiLoading, setAiLoading] = useState(false)
+  const [wrapSlug, setWrapSlug] = useState<string | null>(initialWrapSlug || null)
+  const [wrapUrl, setWrapUrl] = useState<string | null>(initialWrapUrl || null)
 
   const update = useCallback((patch: Partial<WrapData>) => {
     setData((d) => ({ ...d, ...patch }))
@@ -112,6 +142,8 @@ export function WrapProvider({ children }: { children: ReactNode }) {
     setAiContent(null)
     setGeneratedImageUrl(null)
     setAiLoading(false)
+    setWrapSlug(null)
+    setWrapUrl(null)
   }, [])
 
   /** Call the Gemini API route to generate personalized wrap content */
@@ -208,6 +240,7 @@ export function WrapProvider({ children }: { children: ReactNode }) {
       setAiContent(content)
 
       // Fetch the image while the loading screen is still active
+      let personalityBlobUrl: string | null = null
       if ((content as any).personalityCard?.imagePrompt) {
         try {
           const res = await fetch("/api/generate-image", {
@@ -222,6 +255,7 @@ export function WrapProvider({ children }: { children: ReactNode }) {
             const blob = await res.blob()
             const url = URL.createObjectURL(blob)
             setGeneratedImageUrl(url)
+            personalityBlobUrl = url
           } else {
             console.error("Failed to generate image in submitStage2")
           }
@@ -230,21 +264,76 @@ export function WrapProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      setStage(3)
+      // Save wrap to Supabase and wait for it
+      try {
+        // Convert personality image blob to base64
+        let personalityImageBase64: string | null = null
+        if (personalityBlobUrl) {
+          try {
+            personalityImageBase64 = await blobUrlToBase64(personalityBlobUrl)
+          } catch (e) {
+            console.error("[save-wrap] Failed to convert personality image:", e)
+          }
+        }
+
+        // Convert photos to base64
+        const photosBase64 = await Promise.all(
+          data.photos.map(async (photo) => {
+            try {
+              const base64 = await blobUrlToBase64(photo.url)
+              return { name: photo.name, base64 }
+            } catch {
+              return null
+            }
+          })
+        )
+
+        const saveRes = await fetch("/api/save-wrap", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            leadId: data.id || null,
+            wrapData: data,
+            aiContent: content,
+            personalityImageBase64,
+            photos: photosBase64.filter(Boolean),
+          }),
+        })
+
+        if (saveRes.ok) {
+          const { slug, url } = await saveRes.json()
+          console.log("[save-wrap] Wrap saved!", url)
+          // Redirect the user immediately to the saved wrap URL
+          window.location.href = `/wrap/${slug}`
+          // Do NOT clear loading state here so it doesn't flash the create page during redirect
+          return new Promise(() => {}) // Hang the promise forever while redirecting
+        } else {
+          console.error("[save-wrap] Failed to save wrap:", saveRes.status)
+          // Fallback to local stage 3 if saving fails
+          setStage(3)
+        }
+      } catch (e) {
+        console.error("[save-wrap] Error saving wrap:", e)
+        // Fallback to local stage 3 if saving fails
+        setStage(3)
+      }
+
+      // Only clear loading state if we are falling back to local display
+      setLoading(false)
+      setAiLoading(false)
       return true
     } catch (e) {
       console.log("[v0] submitStage2 error:", e)
       setError("AI generation failed. Please try again.")
-      return false
-    } finally {
       setLoading(false)
       setAiLoading(false)
+      return false
     }
   }, [data, generateAiContent])
 
   const value = useMemo<WrapContextValue>(
-    () => ({ stage, data, loading, error, aiContent, generatedImageUrl, aiLoading, update, setStage, submitStage1, submitStage2, reset }),
-    [stage, data, loading, error, aiContent, generatedImageUrl, aiLoading, update, submitStage1, submitStage2, reset],
+    () => ({ stage, data, loading, error, aiContent, generatedImageUrl, aiLoading, wrapSlug, wrapUrl, update, setStage, submitStage1, submitStage2, reset }),
+    [stage, data, loading, error, aiContent, generatedImageUrl, aiLoading, wrapSlug, wrapUrl, update, submitStage1, submitStage2, reset],
   )
 
   return <WrapContext.Provider value={value}>{children}</WrapContext.Provider>
