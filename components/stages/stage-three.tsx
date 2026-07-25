@@ -22,8 +22,8 @@ export function StageThree({
   isPaused?: boolean
   setIsPaused?: (val: boolean | ((prev: boolean) => boolean)) => void
 }) {
-  const { data, aiContent } = useWrap()
-  const pages = useMemo(() => (aiContent ? buildPages(data, aiContent) : []), [data, aiContent])
+  const { data, aiContent, generatedImageUrl } = useWrap()
+  const pages = useMemo(() => (aiContent ? buildPages(data, aiContent, generatedImageUrl) : []), [data, aiContent, generatedImageUrl])
   const [index, setIndex] = useState(0)
   const [dir, setDir] = useState(1)
   const [isIntroZoom, setIsIntroZoom] = useState(false)

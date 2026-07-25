@@ -2024,7 +2024,7 @@ function bigMetric(data: WrapData, stats: WrapStats, ai: AiWrapContent) {
   return { value: stats.streakDays, label: ai.dataHighlight.label, note: ai.dataHighlight.note }
 }
 
-export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
+export function buildPages(data: WrapData, ai: AiWrapContent, generatedImageUrl?: string | null): WrapPage[] {
   const stats = buildStats(data)
   const purpose = data.purpose ?? "life"
   const photos = data.photos.map((p) => p?.url || "")
@@ -2226,7 +2226,7 @@ export function buildPages(data: WrapData, ai: AiWrapContent): WrapPage[] {
         <PersonalityCardSlide
           title={personalityTitle}
           description={personalityDescription}
-          imagePrompt={personalityImagePrompt}
+          imageUrl={generatedImageUrl}
         />
       ),
     },

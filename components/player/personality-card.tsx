@@ -1,73 +1,17 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { Shell } from "@/components/player/pages"
-import { Loader2 } from "lucide-react"
 
 export function PersonalityCardSlide({
   title = "Mastermind",
   description = "A punchy description of this persona.",
-  imagePrompt = "",
+  imageUrl = null,
 }: {
   title?: string
   description?: string
-  imagePrompt?: string
+  imageUrl?: string | null
 }) {
-  const [imageUrl, setImageUrl] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(false)
-
-  useEffect(() => {
-    if (!imagePrompt) return
-
-    let isMounted = true
-
-    async function fetchImage() {
-      setLoading(true)
-      setError(false)
-      try {
-        const res = await fetch("/api/generate-image", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ prompt: imagePrompt }),
-        })
-
-        if (!res.ok) {
-          throw new Error("Failed to generate image")
-        }
-
-        const blob = await res.blob()
-        const url = URL.createObjectURL(blob)
-
-        if (isMounted) {
-          setImageUrl(url)
-        }
-      } catch (err) {
-        console.error(err)
-        if (isMounted) {
-          setError(true)
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false)
-        }
-      }
-    }
-
-    fetchImage()
-
-    return () => {
-      isMounted = false
-      if (imageUrl) {
-        URL.revokeObjectURL(imageUrl)
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [imagePrompt])
-
   return (
     <Shell>
       {/* Background that transitions from previous slide's orange to black */}
@@ -210,18 +154,7 @@ export function PersonalityCardSlide({
 
           {/* Inner Image Container */}
           <div className="relative z-10 flex h-full w-full items-center justify-center overflow-hidden rounded-[10px] bg-[#222222]">
-            {loading ? (
-              <div className="flex flex-col items-center text-white/70">
-                <Loader2 className="mb-3 size-10 animate-spin text-cyan-400" />
-                <span className="font-sans text-xs tracking-widest uppercase text-cyan-400 font-bold">
-                  Generating AI Art...
-                </span>
-              </div>
-            ) : error ? (
-              <div className="p-6 text-center text-red-400 font-sans text-sm font-semibold">
-                Image generation failed or timed out.
-              </div>
-            ) : imageUrl ? (
+            {imageUrl ? (
               <motion.img
                 initial={{ opacity: 0, scale: 1.1 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -230,7 +163,11 @@ export function PersonalityCardSlide({
                 alt={title}
                 className="h-full w-full object-cover"
               />
-            ) : null}
+            ) : (
+              <div className="p-6 text-center text-red-400 font-sans text-sm font-semibold">
+                No image available.
+              </div>
+            )}
 
             {/* A subtle holographic shine over the image */}
             <motion.div

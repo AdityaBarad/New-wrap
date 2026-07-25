@@ -81,6 +81,7 @@ type WrapContextValue = {
   loading: boolean
   error: string | null
   aiContent: AiWrapContent | null
+  generatedImageUrl: string | null
   aiLoading: boolean
   update: (patch: Partial<WrapData>) => void
   setStage: (s: Stage) => void
@@ -97,6 +98,7 @@ export function WrapProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [aiContent, setAiContent] = useState<AiWrapContent | null>(null)
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null)
   const [aiLoading, setAiLoading] = useState(false)
 
   const update = useCallback((patch: Partial<WrapData>) => {
@@ -108,12 +110,12 @@ export function WrapProvider({ children }: { children: ReactNode }) {
     setStage(1)
     setError(null)
     setAiContent(null)
+    setGeneratedImageUrl(null)
     setAiLoading(false)
   }, [])
 
   /** Call the Gemini API route to generate personalized wrap content */
   const generateAiContent = useCallback(async (wrapData: WrapData): Promise<AiWrapContent> => {
-    setAiLoading(true)
     try {
       const res = await fetch("/api/generate-wrap", {
         method: "POST",
@@ -140,8 +142,6 @@ export function WrapProvider({ children }: { children: ReactNode }) {
       return json.content as AiWrapContent
     } catch (err) {
       throw new Error(`AI generation failed: ${err instanceof Error ? err.message : String(err)}`)
-    } finally {
-      setAiLoading(false)
     }
   }, [])
 
@@ -207,6 +207,29 @@ export function WrapProvider({ children }: { children: ReactNode }) {
       const content = await generateAiContent(data)
       setAiContent(content)
 
+      // Fetch the image while the loading screen is still active
+      if ((content as any).personalityCard?.imagePrompt) {
+        try {
+          const res = await fetch("/api/generate-image", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ prompt: (content as any).personalityCard.imagePrompt }),
+          })
+
+          if (res.ok) {
+            const blob = await res.blob()
+            const url = URL.createObjectURL(blob)
+            setGeneratedImageUrl(url)
+          } else {
+            console.error("Failed to generate image in submitStage2")
+          }
+        } catch (err) {
+          console.error("Error generating image in submitStage2", err)
+        }
+      }
+
       setStage(3)
       return true
     } catch (e) {
@@ -220,8 +243,8 @@ export function WrapProvider({ children }: { children: ReactNode }) {
   }, [data, generateAiContent])
 
   const value = useMemo<WrapContextValue>(
-    () => ({ stage, data, loading, error, aiContent, aiLoading, update, setStage, submitStage1, submitStage2, reset }),
-    [stage, data, loading, error, aiContent, aiLoading, update, submitStage1, submitStage2, reset],
+    () => ({ stage, data, loading, error, aiContent, generatedImageUrl, aiLoading, update, setStage, submitStage1, submitStage2, reset }),
+    [stage, data, loading, error, aiContent, generatedImageUrl, aiLoading, update, submitStage1, submitStage2, reset],
   )
 
   return <WrapContext.Provider value={value}>{children}</WrapContext.Provider>
