@@ -1,51 +1,38 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
-import { WrapProvider, useWrap } from "@/context/wrap-context"
+import { WrapProvider, useWrap, PURPOSES } from "@/context/wrap-context"
 import { StageOne } from "@/components/stages/stage-one"
 import { StageTwo } from "@/components/stages/stage-two"
-import { StageThree } from "@/components/stages/stage-three"
-import { IntroAnimation } from "@/components/stages/intro-animation"
-import { YoutubePlayer } from "@/components/wrapped/youtube-player"
+import { StageThreePayment } from "@/components/stages/stage-three-payment"
+import { StageFourBasicSuccess } from "@/components/stages/stage-four-basic-success"
+import { AiLoading } from "@/components/stages/ai-loading"
 
 function Screens() {
-  const { stage, data } = useWrap()
-  const [introComplete, setIntroComplete] = useState(false)
-  const [isPaused, setIsPaused] = useState(false)
+  const { stage, data, aiLoading } = useWrap()
 
-  // Reset intro when stage goes back to 1 (user starts over)
-  useEffect(() => {
-    if (stage === 1) setIntroComplete(false)
-  }, [stage])
+  // Stage 4: Generation Loading & Basic Success
+  if (stage === 4) {
+    if (aiLoading) {
+      return <AiLoading accentColor={data.purpose ? (PURPOSES.find(p => p.id === data.purpose)?.color || "var(--wr-orange)") : "var(--wr-orange)"} />
+    }
+    return <StageFourBasicSuccess />
+  }
 
-  const handleIntroComplete = useCallback(() => {
-    setIntroComplete(true)
-  }, [])
-
-  // Stage 3: Show intro animation first, then the wrap result
+  // Stage 3: Payment
   if (stage === 3) {
     return (
-      <>
-        <AnimatePresence>
-          {!introComplete && (
-            <IntroAnimation onComplete={handleIntroComplete} />
-          )}
-        </AnimatePresence>
-        <AnimatePresence>
-          {introComplete && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ type: "spring", stiffness: 200, damping: 24, delay: 0.1 }}
-            >
-              <StageThree isPaused={isPaused} setIsPaused={setIsPaused} />
-            </motion.div>
-          )}
-        </AnimatePresence>
-        
-        {data.song && <YoutubePlayer videoId={data.song.videoId} isPaused={isPaused} />}
-      </>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={stage}
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -24 }}
+          transition={{ type: "spring", stiffness: 240, damping: 26 }}
+        >
+          <StageThreePayment />
+        </motion.div>
+      </AnimatePresence>
     )
   }
 

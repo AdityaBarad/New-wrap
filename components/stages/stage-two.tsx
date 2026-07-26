@@ -278,10 +278,10 @@ export function StageTwo() {
             disabled={loading}
             className="group mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-green px-7 py-4 font-display text-base font-black uppercase tracking-wide text-ink transition-transform hover:-rotate-1 hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {loading ? "Building..." : (
+            {loading ? "Saving Details..." : (
               <>
                 <Sparkles className="size-4" />
-                {data.storyParagraph.trim() ? "Generate AI Experience" : "Generate Full Experience"}
+                Proceed to Payment
               </>
             )}
             <ArrowUpRight className="size-5 transition-transform group-hover:rotate-45" />

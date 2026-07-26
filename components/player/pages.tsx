@@ -2092,7 +2092,7 @@ export function buildPages(data: WrapData, ai: AiWrapContent, generatedImageUrl?
   const personalityDescription = (ai as any).personalityCard?.description || "You play the long game. You see everything."
   const personalityImagePrompt = (ai as any).personalityCard?.imagePrompt || ""
 
-  return [
+  const allPages = [
     {
       key: "s1",
       bg: "var(--wr-orange)",
@@ -2262,4 +2262,10 @@ export function buildPages(data: WrapData, ai: AiWrapContent, generatedImageUrl?
       ),
     },
   ]
+
+  if (data.isBasicPlan) {
+    return allPages.slice(0, Math.ceil(allPages.length / 2))
+  }
+
+  return allPages
 }

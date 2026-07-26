@@ -21,12 +21,15 @@ async function getWrap(slug: string) {
 
   const { data, error } = await supabase
     .from("wraps")
-    .select("*")
+    .select("*, plan:plans(name)")
     .eq("slug", slug)
     .eq("is_public", true)
     .maybeSingle()
 
   if (error || !data) return null
+
+  // Check if active (default true for older wraps that don't have this field)
+  if (data.is_active === false) return null
 
   // Increment view count (fire-and-forget)
   supabase
@@ -95,6 +98,9 @@ export default async function WrapPage({ params }: Props) {
     )
   }
 
+  const planName = Array.isArray(wrap.plan) ? wrap.plan[0]?.name : wrap.plan?.name
+  const isBasicPlan = planName === 'basic'
+
   // Reconstruct WrapData from the stored fields
   const wrapData: WrapData = {
     name: wrap.name,
@@ -110,11 +116,11 @@ export default async function WrapPage({ params }: Props) {
     delusionalHabit: wrap.delusional_habit || "",
     birthYear: wrap.birth_year || "",
     storyParagraph: wrap.story_paragraph || "",
-    photos: (wrap.photo_urls || []).map((url: string, i: number) => ({
+    photos: (wrap.photo_urls || []).slice(0, isBasicPlan ? 2 : undefined).map((url: string, i: number) => ({
       name: `photo-${i + 1}`,
       url,
     })),
-    song: wrap.song_title
+    song: wrap.song_title && !isBasicPlan
       ? {
           videoId: wrap.song_video_id || "",
           title: wrap.song_title,
@@ -122,9 +128,14 @@ export default async function WrapPage({ params }: Props) {
           thumbnail: wrap.song_thumbnail || "",
         } as SongData
       : null,
+    isBasicPlan,
   }
 
   const aiContent = wrap.ai_content as AiWrapContent
+  
+  // In basic plan, we slice the pages array instead of aiContent.slides
+  // This is now handled inside buildPages using data.isBasicPlan
+
   const personalityImageUrl = wrap.personality_image_url || null
 
   return (

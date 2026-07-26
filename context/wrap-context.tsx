@@ -53,6 +53,10 @@ export type WrapData = {
   storyParagraph: string
   // Selected song
   song: SongData | null
+  // Plan type
+  isBasicPlan?: boolean
+  // Draft Slug
+  slug?: string
 }
 
 const initialData: WrapData = {
@@ -73,7 +77,7 @@ const initialData: WrapData = {
   song: null,
 }
 
-type Stage = 1 | 2 | 3
+type Stage = 1 | 2 | 3 | 4
 
 type WrapContextValue = {
   stage: Stage
@@ -89,6 +93,7 @@ type WrapContextValue = {
   setStage: (s: Stage) => void
   submitStage1: () => Promise<boolean>
   submitStage2: () => Promise<boolean>
+  generateWrap: (planName: string) => Promise<boolean>
   reset: () => void
 }
 
@@ -194,24 +199,34 @@ export function WrapProvider({
   const submitStage2 = useCallback(async () => {
     setError(null)
     setLoading(true)
+    try {
+      const res = await fetch("/api/save-draft-wrap", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ wrapData: data }),
+      })
+      if (!res.ok) throw new Error("Failed to save draft")
+      const { slug } = await res.json()
+      setWrapSlug(slug)
+      update({ slug })
+      setStage(3)
+      setLoading(false)
+      return true
+    } catch (e) {
+      console.error("[save-draft] error:", e)
+      setError("Failed to save your details. Please try again.")
+      setLoading(false)
+      return false
+    }
+  }, [data, update])
+
+  const generateWrap = useCallback(async (planName: string) => {
+    setError(null)
+    setStage(4) // Move to Stage 4 which will render the loading screen and basic success
+    setLoading(true)
     setAiLoading(true)
 
     try {
-      const supabase = createClient()
-      const payload = {
-        user_names: data.userNames || null,
-        chat_export_name: data.chatExportName || null,
-        anniversary_date: data.anniversaryDate || null,
-        destination_city: data.destinationCity || null,
-        travel_hours: data.travelHours || null,
-        delusional_habit: data.delusionalHabit || null,
-        birth_year: data.birthYear || null,
-        photos: data.photos.map((p) => p.name),
-        stage: 3,
-        updated_at: new Date().toISOString(),
-      }
-      // (Removed legacy leads update)
-
       const content = await generateAiContent(data)
       setAiContent(content)
 
@@ -221,9 +236,7 @@ export function WrapProvider({
         try {
           const res = await fetch("/api/generate-image", {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ prompt: (content as any).personalityCard.imagePrompt }),
           })
 
@@ -233,16 +246,15 @@ export function WrapProvider({
             setGeneratedImageUrl(url)
             personalityBlobUrl = url
           } else {
-            console.error("Failed to generate image in submitStage2")
+            console.error("Failed to generate image in generateWrap")
           }
         } catch (err) {
-          console.error("Error generating image in submitStage2", err)
+          console.error("Error generating image in generateWrap", err)
         }
       }
 
       // Save wrap to Supabase and wait for it
       try {
-        // Convert personality image blob to base64
         let personalityImageBase64: string | null = null
         if (personalityBlobUrl) {
           try {
@@ -252,7 +264,6 @@ export function WrapProvider({
           }
         }
 
-        // Convert photos to base64
         const photosBase64 = await Promise.all(
           data.photos.map(async (photo) => {
             try {
@@ -268,7 +279,6 @@ export function WrapProvider({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            leadId: data.id || null,
             wrapData: data,
             aiContent: content,
             personalityImageBase64,
@@ -278,28 +288,31 @@ export function WrapProvider({
 
         if (saveRes.ok) {
           const { slug, url } = await saveRes.json()
-          console.log("[save-wrap] Wrap saved!", url)
-          // Redirect the user immediately to the saved wrap URL
-          window.location.href = `/wrap/${slug}`
-          // Do NOT clear loading state here so it doesn't flash the create page during redirect
-          return new Promise(() => {}) // Hang the promise forever while redirecting
+          console.log("[save-wrap] Wrap updated!", url)
+          
+          if (planName === "elite") {
+            window.location.href = `/wrap/${slug}`
+            return new Promise(() => {}) // Hang the promise forever while redirecting
+          } else {
+            // For basic plan, stop loading and show basic success screen (which is Stage 4 without aiLoading)
+            setAiLoading(false)
+            setLoading(false)
+            return true
+          }
         } else {
           console.error("[save-wrap] Failed to save wrap:", saveRes.status)
-          // Fallback to local stage 3 if saving fails
-          setStage(3)
+          setError("Failed to save final wrap.")
         }
       } catch (e) {
         console.error("[save-wrap] Error saving wrap:", e)
-        // Fallback to local stage 3 if saving fails
-        setStage(3)
+        setError("Error saving final wrap.")
       }
 
-      // Only clear loading state if we are falling back to local display
       setLoading(false)
       setAiLoading(false)
       return true
     } catch (e) {
-      console.log("[v0] submitStage2 error:", e)
+      console.error("[generateWrap] error:", e)
       setError("AI generation failed. Please try again.")
       setLoading(false)
       setAiLoading(false)
@@ -308,8 +321,8 @@ export function WrapProvider({
   }, [data, generateAiContent])
 
   const value = useMemo<WrapContextValue>(
-    () => ({ stage, data, loading, error, aiContent, generatedImageUrl, aiLoading, wrapSlug, wrapUrl, update, setStage, submitStage1, submitStage2, reset }),
-    [stage, data, loading, error, aiContent, generatedImageUrl, aiLoading, wrapSlug, wrapUrl, update, submitStage1, submitStage2, reset],
+    () => ({ stage, data, loading, error, aiContent, generatedImageUrl, aiLoading, wrapSlug, wrapUrl, update, setStage, submitStage1, submitStage2, generateWrap, reset }),
+    [stage, data, loading, error, aiContent, generatedImageUrl, aiLoading, wrapSlug, wrapUrl, update, submitStage1, submitStage2, generateWrap, reset],
   )
 
   return <WrapContext.Provider value={value}>{children}</WrapContext.Provider>

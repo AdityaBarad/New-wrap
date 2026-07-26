@@ -68,22 +68,15 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const supabase = getSupabase()
-
-    // 1. Generate a unique slug
-    let slug = generateSlug(wrapData.name || "wrap")
-
-    // Check uniqueness — retry up to 3 times on collision
-    for (let attempt = 0; attempt < 3; attempt++) {
-      const { data: existing } = await supabase
-        .from("wraps")
-        .select("id")
-        .eq("slug", slug)
-        .maybeSingle()
-
-      if (!existing) break
-      slug = generateSlug(wrapData.name || "wrap")
+    if (!wrapData.slug) {
+      return NextResponse.json(
+        { error: "wrapData.slug is required" },
+        { status: 400 },
+      )
     }
+
+    const supabase = getSupabase()
+    const slug = wrapData.slug
 
     // 2. Upload personality card image (if provided)
     let personalityImageUrl: string | null = null
@@ -104,7 +97,6 @@ export async function POST(req: NextRequest) {
         const photo = photos[i]
         if (!photo?.base64) continue
 
-        // Detect content type from the data URL prefix, default to jpeg
         let contentType = "image/jpeg"
         if (photo.base64.startsWith("data:")) {
           const match = photo.base64.match(/^data:([^;]+);/)
@@ -123,34 +115,10 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 4. Ensure user exists in users table (upsert)
-    const { error: userError } = await supabase
-      .from("users")
-      .upsert({
-        phone: wrapData.phone,
-        name: wrapData.name,
-      }, { onConflict: "phone" })
-      
-    if (userError) {
-      console.error("[save-wrap] User upsert error:", userError)
-      // Continue anyway, it might still work if the foreign key matches an existing row
-    }
-
-    // 5. Insert wrap row into database
+    // 4. Update wrap row in database
     const { data: row, error: dbError } = await supabase
       .from("wraps")
-      .insert({
-        phone: wrapData.phone,
-        slug,
-        name: wrapData.name,
-        purpose: wrapData.purpose,
-        user_names: wrapData.userNames || null,
-        anniversary_date: wrapData.anniversaryDate || null,
-        destination_city: wrapData.destinationCity || null,
-        travel_hours: wrapData.travelHours || null,
-        delusional_habit: wrapData.delusionalHabit || null,
-        birth_year: wrapData.birthYear || null,
-        story_paragraph: wrapData.storyParagraph || null,
+      .update({
         photo_urls: photoUrls.length > 0 ? photoUrls : null,
         song_video_id: wrapData.song?.videoId || null,
         song_title: wrapData.song?.title || null,
@@ -158,14 +126,16 @@ export async function POST(req: NextRequest) {
         song_thumbnail: wrapData.song?.thumbnail || null,
         ai_content: aiContent,
         personality_image_url: personalityImageUrl,
+        status: "generated"
       })
+      .eq("slug", slug)
       .select("slug")
       .single()
 
     if (dbError) {
-      console.error("[save-wrap] DB insert error:", dbError)
+      console.error("[save-wrap] DB update error:", dbError)
       return NextResponse.json(
-        { error: "Failed to save wrap" },
+        { error: "Failed to update wrap" },
         { status: 500 },
       )
     }
