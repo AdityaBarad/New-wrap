@@ -78,7 +78,7 @@ const mockAi: AiWrapContent = {
     minutesListened: "69,420"
   },
   finale: { 
-    title: "Your 2025 Era",
+    title: "Your 2026 Era",
     tagline: "Your year is officially wrapped. Your year. Unhinged.",
     minutesLived: "525,600",
     minutesLabel: "min lived",

@@ -104,17 +104,22 @@ export function Burst({
   palette,
   className,
   delay = 0,
+  spinningVinyl = false,
+  style,
 }: {
   photo?: string
   palette: BurstPalette
   className?: string
   delay?: number
+  spinningVinyl?: boolean
+  style?: React.CSSProperties
 }) {
   const springConfig = { type: "spring" as const, stiffness: 120, damping: 14 }
   
   return (
     <motion.div
       className={`relative aspect-square ${className ?? ""}`}
+      style={style}
     >
       {/* Layer 1: Checkerboard Grid — squares spawn from center outward */}
       <div className="absolute inset-0">
@@ -146,48 +151,31 @@ export function Burst({
         </svg>
       </div>
 
-      {/* Layer 2: Yellow Flower — 8-lobed cloud shape */}
+      {/* Layer 2: Green Flower — 8-lobed cloud shape */}
       <motion.div
         className="absolute inset-0"
         initial={{ opacity: 0, scale: 0 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ ...springConfig, delay: delay + 0.6 }}
       >
-        <svg viewBox="0 0 100 100" className="h-full w-full">
-          <circle cx="50" cy="50" r="22" fill="#CCFF00" />
-          {Array.from({ length: 8 }).map((_, i) => {
-            const angle = (i / 8) * Math.PI * 2
-            const cx = 50 + Math.cos(angle) * 28
-            const cy = 50 + Math.sin(angle) * 28
-            return <circle key={i} cx={cx} cy={cy} r="16" fill="#CCFF00" />
-          })}
-        </svg>
-      </motion.div>
-
-      {/* Layer 3: Purple Starburst — spiky star inside the flower */}
-      <motion.div
-        className="absolute inset-0"
-        initial={{ opacity: 0, scale: 0, rotate: -45 }}
-        animate={{ opacity: 1, scale: 1, rotate: 0 }}
-        transition={{ ...springConfig, delay: delay + 0.8 }}
-      >
         <motion.div
           className="absolute inset-0"
           animate={{ rotate: 360 }}
-          transition={{ repeat: Number.POSITIVE_INFINITY, ease: "linear", duration: 30 }}
+          transition={{ repeat: Number.POSITIVE_INFINITY, ease: "linear", duration: 15 }}
         >
-          <SpikyLayer
-            color={palette.star1}
-            spikes={16}
-            outer={44}
-            inner={20}
-            duration={0}
-            className="inset-0 h-full w-full"
-          />
+          <svg viewBox="0 0 100 100" className="h-full w-full">
+            <circle cx="50" cy="50" r="22" fill="var(--wr-green)" />
+            {Array.from({ length: 8 }).map((_, i) => {
+              const angle = (i / 8) * Math.PI * 2
+              const cx = 50 + Math.cos(angle) * 28
+              const cy = 50 + Math.sin(angle) * 28
+              return <circle key={i} cx={cx} cy={cy} r="16" fill="var(--wr-green)" />
+            })}
+          </svg>
         </motion.div>
       </motion.div>
 
-      {/* Layer 4: Lime Green Spiky Ring — outer accent */}
+      {/* Layer 3: Lime Green Spiky Ring — outer accent (moved back) */}
       <motion.div
         className="absolute inset-0"
         initial={{ opacity: 0, scale: 0 }}
@@ -202,29 +190,65 @@ export function Burst({
           <SpikyLayer
             color="#CCFF00"
             spikes={24}
-            outer={48}
-            inner={34}
+            outer={44}
+            inner={32}
             duration={0}
             className="inset-0 h-full w-full"
           />
         </motion.div>
       </motion.div>
 
-      {/* Layer 5: Center Artwork — photo with circular mask */}
+      {/* Layer 4: Blue/Purple Starburst — 4-pointed star (moved forward) */}
       <motion.div
-        className="absolute inset-[22%] h-[56%] w-[56%] overflow-hidden rounded-full border-3"
-        style={{ borderColor: palette.cloud }}
+        className="absolute inset-0"
+        initial={{ opacity: 0, scale: 0, rotate: -45 }}
+        animate={{ opacity: 1, scale: 1, rotate: 0 }}
+        transition={{ ...springConfig, delay: delay + 0.8 }}
+      >
+        <SpikyLayer
+          color={palette.star1}
+          spikes={4}
+          outer={48}
+          inner={25}
+          duration={0}
+          className="inset-0 h-full w-full overflow-visible"
+        />
+      </motion.div>
+
+      {/* Layer 5: Center Artwork — photo with square mask */}
+      <motion.div
+        className="absolute inset-[22%] h-[56%] w-[56%] overflow-hidden"
         initial={{ opacity: 0, scale: 0.3, y: -40 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ ...springConfig, delay: delay + 1.0 }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={photo || "/wrapped-portrait-1.png"}
-          alt=""
-          className="h-full w-full object-cover"
-          crossOrigin="anonymous"
-        />
+        {spinningVinyl ? (
+          <motion.div
+            className="relative h-full w-full"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 8, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={photo || "/wrapped-portrait-1.png"}
+              alt=""
+              className="h-full w-full object-cover"
+              crossOrigin="anonymous"
+            />
+            <span
+              className="absolute left-1/2 top-1/2 size-8 -translate-x-1/2 -translate-y-1/2 rounded-full border-2"
+              style={{ backgroundColor: "var(--wr-ink)", borderColor: palette.cloud }}
+            />
+          </motion.div>
+        ) : (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={photo || "/wrapped-portrait-1.png"}
+            alt=""
+            className="h-full w-full object-cover"
+            crossOrigin="anonymous"
+          />
+        )}
       </motion.div>
     </motion.div>
   )
@@ -248,7 +272,7 @@ export function Halftone({ dark = true, className }: { dark?: boolean; className
   )
 }
 
-/** Wrapped-style footer: Spotify logo + hashtag. */
+/** Wrapped-style footer: Wrapsy logo + hashtag. */
 export function WrapFooter({ ink, hashtag }: { ink: string; hashtag: string }) {
   return (
     <motion.div
@@ -258,7 +282,7 @@ export function WrapFooter({ ink, hashtag }: { ink: string; hashtag: string }) {
       className="flex items-center justify-center gap-2 md:justify-start md:gap-4"
       style={{ color: ink }}
     >
-      {/* Spotify-style logo */}
+      {/* Wrapsy-style logo */}
       <span className="flex items-center gap-1.5 md:gap-2">
         <svg viewBox="0 0 24 24" className="size-5 md:size-7" aria-hidden="true">
           <circle cx="12" cy="12" r="12" fill={ink} />
@@ -284,7 +308,7 @@ export function WrapFooter({ ink, hashtag }: { ink: string; hashtag: string }) {
             fill="none"
           />
         </svg>
-        <span className="font-display text-sm font-black lowercase tracking-tight md:text-lg">spotify</span>
+        <span className="font-display text-sm font-black lowercase tracking-tight md:text-lg">wrapsy</span>
       </span>
       <span className="font-display text-[10px] font-black uppercase tracking-widest opacity-80 md:text-sm">{hashtag}</span>
     </motion.div>

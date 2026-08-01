@@ -8,6 +8,7 @@ import { SinglePhotoDropzone, TxtDropzone } from "@/components/wrapped/dropzone"
 import { SongSelector } from "@/components/wrapped/song-selector"
 import { PURPOSES, useWrap } from "@/context/wrap-context"
 import { AiLoading } from "@/components/stages/ai-loading"
+import { trackEvent, updateProfile } from "@/lib/mixpanel"
 
 export function StageTwo() {
   const { data, update, submitStage2, loading, aiLoading, error } = useWrap()
@@ -274,7 +275,23 @@ export function StageTwo() {
 
           <button
             type="button"
-            onClick={submitStage2}
+            onClick={() => {
+              // Mixpanel Tracking
+              const photoCount = (data.photos || []).filter(Boolean).length;
+              updateProfile({
+                "Journey Stage": "Memory Deposit Completed",
+                "Story Length": data.storyParagraph?.length || 0,
+                "Photo Count": photoCount,
+              })
+              trackEvent("Memory Deposit Completed", {
+                story_length: data.storyParagraph?.length || 0,
+                photo_count: photoCount,
+                has_custom_song: !!data.songUrl,
+                destination: data.destinationCity,
+              })
+
+              submitStage2()
+            }}
             disabled={loading}
             className="group mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-green px-7 py-4 font-display text-base font-black uppercase tracking-wide text-ink transition-transform hover:-rotate-1 hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60"
           >

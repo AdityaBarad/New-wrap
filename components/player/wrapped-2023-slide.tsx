@@ -142,13 +142,13 @@ export function Wrapped2023Slide({
 
       {/* --- CONTENT LAYER --- */}
       
-      {/* Top Header: Spotify Logo */}
+      {/* Top Header: Wrapsy Logo */}
       <div className="relative z-30 w-full flex flex-col items-center pt-8 md:pt-12">
         <div className="flex items-center gap-2">
           <svg className="fill-current" viewBox="0 0 24 24" style={{ color: "#000", width: "clamp(1.5rem, 4vw, 2.5rem)", height: "clamp(1.5rem, 4vw, 2.5rem)" }}>
             <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.48.66.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141 C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.18-1.38-.72-.18-.6.18-1.2.72-1.38 4.26-1.26 11.28-1.02 15.72 1.62.54.3.72 1.02.42 1.56-.3.42-1.02.6-1.56.3z" />
           </svg>
-          <span className="font-display font-black tracking-tight" style={{ color: "#000", fontSize: "clamp(1.2rem, 3vw, 1.6rem)" }}>Spotify</span>
+          <span className="font-display font-black tracking-tight" style={{ color: "#000", fontSize: "clamp(1.2rem, 3vw, 1.6rem)" }}>Wrapsy</span>
         </div>
       </div>
 

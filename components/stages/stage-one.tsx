@@ -7,6 +7,7 @@ import { Field } from "@/components/wrapped/field"
 import { PURPOSES, useWrap } from "@/context/wrap-context"
 import { cn } from "@/lib/utils"
 import { PhoneVerifier } from "@/components/auth/phone-verifier"
+import { trackEvent, identifyUser, updateProfile } from "@/lib/mixpanel"
 
 export function StageOne() {
   const { data, update, submitStage1, loading, error } = useWrap()
@@ -22,7 +23,7 @@ export function StageOne() {
           spin
         />
         <div className="relative z-10 flex items-center gap-2 font-display text-sm font-black uppercase tracking-widest text-ink">
-          <span className="rounded-full bg-ink px-3 py-1 text-cream">★ 2025</span>
+          <span className="rounded-full bg-ink px-3 py-1 text-cream">★ 2026</span>
           Your Life, Wrapped
         </div>
 
@@ -83,7 +84,7 @@ export function StageOne() {
                 <Field
                   label="Promo / Referral"
                   optional
-                  placeholder="WRAP2025"
+                  placeholder="WRAP2026"
                   value={data.promoCode}
                   onChange={(e) => update({ promoCode: e.target.value })}
                 />
@@ -142,6 +143,21 @@ export function StageOne() {
                   disabledMessage="Drop your name and pick a vibe first."
                   onSuccess={(phone) => {
                     update({ phone })
+                    
+                    // Mixpanel Tracking
+                    identifyUser(phone)
+                    updateProfile({
+                      $name: data.name,
+                      Phone: phone,
+                      Purpose: data.purpose,
+                      "Journey Stage": "Lead Form Filled",
+                    })
+                    trackEvent("Lead Form Filled", {
+                      purpose: data.purpose,
+                      promo_code: data.promoCode,
+                      whats_this_for: data.whatsThisFor,
+                    })
+
                     submitStage1(phone)
                   }}
                 />

@@ -27,7 +27,7 @@ function buildPrompt(body: Record<string, unknown>): string {
 
   const purposeLabel = purposeLabels[(purpose as string) ?? "life"] ?? "Personal Life Journey"
 
-  return `You are a world-class creative director for a viral "Life Wrapped" experience — think Spotify Wrapped but for someone's LIFE. Your job is to write punchy, Gen-Z, unhinged-but-heartfelt, meme-aware copy that makes every slide screenshot-worthy.
+  return `You are a world-class creative director for a viral "Life Wrapped" experience — think Wrapsy Wrapped but for someone's LIFE. Your job is to write punchy, Gen-Z, unhinged-but-heartfelt, meme-aware copy that makes every slide screenshot-worthy.
 
 ## USER PROFILE
 - **Purpose**: ${purposeLabel}
@@ -46,11 +46,12 @@ ${song ? `- **Chosen theme song**: ${song}` : ""}
 ## INSTRUCTIONS
 Generate creative, personalized, trendy content for an 8-slide wrapped experience. The content must:
 1. Be deeply personalized using the user's story and details
-2. Sound like a mix of Spotify Wrapped + Instagram Reels + Twitter shitposting
+2. Sound like a mix of Wrapsy Wrapped + Instagram Reels + Twitter shitposting
 3. Use Gen-Z slang naturally (slay, era, main character, unhinged, no cap, ate, etc.)
 4. Reference specific details from their story paragraph
 5. Be witty, warm, and shareable — every line should make someone want to screenshot it
 6. Be unique — NEVER generic. If they mentioned a city, reference it. If they mentioned a habit, roast it lovingly.
+7. CRITICAL LENGTH LIMIT: For "globalArtists" list, EACH item MUST be MAXIMUM 15 CHARACTERS (e.g. 'Maggie Mei', 'Momos Mafia'). Keep them short so they fit on screen!
 
 Return ONLY a valid JSON object (no markdown, no backticks, no explanation) with this exact structure:
 
@@ -77,11 +78,11 @@ Return ONLY a valid JSON object (no markdown, no backticks, no explanation) with
 
   "globalArtistsTitle": "Creative title for global artists (e.g. 'Your Main Character Influences')",
   "globalArtists": [
-    "Artist 1 or funny personality archetype",
-    "Artist 2",
-    "Artist 3",
-    "Artist 4",
-    "Artist 5"
+    "Item 1 (MAX 15 CHARS)",
+    "Item 2 (MAX 15 CHARS)",
+    "Item 3 (MAX 15 CHARS)",
+    "Item 4 (MAX 15 CHARS)",
+    "Item 5 (MAX 15 CHARS)"
   ],
   "artistStats": {
     "name": "Top artist name or main character persona",
@@ -113,7 +114,7 @@ Return ONLY a valid JSON object (no markdown, no backticks, no explanation) with
     "minutesListened": "A funny made-up number (e.g. '69,420')"
   },
   "finale": {
-    "title": "Creative title for the final slide (e.g. 'Your 2025 Era')",
+    "title": "Creative title for the final slide (e.g. 'Your 2026 Era')",
     "tagline": "An epic, emotional 1-sentence farewell line. Make it feel like the end of a movie.",
     "minutesLived": "A funny huge number (e.g. '525,600')",
     "minutesLabel": "Creative label for minutes lived (e.g. 'min lived')",
@@ -122,7 +123,7 @@ Return ONLY a valid JSON object (no markdown, no backticks, no explanation) with
   "personalityCard": {
     "title": "A 1-2 word personality archetype (e.g. 'Mastermind', 'Chaos Demon', 'Vampire')",
     "description": "A punchy 1-2 sentence description of why they got this personality.",
-    "imagePrompt": "A highly detailed image generation prompt for Stable Diffusion. It MUST specify: 'Spotify Wrapped character card style, flat vector illustration, neon glowing colors on dark black background, surreal and mystical.' followed by the specific imagery for the archetype."
+    "imagePrompt": "A highly detailed image generation prompt for Stable Diffusion. It MUST specify: 'Wrapsy Wrapped character card style, flat vector illustration, neon glowing colors on dark black background, surreal and mystical.' followed by the specific imagery for the archetype."
   }
 }
 
@@ -187,7 +188,7 @@ json
     "minutesListened": "8,760"
   },
   "finale": {
-    "title": "Your 2025 Era",
+    "title": "Your 2026 Era",
     "tagline": "You didn't kill each other assembling furniture. That's true love.",
     "minutesLived": "525,600",
     "minutesLabel": "min survived together",
@@ -197,13 +198,13 @@ json
   "personalityCard": {
     "title": "Chaos Demon",
     "description": "Because anyone who willingly walks 10 miles instead of taking the metro thrives on pure, unadulterated chaos.",
-    "imagePrompt": "Spotify Wrapped character card style, flat vector illustration, neon glowing colors on dark black background, surreal and mystical. A mischievous glowing demon walking furiously, neon synthwave lights, highly detailed."
+    "imagePrompt": "Wrapsy Wrapped character card style, flat vector illustration, neon glowing colors on dark black background, surreal and mystical. A mischievous glowing demon walking furiously, neon synthwave lights, highly detailed."
   }
 }
 
 CRITICAL: 
 - The "lines" array in "intro" MUST have exactly 3 short items (1-2 words each) — they're displayed as giant stacked text.
-- "globalArtists" MUST have exactly 5 items.
+- "globalArtists" MUST have exactly 5 items, and EACH ITEM MUST BE A MAXIMUM OF 15 CHARACTERS so text does not overlap background graphics.
 - "worldCitizen.artists" MUST have exactly 6 items.
 - "dashboard.topArtists" MUST have exactly 5 items.
 - "dashboard.topSongs" MUST have exactly 5 items.

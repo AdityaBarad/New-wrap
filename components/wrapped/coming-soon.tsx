@@ -27,7 +27,7 @@ export function ComingSoon() {
           transition={{ type: 'spring', stiffness: 400, damping: 14 }}
           className="inline-block rounded-full bg-yellow px-4 py-1.5 font-display text-xs font-black uppercase tracking-widest text-ink md:text-sm"
         >
-          ★ 2025 Edition
+          ★ 2026 Edition
         </motion.span>
 
         <h1 className="mt-8 font-display text-[16vw] font-black uppercase leading-[0.85] tracking-tighter text-foreground sm:text-8xl md:text-9xl lg:text-[10rem]">

@@ -33,7 +33,7 @@ export function Hero() {
             transition={{ type: 'spring', stiffness: 400, damping: 14 }}
             className="inline-block rounded-full bg-yellow px-4 py-1.5 font-display text-xs font-black uppercase tracking-widest text-ink md:text-sm"
           >
-            ★ 2025 Edition — Now Rolling Out
+            ★ 2026 Edition — Now Rolling Out
           </motion.span>
 
           <h1 className="mt-6 font-display text-[16vw] font-black uppercase leading-[0.82] tracking-tighter text-foreground sm:text-[13vw] lg:text-[8.5rem] xl:text-[10rem]">
@@ -97,16 +97,7 @@ export function Hero() {
             </a>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="mt-8 flex items-center gap-6 font-display text-sm font-bold uppercase tracking-wide text-foreground/50"
-          >
-            <span><span className="text-yellow">4.2M+</span> wraps made</span>
-            <span className="hidden sm:inline"><span className="text-orange">190M</span> memories</span>
-            <span>Free · Instant</span>
-          </motion.div>
+
         </div>
 
         {/* poster */}
@@ -131,7 +122,7 @@ export function Hero() {
             </div>
             <div className="absolute inset-x-4 bottom-4 flex items-end justify-between">
               <div>
-                <p className="font-display text-3xl font-black uppercase leading-none text-yellow">2025</p>
+                <p className="font-display text-3xl font-black uppercase leading-none text-yellow">2026</p>
                 <p className="font-display text-sm font-bold uppercase tracking-widest text-foreground">Wrapped</p>
               </div>
               <p className="font-display text-5xl font-black leading-none text-green">#1</p>

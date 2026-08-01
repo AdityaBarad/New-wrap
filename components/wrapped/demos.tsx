@@ -81,7 +81,7 @@ export function Demos() {
           {/* 3 — portrait + stats */}
           <CardShell className="bg-cream" delay={0.16}>
             <div className="absolute left-3 top-4 font-display text-4xl font-black text-orange [writing-mode:vertical-rl]">
-              2025
+              2026
             </div>
             <div className="absolute right-3 top-4 h-2/5 w-3/5 overflow-hidden rounded-lg border-2 border-ink">
               <Image src="/wrapped-portrait-2.png" alt="Template portrait" fill sizes="200px" className="object-cover" />

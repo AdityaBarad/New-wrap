@@ -4,7 +4,7 @@ This document explains how the "Life Wrapped" application uses Google's Gemini A
 
 ## 1. Overview
 
-The core feature of Life Wrapped is its ability to take a small set of user inputs (like a short story, a purpose, an anniversary date, or a delusional habit) and spin it into a highly personalized 8-slide "Spotify Wrapped" style story. 
+The core feature of Life Wrapped is its ability to take a small set of user inputs (like a short story, a purpose, an anniversary date, or a delusional habit) and spin it into a highly personalized 8-slide "Wrapsy Wrapped" style story. 
 
 Instead of hardcoding text like "My Top Artists", we use Gemini to dynamically generate *everything*—from slide titles and subtitles to fake statistics, "top genres", and "global artists"—so that the entire experience feels customized to the user's specific lore.
 
@@ -43,7 +43,7 @@ We instruct Gemini to act as a **"world-class creative director for a viral 'Yea
 Here is an example of the exact text sent to Gemini after a user submits the form:
 
 ```text
-You are a world-class creative director for a viral "Year Wrapped" experience — think Spotify Wrapped but for someone's LIFE. Your job is to write punchy, Gen-Z, unhinged-but-heartfelt, meme-aware copy that makes every slide screenshot-worthy.
+You are a world-class creative director for a viral "Year Wrapped" experience — think Wrapsy Wrapped but for someone's LIFE. Your job is to write punchy, Gen-Z, unhinged-but-heartfelt, meme-aware copy that makes every slide screenshot-worthy.
 
 ## USER PROFILE
 - Purpose: Couple / Love Story
@@ -59,7 +59,7 @@ You are a world-class creative director for a viral "Year Wrapped" experience �
 ## INSTRUCTIONS
 Generate creative, personalized, trendy content for an 8-slide wrapped experience. The content must:
 1. Be deeply personalized using the user's story and details
-2. Sound like a mix of Spotify Wrapped + Instagram Reels + Twitter shitposting
+2. Sound like a mix of Wrapsy Wrapped + Instagram Reels + Twitter shitposting
 3. Use Gen-Z slang naturally (slay, era, main character, unhinged, no cap, ate, etc.)
 4. Reference specific details from their story paragraph
 5. Be witty, warm, and shareable — every line should make someone want to screenshot it
@@ -125,7 +125,7 @@ Return ONLY a valid JSON object (no markdown, no backticks, no explanation) with
     "minutesListened": "A funny made-up number (e.g. '69,420')"
   },
   "finale": {
-    "title": "Creative title for the final slide (e.g. 'Your 2025 Era')",
+    "title": "Creative title for the final slide (e.g. 'Your 2026 Era')",
     "tagline": "An epic, emotional 1-sentence farewell line. Make it feel like the end of a movie.",
     "minutesLived": "A funny huge number (e.g. '525,600')",
     "minutesLabel": "Creative label for minutes lived (e.g. 'min lived')",
@@ -205,7 +205,7 @@ Here is an example of what Gemini returns for the prompt above. Notice how it we
     "minutesListened": "8,760"
   },
   "finale": {
-    "title": "Your 2025 Era",
+    "title": "Your 2026 Era",
     "tagline": "You didn't kill each other assembling furniture. That's true love.",
     "minutesLived": "525,600",
     "minutesLabel": "min survived together",

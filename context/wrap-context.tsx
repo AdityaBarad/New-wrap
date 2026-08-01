@@ -301,11 +301,11 @@ export function WrapProvider({
           }
         } else {
           console.error("[save-wrap] Failed to save wrap:", saveRes.status)
-          setError("Failed to save final wrap.")
+          throw new Error("Failed to save final wrap.")
         }
       } catch (e) {
         console.error("[save-wrap] Error saving wrap:", e)
-        setError("Error saving final wrap.")
+        throw new Error("Error saving final wrap.")
       }
 
       setLoading(false)
@@ -316,7 +316,7 @@ export function WrapProvider({
       setError("AI generation failed. Please try again.")
       setLoading(false)
       setAiLoading(false)
-      return false
+      throw e
     }
   }, [data, generateAiContent])
 

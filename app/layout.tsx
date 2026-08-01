@@ -1,6 +1,7 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { Archivo, Space_Grotesk } from 'next/font/google'
+import { MixpanelProvider } from '@/components/providers/mixpanel-provider'
 import './globals.css'
 
 const archivo = Archivo({
@@ -36,8 +37,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${archivo.variable} ${spaceGrotesk.variable} bg-background`}>
       <body className="font-sans antialiased">
-        {children}
-        {process.env.NODE_ENV === 'production' && <Analytics />}
+        <MixpanelProvider>
+          {children}
+          {process.env.NODE_ENV === 'production' && <Analytics />}
+        </MixpanelProvider>
       </body>
     </html>
   )

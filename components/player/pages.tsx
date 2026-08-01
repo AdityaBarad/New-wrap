@@ -197,7 +197,7 @@ function IntroUniverse({
             animate={{ y: "0%", scale: 1, opacity: 1 }}
             transition={{ type: "spring", stiffness: 55, damping: 16, delay: 0.3 }}
           >
-            <Burst photo={photo} palette={palette} delay={0.2} className="w-[72vw] max-w-[22rem]" />
+            <Burst photo={photo} palette={palette} delay={0.2} style={{ width: "82vw", maxWidth: "26rem" }} />
           </motion.div>
         </div>
 
@@ -216,7 +216,7 @@ function IntroUniverse({
           animate={{ x: "30%" }}
           transition={{ type: "spring", stiffness: 60, damping: 18, delay: 1.6 }}
         >
-          <Burst photo={photo} palette={palette} delay={0.2} className="w-[28vw] max-w-[24rem]" />
+          <Burst photo={photo} palette={palette} delay={0.2} style={{ width: "32vw", maxWidth: "28rem" }} />
         </motion.div>
 
         {/* Left text */}
@@ -327,12 +327,9 @@ const SHARE_ORBS = [
   { right: "-6%", top: "14%", delay: 0.25 },
   { left: "-6%", bottom: "14%", delay: 0.4 },
   { right: "-6%", bottom: "14%", delay: 0.55 },
-  /* mid sides */
-  { left: "-8%", top: "42%", delay: 0.15 },
-  { right: "-8%", top: "42%", delay: 0.7 },
 ]
 
-function ShareSpotifyLogo() {
+function ShareWrapsyLogo() {
   return (
     <div className="flex items-center gap-2 text-[#101010] sm:gap-[1.2cqw]">
       <svg viewBox="0 0 64 64" aria-hidden="true" className="size-[clamp(1.8rem,7vw,3rem)] sm:size-[clamp(2.5rem,6cqw,4rem)]">
@@ -341,12 +338,12 @@ function ShareSpotifyLogo() {
         <path d="M20 33c8-2 17-1.3 25 2" fill="none" stroke="#ff861b" strokeLinecap="round" strokeWidth="4.2" />
         <path d="M22 41c6-1.5 13-.8 19 1.7" fill="none" stroke="#ff861b" strokeLinecap="round" strokeWidth="3.6" />
       </svg>
-      <span className="font-display text-[clamp(1.2rem,5vw,2.2rem)] font-black tracking-tight sm:text-[clamp(1.7rem,4.2cqw,3rem)]">Spotify</span>
+      <span className="font-display text-[clamp(1.2rem,5vw,2.2rem)] font-black tracking-tight sm:text-[clamp(1.7rem,4.2cqw,3rem)]">Wrapsy</span>
     </div>
   )
 }
 
-function ShareWrappedSlide({ title = "Share your\nSpotify Wrapped", hashtag = "#SpotifyWrapped" }: { title?: string, hashtag?: string }) {
+function ShareWrappedSlide({ title = "Share your\nWrapsy Wrapped", hashtag = "#WrapsyWrapped" }: { title?: string, hashtag?: string }) {
   return (
     <div className="relative h-full w-full overflow-hidden">
       <div className="relative flex h-full w-full items-center justify-center bg-[#101010] overflow-visible [container-type:size]">
@@ -412,7 +409,7 @@ function ShareWrappedSlide({ title = "Share your\nSpotify Wrapped", hashtag = "#
               x: "-50%",
               y: "-50%",
             }}
-            animate={{ scale: [1, 1.018, 1], rotate: [0, 0.6, -0.5, 0] }}
+            animate={{ scale: [1.08, 1.1, 1.08], rotate: [0, 0.6, -0.5, 0] }}
             transition={{
               scale: {
                 duration: 4.8,
@@ -449,7 +446,7 @@ function ShareWrappedSlide({ title = "Share your\nSpotify Wrapped", hashtag = "#
               transition={{ type: "spring", stiffness: 45, damping: 18, delay: 2.7 }}
               className="absolute bottom-[12%] sm:bottom-[15%]"
             >
-              <ShareSpotifyLogo />
+              <ShareWrapsyLogo />
             </motion.div>
           </div>
         </motion.div>
@@ -459,7 +456,7 @@ function ShareWrappedSlide({ title = "Share your\nSpotify Wrapped", hashtag = "#
 }
 
 /* ================================================================== */
-/* SLIDE 3 — DATA HIGHLIGHT (Wrapped 2024 pixel frame + count up)     */
+/* SLIDE 3 — DATA HIGHLIGHT (Wrapped 2026 pixel frame + count up)     */
 /* ================================================================== */
 
 const PIXEL_ROWS = [
@@ -564,7 +561,7 @@ function PixelStair({
                   y: { ...SPRING, delay: delay + i * 0.08 },
                 }
           }
-          className={`flex ${columnDirection}`}
+          className={`relative overflow-hidden flex ${columnDirection}`}
           style={{
             width,
             height: PIXEL_ROW_HEIGHT,
@@ -594,6 +591,24 @@ function PixelStair({
             }}
             style={{
               backgroundImage: innerColumn,
+            }}
+          />
+          {/* 2024 Wrapped Style Glare/Sheen Overlay */}
+          <motion.div
+            className="absolute inset-0 pointer-events-none mix-blend-overlay z-[2]"
+            style={{
+              backgroundImage: "linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.7) 50%, transparent 65%)",
+              backgroundSize: "250% 100%",
+            }}
+            animate={{
+              backgroundPosition: ["200% 0", "-150% 0"],
+            }}
+            transition={{
+              duration: 2.8,
+              repeat: Number.POSITIVE_INFINITY,
+              ease: "easeInOut",
+              delay: delay + i * 0.12,
+              repeatDelay: 2,
             }}
           />
         </motion.div>
@@ -737,6 +752,55 @@ function PixelFrame({ accent, bg, outward = false }: { accent: string; bg: strin
   )
 }
 
+function RollingDigit({ digit, delay }: { digit: string; delay: number }) {
+  const isNumber = !isNaN(Number(digit))
+  if (!isNumber) {
+    return <span>{digit}</span>
+  }
+
+  const num = Number(digit)
+  const repetitions = 3 // Spin through 0-9 three times
+  const digits = Array.from({ length: 10 * repetitions }, (_, i) => i % 10)
+  const totalCount = digits.length
+  const targetIndex = 10 * (repetitions - 1) + num // settle on the last repetition
+  const targetY = -(targetIndex * (100 / totalCount))
+
+  return (
+    <span className="relative inline-block h-[1.1em] overflow-hidden leading-[1.1] align-bottom">
+      <motion.span
+        className="absolute left-0 top-0 flex flex-col w-full text-center"
+        initial={{ y: 0 }}
+        animate={{ y: `${targetY}%` }}
+        transition={{
+          type: "spring",
+          stiffness: 45,
+          damping: 14,
+          mass: 1.1,
+          delay: delay,
+        }}
+      >
+        {digits.map((val, idx) => (
+          <span key={idx} className="flex h-[1.1em] items-center justify-center">
+            {val}
+          </span>
+        ))}
+      </motion.span>
+      {/* Invisible digit to preserve space */}
+      <span style={{ visibility: "hidden" }} className="pointer-events-none select-none">{digit}</span>
+    </span>
+  )
+}
+
+function RollingDigits({ value, delay = 1.88 }: { value: string; delay?: number }) {
+  return (
+    <span className="inline-flex items-end justify-center">
+      {value.split("").map((char, i) => (
+        <RollingDigit key={i} digit={char} delay={delay + i * 0.08} />
+      ))}
+    </span>
+  )
+}
+
 function DataHighlight({
   bg,
   ink,
@@ -754,7 +818,6 @@ function DataHighlight({
   label: string
   note: string
 }) {
-  const count = useCountUp(value, 1500)
   return (
     <Shell>
       <PixelFrame accent={accent} bg={bg} />
@@ -775,15 +838,15 @@ function DataHighlight({
           >
             {kicker}
           </motion.p>
-          <motion.p
+          <motion.div
             initial={{ opacity: 0, y: 28, scale: 0.82 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ ...SPRING, delay: 1.88 }}
             className="relative z-10 my-1 font-display text-[clamp(4.2rem,21vw,8rem)] font-black leading-[0.78] tracking-normal tabular-nums md:text-[9rem]"
             style={{ color: ink }}
           >
-            {fmt(count)}
-          </motion.p>
+            <RollingDigits value={fmt(value)} delay={1.88} />
+          </motion.div>
           <motion.p
             initial={{ opacity: 0, y: 20, scale: 0.94 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -885,10 +948,10 @@ function TopSongReveal({
 }
 
 /* ================================================================== */
-/* SLIDE 4 — SPOTIFY WRAPPED GLOBAL ARTISTS                           */
+/* SLIDE 4 — WRAPSY WRAPPED GLOBAL ARTISTS                           */
 /* ================================================================== */
 
-function SpotifyMark() {
+function WrapsyMark() {
   return (
     <svg viewBox="0 0 64 64" aria-hidden="true" className="h-[7.7cqw] w-[7.7cqw] shrink-0">
       <circle cx="32" cy="32" r="30" fill="currentColor" />
@@ -999,10 +1062,10 @@ function GlobalArtists({ title = "Most Streamed\nArtists Globally", artists }: {
             className="relative z-10 flex items-center justify-between px-[5.2cqw] pt-[5.2cqw] font-display"
           >
             <div className="flex items-center gap-[1.6cqw] text-[#050505]">
-              <SpotifyMark />
-              <span className="text-[5.1cqw] font-black leading-none tracking-normal">Spotify</span>
+              <WrapsyMark />
+              <span className="text-[5.1cqw] font-black leading-none tracking-normal">Wrapsy</span>
             </div>
-            <span className="text-[3.55cqw] font-black uppercase leading-none tracking-normal">#SPOTIFYWRAPPED</span>
+            <span className="text-[3.55cqw] font-black uppercase leading-none tracking-normal">#WRAPSYWRAPPED</span>
           </motion.header>
 
           <motion.main
@@ -1018,7 +1081,7 @@ function GlobalArtists({ title = "Most Streamed\nArtists Globally", artists }: {
               {artists.map((artist, index) => (
                 <li key={artist} className="grid grid-cols-[4.2cqw_1fr] items-baseline gap-[2cqw]">
                   <span>{index + 1}</span>
-                  <span>{artist}</span>
+                  <span className="truncate max-w-[44cqw]">{artist}</span>
                 </li>
               ))}
             </ol>
@@ -1056,7 +1119,7 @@ function FlameStrip() {
   )
 }
 
-function SmallSpotifyLogo() {
+function SmallWrapsyLogo() {
   return (
     <svg viewBox="0 0 42 42" aria-hidden="true" className="size-[7cqw] shrink-0">
       <circle cx="21" cy="21" r="20" fill="currentColor" />
@@ -1127,10 +1190,10 @@ function TopArtistsList({ title = "My Top Artists", artists, photos }: { title?:
             style={{ color: navy }}
           >
             <div className="flex items-center gap-[1.5cqw]">
-              <SmallSpotifyLogo />
-              <span className="text-[4.2cqw]">Spotify</span>
+              <SmallWrapsyLogo />
+              <span className="text-[4.2cqw]">Wrapsy</span>
             </div>
-            <span className="text-[3.15cqw] uppercase">spotify.com/wrapped</span>
+            <span className="text-[3.15cqw] uppercase">wrapsy.com/wrapped</span>
           </motion.footer>
         </div>
       </div>
@@ -1669,7 +1732,7 @@ function DashboardTicket({
                 </svg>
               </div>
               <p className="font-display text-lg font-black uppercase tracking-normal md:text-xl" style={{ color: ink }}>
-                spotify.com/wrapped
+                wrapsy.com/wrapped
               </p>
             </motion.div>
           </motion.div>
@@ -1697,7 +1760,7 @@ const GENRE_CIRCLES: { genre: number; offsetX: string; offsetY: string; color: s
   { genre: 4, offsetX: "3cqmin",   offsetY: "3cqmin",   color: "#202020", size: "9cqmin"  },  // black, below-right of genre 5
 ]
 
-function GenreSpotifyMark() {
+function GenreWrapsyMark() {
   return (
     <svg viewBox="0 0 44 44" aria-hidden="true" className="size-[8cqmin] text-[#202020]">
       <circle cx="22" cy="22" r="20" fill="currentColor" />
@@ -1723,7 +1786,7 @@ function TopGenresSlide({
     <Shell>
       <div className="flex h-full w-full items-center justify-center overflow-hidden bg-[#f2f4e7]">
         <div className="relative h-full min-h-0 w-full overflow-hidden border-x-[clamp(2px,.8cqmin,5px)] border-r-[#83f21c] border-l-[#202020] bg-[#f2f4e7] text-[#202020] [container-type:size]" style={{ perspective: "800px" }}>
-          {/* Header — back arrow, spotify mark, speaker */}
+          {/* Header — back arrow, wrapsy mark, speaker */}
           <motion.header
             initial={{ opacity: 0, y: "-8cqmin" }}
             animate={{ opacity: 1, y: 0 }}
@@ -1733,7 +1796,7 @@ function TopGenresSlide({
             <svg viewBox="0 0 24 24" aria-hidden="true" className="size-[6.5cqmin]" fill="none" stroke="currentColor" strokeWidth="1.8">
               <path d="m15 5-7 7 7 7" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            <GenreSpotifyMark />
+            <GenreWrapsyMark />
             <motion.svg
               viewBox="0 0 24 24"
               aria-hidden="true"
@@ -1762,7 +1825,7 @@ function TopGenresSlide({
           {/* Genre list — large text filling bars */}
           <ol className="absolute inset-x-[6%] top-[21%] bottom-[22%] z-10 flex flex-col justify-evenly">
             {genres.slice(0, 5).map((genre, index) => {
-              // Dynamic font size: short names → huge, long names → smaller (like Spotify Wrapped)
+              // Dynamic font size: short names → huge, long names → smaller (like Wrapsy Wrapped)
               const len = genre.length
               const fontSize = len <= 5 ? 14 : len <= 8 ? 11 : len <= 12 ? 9 : 7
               return (
@@ -1929,7 +1992,13 @@ function FinaleCard({
 
   return (
     <Shell>
-      <Kaleidoscope />
+      {/* moving typography wall */}
+      <div className="pointer-events-none absolute inset-0 flex flex-col justify-between py-6 z-0">
+        <MarqueeRow text={HASHTAG} ink="var(--wr-yellow)" duration={22} />
+        <MarqueeRow text={HASHTAG} ink="var(--wr-yellow)" duration={16} reverse outline />
+        <MarqueeRow text={HASHTAG} ink="var(--wr-yellow)" duration={28} />
+        <MarqueeRow text={HASHTAG} ink="var(--wr-yellow)" duration={19} reverse outline />
+      </div>
       <div className="relative flex h-full w-full flex-col items-center justify-center gap-6 px-6 py-8">
         <motion.div
           initial={{ opacity: 0, y: 50, rotate: 3, scale: 0.85 }}
@@ -1941,13 +2010,13 @@ function FinaleCard({
             <p className="font-display text-xs font-black uppercase tracking-widest" style={{ color: meta.color }}>
               {meta.label}
             </p>
-            <span className="font-display text-2xl font-black text-ink">2025</span>
+            <span className="font-display text-2xl font-black text-ink">2026</span>
           </div>
           <p className="font-display text-4xl font-black uppercase leading-none text-ink">
             {title}
           </p>
           <div className="relative mx-auto my-4 aspect-square w-full max-w-[14rem]">
-            <Burst photo={data.photos[0]?.url} palette={palette} delay={0.2} className="h-full w-full" />
+            <Burst photo={data.photos[0]?.url} palette={palette} delay={0.2} className="h-full w-full" spinningVinyl />
           </div>
           <div className="grid grid-cols-2 gap-2 font-display uppercase">
             <div className="bg-ink p-3">
@@ -2082,8 +2151,8 @@ export function buildPages(data: WrapData, ai: AiWrapContent, generatedImageUrl?
   const finaleTitle = ai.finale?.title || "Your wrapped"
   const finaleMinutesLabel = ai.finale?.minutesLabel || "min lived"
   const finaleTopPercentLabel = ai.finale?.topPercentLabel || "main character"
-  const shareTitle = ai.share?.title || "Share your\nSpotify Wrapped"
-  const shareHashtag = ai.share?.hashtag || "#SpotifyWrapped"
+  const shareTitle = ai.share?.title || "Share your\nWrapsy Wrapped"
+  const shareHashtag = ai.share?.hashtag || "#WrapsyWrapped"
   const globalArtistsTitle = ai.globalArtistsTitle || "Most Streamed\nArtists Globally"
   const topArtistsTitle = ai.dashboard?.topArtistsTitle || "My Top Artists"
   const topGenresTitle = ai.dashboard?.topGenresTitle || "Your Top Genres"
@@ -2187,7 +2256,7 @@ export function buildPages(data: WrapData, ai: AiWrapContent, generatedImageUrl?
         <DashboardTicket
           bg="var(--wr-ink)"
           ink="var(--wr-ink)"
-          year="2025"
+          year="2026"
           photo={photo5}
           topArtists={dashboardArtists}
           topSongs={dashboardSongs}
@@ -2213,7 +2282,7 @@ export function buildPages(data: WrapData, ai: AiWrapContent, generatedImageUrl?
       bg: "#FA5738",
       node: (
         <Wrapped2023Slide
-          year="2025"
+          year="2026"
           title={ai.finale?.tagline || "Your Wrapped is here"}
           subtitle="Ready to reveal the soundtrack of your year?"
         />
@@ -2232,7 +2301,7 @@ export function buildPages(data: WrapData, ai: AiWrapContent, generatedImageUrl?
     },
     {
       key: "s8",
-      bg: "var(--wr-ink)",
+      bg: "var(--wr-purple)",
       node: (
         <FinaleCard
           meta={meta}
@@ -2243,21 +2312,6 @@ export function buildPages(data: WrapData, ai: AiWrapContent, generatedImageUrl?
           title={finaleTitle}
           minutesLabel={finaleMinutesLabel}
           topPercentLabel={finaleTopPercentLabel}
-        />
-      ),
-    },
-    {
-      key: "s3",
-      bg: "var(--wr-purple)",
-      node: (
-        <TopTrack
-          bg="var(--wr-purple)"
-          ink="var(--wr-yellow)"
-          accent="var(--wr-green)"
-          kicker={trackKicker}
-          title={anthem}
-          artist={trackArtistLine}
-          photo={photo4}
         />
       ),
     },

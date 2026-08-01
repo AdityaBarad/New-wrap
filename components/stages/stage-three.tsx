@@ -147,9 +147,8 @@ export function StageThree({
           if (index < pages.length - 1) {
             go(index + 1, 1)
           } else {
-            handleSetPaused(true)
+            go(0, 1)
           }
-          return
         }
       } else {
         start.current = now

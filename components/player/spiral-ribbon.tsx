@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react"
 
 // Constants for the animation
 export const ANIM_DURATION_MS = 2167 // 3x faster (previously 6500)
-const TEXT = "2024" // Configurable text
+const TEXT = "2026" // Configurable text
 
 export function SpiralRibbon({ 
   children,
@@ -215,7 +215,7 @@ export function SpiralRibbon({
         // Only draw if it hasn't fallen off the outer edge
         if (s <= maxS * 1.5) {
           
-          // 1. Draw "2024" curved along the path
+          // 1. Draw "2026" curved along the path
           let currentS = s
           for (let char of TEXT) {
             const charWidth = ctx.measureText(char).width

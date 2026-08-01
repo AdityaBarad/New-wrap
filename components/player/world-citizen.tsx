@@ -208,7 +208,7 @@ export function WorldCitizen({
               <svg viewBox="0 0 24 24" fill="currentColor" className="size-5">
                 <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.5 17.3c-.2.3-.6.4-.9.2-2.5-1.5-5.7-1.9-9.5-1-.3.1-.7-.1-.8-.4-.1-.3.1-.7.4-.8 4.2-1 7.7-.5 10.5 1.2.3.2.4.6.3.8zm1.3-2.9c-.3.4-.8.5-1.2.2-2.9-1.8-7.3-2.4-10.9-1.3-.5.1-1-.2-1.1-.6-.1-.5.2-1 .6-1.1 4.1-1.2 9-1.1 12.3 1 1 .5 1.2 1 .9 1.4zm.1-3c-3.5-2.1-9.2-2.3-12.5-1.3-.6.2-1.2-.2-1.4-.8-.2-.6.2-1.2.8-1.4 3.9-1.1 10.2-.9 14.3 1.6.5.3.7.9.4 1.4-.3.5-.9.7-1.5.4z" />
               </svg>
-              <span className="font-sans text-sm font-bold">Spotify Premium</span>
+              <span className="font-sans text-sm font-bold">Wrapsy Premium</span>
             </div>
           </motion.div>
 
@@ -326,7 +326,7 @@ export function WorldCitizen({
 
         {/* Left side - text content (fades in after globe settles) */}
         <div className="relative z-20 flex h-full w-[40%] flex-col justify-between px-10 py-10 lg:px-14 lg:py-12">
-          {/* Header - Spotify Premium logo */}
+          {/* Header - Wrapsy Premium logo */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={settled ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
@@ -336,7 +336,7 @@ export function WorldCitizen({
             <svg viewBox="0 0 24 24" fill="currentColor" className="size-6">
               <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.5 17.3c-.2.3-.6.4-.9.2-2.5-1.5-5.7-1.9-9.5-1-.3.1-.7-.1-.8-.4-.1-.3.1-.7.4-.8 4.2-1 7.7-.5 10.5 1.2.3.2.4.6.3.8zm1.3-2.9c-.3.4-.8.5-1.2.2-2.9-1.8-7.3-2.4-10.9-1.3-.5.1-1-.2-1.1-.6-.1-.5.2-1 .6-1.1 4.1-1.2 9-1.1 12.3 1 1 .5 1.2 1 .9 1.4zm.1-3c-3.5-2.1-9.2-2.3-12.5-1.3-.6.2-1.2-.2-1.4-.8-.2-.6.2-1.2.8-1.4 3.9-1.1 10.2-.9 14.3 1.6.5.3.7.9.4 1.4-.3.5-.9.7-1.5.4z" />
             </svg>
-            <span className="font-sans text-lg font-bold">Spotify Premium</span>
+            <span className="font-sans text-lg font-bold">Wrapsy Premium</span>
           </motion.div>
 
           {/* Title - World Citizen */}
