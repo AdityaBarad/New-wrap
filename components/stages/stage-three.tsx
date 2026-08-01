@@ -23,10 +23,12 @@ export function StageThree({
   setIsPaused?: (val: boolean | ((prev: boolean) => boolean)) => void
 }) {
   const { data, aiContent, generatedImageUrl } = useWrap()
-  const pages = useMemo(() => (aiContent ? buildPages(data, aiContent, generatedImageUrl) : []), [data, aiContent, generatedImageUrl])
+  const [isIntroZoom, setIsIntroZoom] = useState(false)
+  const [isFadeTransition, setIsFadeTransition] = useState(false)
+  const [isReverseExiting, setIsReverseExiting] = useState(false)
+  const pages = useMemo(() => (aiContent ? buildPages(data, aiContent, generatedImageUrl, isReverseExiting) : []), [data, aiContent, generatedImageUrl, isReverseExiting])
   const [index, setIndex] = useState(0)
   const [dir, setDir] = useState(1)
-  const [isIntroZoom, setIsIntroZoom] = useState(false)
   const [localPaused, setLocalPaused] = useState(false)
   const paused = setIsPaused ? isPaused : localPaused
   const handleSetPaused = setIsPaused || setLocalPaused
@@ -55,6 +57,30 @@ export function StageThree({
         !reducedMotion &&
         ((index === 0 && next === 1) || (index === 1 && next === 0))
       setIsIntroZoom(nextIsIntro)
+
+      const nextIsFade =
+        !reducedMotion &&
+        ((pages[index]?.key === "s5-top-artists" && pages[next]?.key === "s3-artist-stats") ||
+         (pages[index]?.key === "s3-artist-stats" && pages[next]?.key === "s5-top-artists"))
+      setIsFadeTransition(nextIsFade)
+
+      const isForwardReverseExit =
+        d > 0 && pages[index]?.key === "s5-top-artists" && pages[next]?.key === "s3-artist-stats"
+
+      if (!reducedMotion && isForwardReverseExit) {
+        transitionLock.current = true
+        setProgress(1)
+        setIsReverseExiting(true)
+
+        const timer = setTimeout(() => {
+          commitPage(next, d)
+          setIsReverseExiting(false)
+          transitionLock.current = false
+          start.current = performance.now()
+        }, 750)
+        transitionTimers.current.push(timer)
+        return
+      }
 
       const isForwardShutter =
         d > 0 &&
@@ -134,32 +160,38 @@ export function StageThree({
     }
   }, [])
 
-  // autoplay progress
   useEffect(() => {
     start.current = performance.now()
     elapsedBefore.current = 0
+  }, [index])
+
+  useEffect(() => {
+    if (paused) return
+    let animId = 0
+    const duration = pages[index]?.key === "s5-top-artists" ? 9000 : PAGE_MS
     const tick = (now: number) => {
-      if (!paused && !curtainPhase) {
-        const elapsed = elapsedBefore.current + (now - start.current)
-        const p = Math.min(1, elapsed / PAGE_MS)
-        setProgress(p)
-        if (p >= 1) {
-          if (index < pages.length - 1) {
-            go(index + 1, 1)
-          } else {
-            go(0, 1)
-          }
-        }
+      if (!start.current) start.current = now
+      const elapsed = elapsedBefore.current + (now - start.current)
+      const p = Math.min(1, elapsed / duration)
+      setProgress(p)
+      if (p >= 1) {
+        advance()
       } else {
-        start.current = now
+        animId = requestAnimationFrame(tick)
       }
-      raf.current = requestAnimationFrame(tick)
     }
-    raf.current = requestAnimationFrame(tick)
-    return () => {
-      if (raf.current) cancelAnimationFrame(raf.current)
+    animId = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(animId)
+  }, [advance, index, paused, pages])
+
+  const togglePause = useCallback(() => {
+    if (paused) {
+      start.current = performance.now()
+    } else {
+      elapsedBefore.current += performance.now() - start.current
     }
-  }, [index, paused, pages.length, go, curtainPhase])
+    handleSetPaused((prev) => !prev)
+  }, [handleSetPaused, paused])
 
   // keyboard
   useEffect(() => {
@@ -168,19 +200,19 @@ export function StageThree({
       else if (e.key === "ArrowLeft") back()
       else if (e.key === " ") {
         e.preventDefault()
-        handleSetPaused((p) => !p)
+        togglePause()
       }
     }
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
-  }, [advance, back])
+  }, [advance, back, togglePause])
 
   const current = pages[index]
   const isLast = index === pages.length - 1
 
   if (!current) return null
 
-  const customData = { dir, isIntroZoom }
+  const customData = { dir, isIntroZoom, isFadeTransition }
 
   return (
     <div className="fixed inset-0 z-50 h-[100dvh] w-screen overflow-hidden bg-ink select-none">
@@ -216,13 +248,24 @@ export function StageThree({
           key={current.key}
           custom={customData}
           variants={{
-            initial: ({ dir, isIntroZoom }: { dir: number; isIntroZoom: boolean }) => {
+            initial: ({ dir, isIntroZoom, isFadeTransition }: { dir: number; isIntroZoom: boolean; isFadeTransition: boolean }) => {
               if (isIntroZoom) {
                 return {
                   clipPath: dir > 0 ? "circle(0% at 50% 50%)" : "circle(150% at 50% 50%)",
                   zIndex: dir > 0 ? 10 : 1,
                   y: 0,
                   opacity: 1,
+                  filter: "blur(0px)",
+                }
+              }
+              if (isFadeTransition) {
+                return {
+                  clipPath: "circle(150% at 50% 50%)",
+                  zIndex: 10,
+                  y: 0,
+                  opacity: 0,
+                  scale: dir > 0 ? 0.94 : 1.06,
+                  filter: "blur(8px)",
                 }
               }
               return {
@@ -230,25 +273,42 @@ export function StageThree({
                 zIndex: dir > 0 ? 10 : 1,
                 y: dir > 0 ? "100%" : "0%",
                 opacity: 1,
+                filter: "blur(0px)",
               }
             },
-            animate: ({ dir, isIntroZoom }: { dir: number; isIntroZoom: boolean }) => ({
+            animate: ({ dir, isIntroZoom, isFadeTransition }: { dir: number; isIntroZoom: boolean; isFadeTransition: boolean }) => ({
               clipPath: "circle(150% at 50% 50%)",
-              zIndex: dir > 0 ? 10 : 1,
+              zIndex: 10,
               y: "0%",
               opacity: 1,
+              scale: 1,
+              filter: "blur(0px)",
               transition: isIntroZoom
                 ? { duration: dir > 0 ? 3.2 : 1.0, ease: [0.76, 0, 0.24, 1] }
+                : isFadeTransition
+                ? { duration: 0.6, ease: [0.22, 1, 0.36, 1] }
                 : { type: "spring", stiffness: 300, damping: 30, mass: 1 },
             }),
-            exit: ({ dir, isIntroZoom }: { dir: number; isIntroZoom: boolean }) => {
+            exit: ({ dir, isIntroZoom, isFadeTransition }: { dir: number; isIntroZoom: boolean; isFadeTransition: boolean }) => {
               if (isIntroZoom) {
                 return {
                   clipPath: dir > 0 ? "circle(150% at 50% 50%)" : "circle(0% at 50% 50%)",
                   zIndex: dir > 0 ? 1 : 10,
                   y: 0,
                   opacity: dir > 0 ? 0 : 1,
+                  filter: "blur(0px)",
                   transition: { duration: dir > 0 ? 3.2 : 1.0, ease: [0.76, 0, 0.24, 1] },
+                }
+              }
+              if (isFadeTransition) {
+                return {
+                  clipPath: "circle(150% at 50% 50%)",
+                  zIndex: 1,
+                  y: 0,
+                  opacity: 0,
+                  scale: dir > 0 ? 1.06 : 0.94,
+                  filter: "blur(8px)",
+                  transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
                 }
               }
               return {
@@ -256,6 +316,7 @@ export function StageThree({
                 zIndex: dir > 0 ? 1 : 10,
                 y: dir > 0 ? "0%" : "100%",
                 opacity: 1,
+                filter: "blur(0px)",
                 transition: { type: "spring", stiffness: 300, damping: 30, mass: 1 },
               }
             },

@@ -1130,7 +1130,17 @@ function SmallWrapsyLogo() {
   )
 }
 
-function TopArtistsList({ title = "My Top Artists", artists, photos }: { title?: string; artists: string[]; photos: string[] }) {
+function TopArtistsList({
+  title = "My Top Artists",
+  artists,
+  photos,
+  isExiting = false,
+}: {
+  title?: string
+  artists: string[]
+  photos: string[]
+  isExiting?: boolean
+}) {
   const navy = "#20206f"
 
   return (
@@ -1141,7 +1151,7 @@ function TopArtistsList({ title = "My Top Artists", artists, photos }: { title?:
 
           <motion.h2
             initial={{ opacity: 0, y: "4cqw" }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={isExiting ? { opacity: 0, y: "-4cqw", transition: { duration: 0.3, delay: 0.35 } } : { opacity: 1, y: 0 }}
             transition={{ ...SPRING, delay: 0.32 }}
             className="absolute inset-x-4 top-[19.5%] text-center font-display text-[clamp(1.25rem,7.2cqw,2.15rem)] font-black leading-none tracking-tight"
             style={{ color: navy }}
@@ -1153,9 +1163,21 @@ function TopArtistsList({ title = "My Top Artists", artists, photos }: { title?:
             {artists.slice(0, 5).map((artist, index) => (
               <motion.li
                 key={`${artist}-${index}`}
-                initial={{ opacity: 0, x: index % 2 === 0 ? "-13cqw" : "13cqw" }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ type: "spring", stiffness: 125, damping: 17, delay: 0.45 + index * 0.12 }}
+                animate={isExiting ? "exit" : "animate"}
+                variants={{
+                  initial: { opacity: 0, x: index % 2 === 0 ? "-13cqw" : "13cqw" },
+                  animate: {
+                    opacity: 1,
+                    x: 0,
+                    transition: { type: "spring", stiffness: 125, damping: 17, delay: 0.45 + index * 0.12 },
+                  },
+                  exit: {
+                    opacity: 0,
+                    x: index % 2 === 0 ? "-25cqw" : "25cqw",
+                    transition: { duration: 0.25, ease: [0.32, 0, 0.67, 0], delay: (4 - index) * 0.08 },
+                  },
+                }}
+                initial="initial"
                 className="grid h-[18.1cqw] grid-cols-[11cqw_18.1cqw_1fr] items-center gap-[3cqw]"
               >
                 <span className="text-right font-display text-[7.2cqw] font-black leading-none" style={{ color: navy }}>
@@ -1184,7 +1206,7 @@ function TopArtistsList({ title = "My Top Artists", artists, photos }: { title?:
 
           <motion.footer
             initial={{ opacity: 0, y: "4cqw" }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={isExiting ? { opacity: 0, y: "4cqw", transition: { duration: 0.25, delay: 0.1 } } : { opacity: 1, y: 0 }}
             transition={{ ...SPRING, delay: 1.16 }}
             className="absolute inset-x-[7.5%] bottom-[3.6%] flex items-center justify-between font-display font-black"
             style={{ color: navy }}
@@ -2093,7 +2115,12 @@ function bigMetric(data: WrapData, stats: WrapStats, ai: AiWrapContent) {
   return { value: stats.streakDays, label: ai.dataHighlight.label, note: ai.dataHighlight.note }
 }
 
-export function buildPages(data: WrapData, ai: AiWrapContent, generatedImageUrl?: string | null): WrapPage[] {
+export function buildPages(
+  data: WrapData,
+  ai: AiWrapContent,
+  generatedImageUrl?: string | null,
+  isReverseExiting?: boolean
+): WrapPage[] {
   const stats = buildStats(data)
   const purpose = data.purpose ?? "life"
   const photos = data.photos.map((p) => p?.url || "")
@@ -2219,7 +2246,7 @@ export function buildPages(data: WrapData, ai: AiWrapContent, generatedImageUrl?
     {
       key: "s5-top-artists",
       bg: "#95eab1",
-      node: <TopArtistsList title={topArtistsTitle} artists={topArtists} photos={photos} />,
+      node: <TopArtistsList title={topArtistsTitle} artists={topArtists} photos={photos} isExiting={isReverseExiting} />,
     },
     {
       key: "s3-artist-stats",
