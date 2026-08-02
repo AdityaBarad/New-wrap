@@ -89,6 +89,7 @@ type WrapContextValue = {
   aiLoading: boolean
   wrapSlug: string | null
   wrapUrl: string | null
+  draftSessionId: string
   update: (patch: Partial<WrapData>) => void
   setStage: (s: Stage) => void
   submitStage1: () => Promise<boolean>
@@ -135,6 +136,7 @@ export function WrapProvider({
   const [aiLoading, setAiLoading] = useState(false)
   const [wrapSlug, setWrapSlug] = useState<string | null>(initialWrapSlug || null)
   const [wrapUrl, setWrapUrl] = useState<string | null>(initialWrapUrl || null)
+  const [draftSessionId] = useState<string>(() => crypto.randomUUID())
 
   const update = useCallback((patch: Partial<WrapData>) => {
     setData((d) => ({ ...d, ...patch }))
@@ -185,15 +187,32 @@ export function WrapProvider({
   const submitStage1 = useCallback(async (verifiedPhone?: string) => {
     setError(null)
     const phoneToUse = verifiedPhone || data.phone
-    if (!data.name.trim() || !phoneToUse.trim() || !data.purpose) {
-      setError("Drop your name, number, and pick a vibe first.")
+    if (!data.name.trim() || !phoneToUse.trim()) {
+      setError("Drop your name and number first.")
       return false
     }
-    if (verifiedPhone) {
-      update({ phone: verifiedPhone })
+    
+    setLoading(true)
+    try {
+      const res = await fetch("/api/save-lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: data.name, phone: phoneToUse }),
+      })
+      if (!res.ok) throw new Error("Failed to save lead")
+      
+      if (verifiedPhone) {
+        update({ phone: verifiedPhone })
+      }
+      setStage(2)
+      setLoading(false)
+      return true
+    } catch (e) {
+      console.error("[save-lead] error:", e)
+      setError("Failed to save your details. Please try again.")
+      setLoading(false)
+      return false
     }
-    setStage(2)
-    return true
   }, [data, update])
 
   const submitStage2 = useCallback(async () => {
@@ -205,12 +224,31 @@ export function WrapProvider({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ wrapData: data }),
       })
-      if (!res.ok) throw new Error("Failed to save draft")
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}))
+        throw new Error(errData.details ? JSON.stringify(errData.details) : "Failed to save draft")
+      }
       const { slug } = await res.json()
       setWrapSlug(slug)
       update({ slug })
       setStage(3)
       setLoading(false)
+
+      // Track event with new wrap slug
+      import("@/lib/mixpanel").then(({ trackEvent }) => {
+        trackEvent("Memory Deposit Completed", {
+          wrap_slug: slug,
+          draft_session_id: draftSessionId,
+          purpose: data.purpose,
+          promo_code: data.promoCode,
+          whats_this_for: data.whatsThisFor,
+          story_length: data.storyParagraph?.length || 0,
+          photo_count: (data.photos || []).filter(Boolean).length,
+          has_custom_song: !!data.songUrl,
+          destination: data.destinationCity,
+        })
+      })
+
       return true
     } catch (e) {
       console.error("[save-draft] error:", e)
@@ -290,7 +328,13 @@ export function WrapProvider({
           const { slug, url } = await saveRes.json()
           console.log("[save-wrap] Wrap updated!", url)
           
+          import("@/lib/mixpanel").then(({ trackEvent }) => {
+            trackEvent("Wrap Generation Completed", { plan: planName, wrap_slug: slug, draft_session_id: draftSessionId })
+          })
+
           if (planName === "elite") {
+            // Short delay to allow Mixpanel to flush before unloading page
+            await new Promise((resolve) => setTimeout(resolve, 500))
             window.location.href = `/wrap/${slug}`
             return new Promise(() => {}) // Hang the promise forever while redirecting
           } else {
@@ -321,8 +365,8 @@ export function WrapProvider({
   }, [data, generateAiContent])
 
   const value = useMemo<WrapContextValue>(
-    () => ({ stage, data, loading, error, aiContent, generatedImageUrl, aiLoading, wrapSlug, wrapUrl, update, setStage, submitStage1, submitStage2, generateWrap, reset }),
-    [stage, data, loading, error, aiContent, generatedImageUrl, aiLoading, wrapSlug, wrapUrl, update, submitStage1, submitStage2, generateWrap, reset],
+    () => ({ stage, data, loading, error, aiContent, generatedImageUrl, aiLoading, wrapSlug, wrapUrl, draftSessionId, update, setStage, submitStage1, submitStage2, generateWrap, reset }),
+    [stage, data, loading, error, aiContent, generatedImageUrl, aiLoading, wrapSlug, wrapUrl, draftSessionId, update, submitStage1, submitStage2, generateWrap, reset],
   )
 
   return <WrapContext.Provider value={value}>{children}</WrapContext.Provider>

@@ -2,13 +2,13 @@
 
 import { ArrowUpRight, Sparkles } from "lucide-react"
 import { motion } from "@/components/wrapped/motion"
+import { cn } from "@/lib/utils"
 import { Starburst } from "@/components/wrapped/shapes"
 import { Field } from "@/components/wrapped/field"
 import { SinglePhotoDropzone, TxtDropzone } from "@/components/wrapped/dropzone"
 import { SongSelector } from "@/components/wrapped/song-selector"
 import { PURPOSES, useWrap } from "@/context/wrap-context"
 import { AiLoading } from "@/components/stages/ai-loading"
-import { trackEvent, updateProfile } from "@/lib/mixpanel"
 
 export function StageTwo() {
   const { data, update, submitStage2, loading, aiLoading, error } = useWrap()
@@ -55,6 +55,70 @@ export function StageTwo() {
         </div>
 
         <div className="rounded-2xl border-4 border-cream bg-card p-6 shadow-[8px_8px_0_0_var(--wr-purple)] md:p-8">
+          {/* wrap config */}
+          <div className="flex flex-col gap-4 mb-8">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Field
+                label="What's this for?"
+                optional
+                placeholder="a gift, a flex..."
+                value={data.whatsThisFor}
+                onChange={(e) => update({ whatsThisFor: e.target.value })}
+              />
+              <Field
+                label="Promo / Referral"
+                optional
+                placeholder="WRAP2026"
+                value={data.promoCode}
+                onChange={(e) => update({ promoCode: e.target.value })}
+              />
+            </div>
+
+            {/* Purpose pills */}
+            <div>
+              <span className="mb-2 block font-display text-xs font-black uppercase tracking-widest text-foreground/70">
+                Pick your purpose
+              </span>
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {PURPOSES.map((p) => {
+                  const active = data.purpose === p.id
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => update({ purpose: p.id })}
+                      className={cn(
+                        "group relative overflow-hidden rounded-md border-2 px-3 py-2.5 text-left font-display text-xs font-black uppercase leading-tight tracking-wide transition-all",
+                        active
+                          ? "-rotate-1 scale-[1.02] border-ink text-ink"
+                          : "border-foreground/20 text-foreground hover:border-cream",
+                      )}
+                      style={active ? { backgroundColor: p.color } : undefined}
+                    >
+                      {p.label}
+                      <span
+                        className={cn(
+                          "mt-0.5 block font-sans text-[10px] font-semibold normal-case tracking-normal",
+                          active ? "text-ink/70" : "text-foreground/40",
+                        )}
+                      >
+                        {p.tag}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div className="mb-6 flex items-center gap-3">
+            <div className="h-1 flex-1 bg-foreground/10" />
+            <span className="font-display text-xs font-black uppercase tracking-widest" style={{ color: meta.color }}>
+              Details
+            </span>
+            <div className="h-1 flex-1 bg-foreground/10" />
+          </div>
+
           {/* universal */}
           <div className="flex flex-col gap-4">
             <Field
@@ -276,20 +340,6 @@ export function StageTwo() {
           <button
             type="button"
             onClick={() => {
-              // Mixpanel Tracking
-              const photoCount = (data.photos || []).filter(Boolean).length;
-              updateProfile({
-                "Journey Stage": "Memory Deposit Completed",
-                "Story Length": data.storyParagraph?.length || 0,
-                "Photo Count": photoCount,
-              })
-              trackEvent("Memory Deposit Completed", {
-                story_length: data.storyParagraph?.length || 0,
-                photo_count: photoCount,
-                has_custom_song: !!data.songUrl,
-                destination: data.destinationCity,
-              })
-
               submitStage2()
             }}
             disabled={loading}

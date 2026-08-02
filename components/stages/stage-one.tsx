@@ -1,5 +1,7 @@
 "use client"
 
+import { useState } from "react"
+
 import { ArrowUpRight } from "lucide-react"
 import { motion } from "@/components/wrapped/motion"
 import { Starburst, Checker } from "@/components/wrapped/shapes"
@@ -10,7 +12,8 @@ import { PhoneVerifier } from "@/components/auth/phone-verifier"
 import { trackEvent, identifyUser, updateProfile } from "@/lib/mixpanel"
 
 export function StageOne() {
-  const { data, update, submitStage1, loading, error } = useWrap()
+  const { data, update, submitStage1, loading, error, draftSessionId } = useWrap()
+  const [verifierStep, setVerifierStep] = useState<"PHONE" | "CODE">("PHONE")
 
   return (
     <div className="grid min-h-screen w-full grid-cols-1 lg:grid-cols-2">
@@ -72,59 +75,8 @@ export function StageOne() {
                 placeholder="e.g. Alex the Legend"
                 value={data.name}
                 onChange={(e) => update({ name: e.target.value })}
+                disabled={verifierStep === "CODE"}
               />
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <Field
-                  label="What's this for?"
-                  optional
-                  placeholder="a gift, a flex..."
-                  value={data.whatsThisFor}
-                  onChange={(e) => update({ whatsThisFor: e.target.value })}
-                />
-                <Field
-                  label="Promo / Referral"
-                  optional
-                  placeholder="WRAP2026"
-                  value={data.promoCode}
-                  onChange={(e) => update({ promoCode: e.target.value })}
-                />
-              </div>
-
-              {/* Purpose pills */}
-              <div>
-                <span className="mb-2 block font-display text-xs font-black uppercase tracking-widest text-foreground/70">
-                  Pick your purpose
-                </span>
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  {PURPOSES.map((p) => {
-                    const active = data.purpose === p.id
-                    return (
-                      <button
-                        key={p.id}
-                        type="button"
-                        onClick={() => update({ purpose: p.id })}
-                        className={cn(
-                          "group relative overflow-hidden rounded-md border-2 px-3 py-2.5 text-left font-display text-xs font-black uppercase leading-tight tracking-wide transition-all",
-                          active
-                            ? "-rotate-1 scale-[1.02] border-ink text-ink"
-                            : "border-foreground/20 text-foreground hover:border-cream",
-                        )}
-                        style={active ? { backgroundColor: p.color } : undefined}
-                      >
-                        {p.label}
-                        <span
-                          className={cn(
-                            "mt-0.5 block font-sans text-[10px] font-semibold normal-case tracking-normal",
-                            active ? "text-ink/70" : "text-foreground/40",
-                          )}
-                        >
-                          {p.tag}
-                        </span>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
 
               {error && (
                 <p className="rounded-md border-2 border-orange bg-orange/10 px-3 py-2 font-display text-xs font-bold uppercase text-orange">
@@ -132,15 +84,12 @@ export function StageOne() {
                 </p>
               )}
 
-              <div className="mt-4 border-t-2 border-cream/10 pt-6">
-                <span className="mb-4 block text-center font-display text-xs font-black uppercase tracking-widest text-cream">
-                  Verify & Continue
-                </span>
+              <div>
                 <PhoneVerifier 
                   initialPhone={data.phone}
                   buttonText="Start My Mix"
-                  disabled={!data.name.trim() || !data.purpose}
-                  disabledMessage="Drop your name and pick a vibe first."
+                  disabled={!data.name.trim()}
+                  onStepChange={setVerifierStep}
                   onSuccess={(phone) => {
                     update({ phone })
                     
@@ -148,14 +97,10 @@ export function StageOne() {
                     identifyUser(phone)
                     updateProfile({
                       $name: data.name,
-                      Phone: phone,
-                      Purpose: data.purpose,
-                      "Journey Stage": "Lead Form Filled",
+                      $phone: phone,
                     })
                     trackEvent("Lead Form Filled", {
-                      purpose: data.purpose,
-                      promo_code: data.promoCode,
-                      whats_this_for: data.whatsThisFor,
+                      draft_session_id: draftSessionId,
                     })
 
                     submitStage1(phone)

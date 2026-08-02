@@ -19,11 +19,11 @@ export async function POST(req: NextRequest) {
     const supabase = getSupabase()
 
     // 1. Generate a unique slug
-    let slug = generateSlug(wrapData.name || "wrap")
+    let slug = generateSlug(wrapData.userNames || "wrap")
     for (let attempt = 0; attempt < 3; attempt++) {
       const { data: existing } = await supabase.from("wraps").select("slug").eq("slug", slug).maybeSingle()
       if (!existing) break
-      slug = generateSlug(wrapData.name || "wrap")
+      slug = generateSlug(wrapData.userNames || "wrap")
     }
 
     // 2. Ensure user exists in users table (upsert)
@@ -51,12 +51,12 @@ export async function POST(req: NextRequest) {
 
     if (dbError) {
       console.error("[save-draft] DB insert error:", dbError)
-      return NextResponse.json({ error: "Failed to save draft" }, { status: 500 })
+      return NextResponse.json({ error: "Failed to save draft", details: dbError }, { status: 500 })
     }
 
     return NextResponse.json({ slug })
-  } catch (err) {
+  } catch (err: any) {
     console.error("[save-draft] Unexpected error:", err)
-    return NextResponse.json({ error: "Failed to save draft" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to save draft", details: err.message || err }, { status: 500 })
   }
 }

@@ -18,7 +18,7 @@ function MiniWrapsyLogo({ className }: { className?: string }) {
 }
 
 export function StageThreePayment() {
-  const { data, wrapSlug, generateWrap, error } = useWrap()
+  const { data, wrapSlug, generateWrap, error, draftSessionId } = useWrap()
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
   const [paymentError, setPaymentError] = useState<string | null>(null)
   const { Razorpay } = useRazorpay()
@@ -68,31 +68,17 @@ export function StageThreePayment() {
             if (!verifyRes.ok) throw new Error("Payment verification failed")
             
             verificationSuccess = true;
-            updateProfile({
-              "Journey Stage": "Payment Completed",
-              "Purchased Plan": planName,
-            })
             incrementProfile("Total Spent", price)
-            trackEvent("Payment Completed", { plan: planName, price })
+            incrementProfile("Wraps Created", 1)
+            trackEvent("Payment Completed", { plan: planName, price, wrap_slug: wrapSlug, draft_session_id: draftSessionId })
 
             await generateWrap(planName)
 
-            updateProfile({ "Journey Stage": "Wrap Generated Successfully" })
-            trackEvent("Wrap Generation Completed", { plan: planName })
-
           } catch (err: any) {
             if (verificationSuccess) {
-              updateProfile({
-                "Journey Stage": "Wrap Generation Failed",
-                "Generation Error": err.message || "Unknown error",
-              })
-              trackEvent("Wrap Generation Failed", { plan: planName, error_message: err.message })
+              trackEvent("Wrap Generation Failed", { plan: planName, error_message: err.message, wrap_slug: wrapSlug, draft_session_id: draftSessionId })
             } else {
-              updateProfile({
-                "Journey Stage": "Payment Verification Failed",
-                "Last Error": err.message,
-              })
-              trackEvent("Payment Verification Failed", { plan: planName, error_message: err.message })
+              trackEvent("Payment Verification Failed", { plan: planName, error_message: err.message, wrap_slug: wrapSlug, draft_session_id: draftSessionId })
             }
             setPaymentError(err.message || "Payment verification failed")
             setLoadingPlan(null)
@@ -109,11 +95,7 @@ export function StageThreePayment() {
 
       const rzp = new Razorpay(options)
       rzp.on("payment.failed", (response: any) => {
-        updateProfile({
-          "Journey Stage": "Payment Failed",
-          "Last Error": response.error.description,
-        })
-        trackEvent("Payment Failed", { plan: planName, error_message: response.error.description })
+        trackEvent("Payment Failed", { plan: planName, error_message: response.error.description, wrap_slug: wrapSlug, draft_session_id: draftSessionId })
         
         setPaymentError(response.error.description)
         setLoadingPlan(null)

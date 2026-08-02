@@ -12,6 +12,7 @@ type PhoneVerifierProps = {
   buttonText?: string
   disabled?: boolean
   disabledMessage?: string
+  onStepChange?: (step: "PHONE" | "CODE") => void
 }
 
 const COUNTRY_CODES = [
@@ -41,7 +42,8 @@ export function PhoneVerifier({
   initialPhone = "", 
   buttonText = "Send Code",
   disabled = false,
-  disabledMessage = "Please complete the required fields first."
+  disabledMessage = "Please complete the required fields first.",
+  onStepChange
 }: PhoneVerifierProps) {
   const [countryCode, setCountryCode] = useState("+91")
   const [phoneNumber, setPhoneNumber] = useState(initialPhone.replace(/\D/g, ""))
@@ -71,6 +73,10 @@ export function PhoneVerifier({
       }
     }
   }, [])
+
+  useEffect(() => {
+    onStepChange?.(step === "OTP" ? "CODE" : "PHONE")
+  }, [step, onStepChange])
 
   const fullPhone = `${countryCode}${phoneNumber.replace(/\D/g, "")}`
 
@@ -170,23 +176,20 @@ export function PhoneVerifier({
             onSubmit={handleSendCode}
             className="flex flex-col gap-4"
           >
-            <div className="relative flex rounded-full border-2 border-cream/10 bg-cream/5 transition-colors focus-within:border-green focus-within:bg-cream/10">
-              <div className="relative flex items-center border-r-2 border-cream/10">
+            <div className="relative flex w-full rounded-md border-2 border-foreground/20 bg-ink transition-colors focus-within:border-green">
+              <div className="relative flex items-center border-r-2 border-foreground/20">
                 <select
                   value={countryCode}
                   onChange={(e) => setCountryCode(e.target.value)}
                   disabled={loading}
-                  className="h-full appearance-none bg-transparent py-4 pl-5 pr-8 font-sans text-base font-bold text-cream outline-none focus:text-green cursor-pointer"
+                  className="h-full bg-transparent py-3 pl-4 pr-2 font-sans text-base font-bold text-foreground outline-none focus:text-green cursor-pointer"
                 >
                   {COUNTRY_CODES.map((c) => (
-                    <option key={`${c.code}-${c.country}`} value={c.code} className="bg-ink text-cream font-sans">
+                    <option key={`${c.code}-${c.country}`} value={c.code} className="bg-ink text-foreground font-sans">
                       {c.flag} {c.code}
                     </option>
                   ))}
                 </select>
-                <div className="pointer-events-none absolute right-3 flex items-center justify-center">
-                  <span className="text-[10px] text-cream/40">▼</span>
-                </div>
               </div>
               
               <input
@@ -194,17 +197,14 @@ export function PhoneVerifier({
                 placeholder="98765 43210"
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ""))}
-                className="w-full appearance-none bg-transparent py-4 pl-4 pr-6 font-sans text-base font-medium tracking-wide text-cream outline-none placeholder:text-cream/30"
+                className="w-full appearance-none bg-transparent py-3 pl-4 pr-4 font-sans text-base font-medium tracking-wide text-foreground outline-none placeholder:text-foreground/30"
                 disabled={loading}
               />
             </div>
             
-            <p className="text-center font-sans text-[11px] text-cream/40 px-4">
-              Standard message rates apply.
-            </p>
 
             {error && <p className="text-center font-sans text-xs font-bold text-orange">{error}</p>}
-            {disabled && <p className="text-center font-sans text-xs font-bold text-orange/80">{disabledMessage}</p>}
+
 
             <button
               type="submit"
@@ -225,8 +225,8 @@ export function PhoneVerifier({
             className="flex flex-col gap-4"
           >
             <div className="text-center mb-2">
-              <p className="font-sans text-sm text-cream/70">
-                Code sent to <span className="font-bold text-cream">{fullPhone}</span>
+              <p className="font-sans text-sm text-foreground/70">
+                Code sent to <span className="font-bold text-foreground">{fullPhone}</span>
               </p>
               <button 
                 type="button" 
@@ -239,7 +239,7 @@ export function PhoneVerifier({
 
             <div className="relative">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                <ShieldCheck className="size-5 text-cream/40" />
+                <ShieldCheck className="size-5 text-foreground/40" />
               </div>
               <input
                 type="text"
@@ -248,7 +248,7 @@ export function PhoneVerifier({
                 placeholder="6-digit code"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                className="w-full rounded-full border-2 border-cream/10 bg-cream/5 py-4 pl-12 pr-6 font-sans text-center text-lg font-bold tracking-[0.2em] text-cream outline-none transition-colors placeholder:text-cream/30 focus:border-green focus:bg-cream/10"
+                className="w-full rounded-md border-2 border-foreground/20 bg-ink py-3 pl-12 pr-6 font-sans text-center text-lg font-bold tracking-[0.2em] text-foreground outline-none transition-colors placeholder:text-foreground/30 focus:border-green focus:bg-ink"
                 disabled={loading}
               />
             </div>
