@@ -4,9 +4,9 @@ import { motion } from "framer-motion"
 import { useState, useEffect } from "react"
 
 export function Wrapped2023Slide({
-  year = "2023",
+  year = "2026",
   title = "Your Wrapped is here",
-  subtitle = "Ready? Log in to reveal the artists, songs, and podcasts that ruled your listening this year.",
+  subtitle = "Ready to reveal the soundtrack of your year?",
 }: {
   year?: string
   title?: string
@@ -152,6 +152,9 @@ export function Wrapped2023Slide({
           <path
             d="M37 2h1v1h-1Z M38 2h1v1h-1Z M39 2h1v1h-1Z M36 3h1v1h-1Z M37 3h1v1h-1Z M38 3h1v1h-1Z M39 3h1v1h-1Z M35 4h1v1h-1Z M36 4h1v1h-1Z M37 4h1v1h-1Z M38 4h1v1h-1Z M39 4h1v1h-1Z M35 5h1v1h-1Z M39 5h1v1h-1Z M40 5h1v1h-1Z M15 6h1v1h-1Z M16 6h1v1h-1Z M34 6h1v1h-1Z M35 6h1v1h-1Z M39 6h1v1h-1Z M40 6h1v1h-1Z M14 7h1v1h-1Z M15 7h1v1h-1Z M16 7h1v1h-1Z M17 7h1v1h-1Z M18 7h1v1h-1Z M34 7h1v1h-1Z M40 7h1v1h-1Z M14 8h1v1h-1Z M15 8h1v1h-1Z M16 8h1v1h-1Z M17 8h1v1h-1Z M18 8h1v1h-1Z M19 8h1v1h-1Z M34 8h1v1h-1Z M40 8h1v1h-1Z M14 9h1v1h-1Z M15 9h1v1h-1Z M20 9h1v1h-1Z M33 9h1v1h-1Z M40 9h1v1h-1Z M15 10h1v1h-1Z M21 10h1v1h-1Z M33 10h1v1h-1Z M40 10h1v1h-1Z M15 11h1v1h-1Z M22 11h1v1h-1Z M33 11h1v1h-1Z M15 12h1v1h-1Z M23 12h1v1h-1Z M16 13h1v1h-1Z M32 13h1v1h-1Z M39 13h1v1h-1Z M16 14h1v1h-1Z M24 14h1v1h-1Z M32 14h1v1h-1Z M39 14h1v1h-1Z M55 14h1v1h-1Z M56 14h1v1h-1Z M57 14h1v1h-1Z M17 15h1v1h-1Z M25 15h1v1h-1Z M32 15h1v1h-1Z M39 15h1v1h-1Z M52 15h1v1h-1Z M53 15h1v1h-1Z M54 15h1v1h-1Z M55 15h1v1h-1Z M56 15h1v1h-1Z M57 15h1v1h-1Z M58 15h1v1h-1Z M17 16h1v1h-1Z M39 16h1v1h-1Z M50 16h1v1h-1Z M51 16h1v1h-1Z M56 16h1v1h-1Z M57 16h1v1h-1Z M58 16h1v1h-1Z M18 17h1v1h-1Z M26 17h1v1h-1Z M48 17h1v1h-1Z M49 17h1v1h-1Z M56 17h1v1h-1Z M57 17h1v1h-1Z M47 18h1v1h-1Z M56 18h1v1h-1Z M57 18h1v1h-1Z M19 19h1v1h-1Z M38 19h1v1h-1Z M45 19h1v1h-1Z M56 19h1v1h-1Z M20 20h1v1h-1Z M28 20h1v1h-1Z M31 20h1v1h-1Z M44 20h1v1h-1Z M55 20h1v1h-1Z M31 21h1v1h-1Z M42 21h1v1h-1Z M54 21h1v1h-1Z M21 22h1v1h-1Z M29 22h1v1h-1Z M31 22h1v1h-1Z M37 22h1v1h-1Z M41 22h1v1h-1Z M53 22h1v1h-1Z M22 23h1v1h-1Z M31 23h1v1h-1Z M40 23h1v1h-1Z M52 23h1v1h-1Z M5 24h1v1h-1Z M6 24h1v1h-1Z M7 24h1v1h-1Z M8 24h1v1h-1Z M9 24h1v1h-1Z M10 24h1v1h-1Z M23 24h1v1h-1Z M30 24h1v1h-1Z M31 24h1v1h-1Z M39 24h1v1h-1Z M50 24h1v1h-1Z M2 25h1v1h-1Z M3 25h1v1h-1Z M4 25h1v1h-1Z M5 25h1v1h-1Z M6 25h1v1h-1Z M13 25h1v1h-1Z M14 25h1v1h-1Z M15 25h1v1h-1Z M16 25h1v1h-1Z M24 25h1v1h-1Z M30 25h1v1h-1Z M31 25h1v1h-1Z M36 25h1v1h-1Z M49 25h1v1h-1Z M2 26h1v1h-1Z M3 26h1v1h-1Z M4 26h1v1h-1Z M19 26h1v1h-1Z M31 26h1v1h-1Z M36 26h1v1h-1Z M47 26h1v1h-1Z M2 27h1v1h-1Z M3 27h1v1h-1Z M4 27h1v1h-1Z M22 27h1v1h-1Z M31 27h1v1h-1Z M35 27h1v1h-1Z M3 28h1v1h-1Z M4 28h1v1h-1Z M25 28h1v1h-1Z M26 28h1v1h-1Z M44 28h1v1h-1Z M4 29h1v1h-1Z M5 29h1v1h-1Z M6 29h1v1h-1Z M27 29h1v1h-1Z M42 29h1v1h-1Z M6 30h1v1h-1Z M7 30h1v1h-1Z M8 30h1v1h-1Z M39 30h1v1h-1Z M40 30h1v1h-1Z M9 31h1v1h-1Z M10 31h1v1h-1Z M11 31h1v1h-1Z M37 31h1v1h-1Z M38 31h1v1h-1Z M39 31h1v1h-1Z M40 31h1v1h-1Z M41 31h1v1h-1Z M42 31h1v1h-1Z M43 31h1v1h-1Z M44 31h1v1h-1Z M13 32h1v1h-1Z M14 32h1v1h-1Z M15 32h1v1h-1Z M49 32h1v1h-1Z M50 32h1v1h-1Z M51 32h1v1h-1Z M20 33h1v1h-1Z M21 33h1v1h-1Z M22 33h1v1h-1Z M23 33h1v1h-1Z M24 33h1v1h-1Z M25 33h1v1h-1Z M26 33h1v1h-1Z M27 33h1v1h-1Z M53 33h1v1h-1Z M54 33h1v1h-1Z M55 33h1v1h-1Z M24 34h1v1h-1Z M25 34h1v1h-1Z M56 34h1v1h-1Z M57 34h1v1h-1Z M58 34h1v1h-1Z M22 35h1v1h-1Z M37 35h1v1h-1Z M58 35h1v1h-1Z M59 35h1v1h-1Z M60 35h1v1h-1Z M20 36h1v1h-1Z M38 36h1v1h-1Z M39 36h1v1h-1Z M60 36h1v1h-1Z M61 36h1v1h-1Z M29 37h1v1h-1Z M33 37h1v1h-1Z M42 37h1v1h-1Z M60 37h1v1h-1Z M61 37h1v1h-1Z M62 37h1v1h-1Z M17 38h1v1h-1Z M28 38h1v1h-1Z M33 38h1v1h-1Z M45 38h1v1h-1Z M60 38h1v1h-1Z M61 38h1v1h-1Z M62 38h1v1h-1Z M15 39h1v1h-1Z M28 39h1v1h-1Z M33 39h1v1h-1Z M34 39h1v1h-1Z M40 39h1v1h-1Z M48 39h1v1h-1Z M49 39h1v1h-1Z M50 39h1v1h-1Z M51 39h1v1h-1Z M58 39h1v1h-1Z M59 39h1v1h-1Z M60 39h1v1h-1Z M61 39h1v1h-1Z M62 39h1v1h-1Z M14 40h1v1h-1Z M25 40h1v1h-1Z M33 40h1v1h-1Z M34 40h1v1h-1Z M41 40h1v1h-1Z M54 40h1v1h-1Z M55 40h1v1h-1Z M56 40h1v1h-1Z M57 40h1v1h-1Z M58 40h1v1h-1Z M59 40h1v1h-1Z M12 41h1v1h-1Z M24 41h1v1h-1Z M33 41h1v1h-1Z M42 41h1v1h-1Z M11 42h1v1h-1Z M23 42h1v1h-1Z M27 42h1v1h-1Z M33 42h1v1h-1Z M35 42h1v1h-1Z M43 42h1v1h-1Z M10 43h1v1h-1Z M22 43h1v1h-1Z M33 43h1v1h-1Z M9 44h1v1h-1Z M20 44h1v1h-1Z M33 44h1v1h-1Z M36 44h1v1h-1Z M44 44h1v1h-1Z M8 45h1v1h-1Z M19 45h1v1h-1Z M26 45h1v1h-1Z M45 45h1v1h-1Z M7 46h1v1h-1Z M8 46h1v1h-1Z M17 46h1v1h-1Z M7 47h1v1h-1Z M8 47h1v1h-1Z M15 47h1v1h-1Z M16 47h1v1h-1Z M38 47h1v1h-1Z M46 47h1v1h-1Z M6 48h1v1h-1Z M7 48h1v1h-1Z M8 48h1v1h-1Z M13 48h1v1h-1Z M14 48h1v1h-1Z M25 48h1v1h-1Z M47 48h1v1h-1Z M6 49h1v1h-1Z M7 49h1v1h-1Z M8 49h1v1h-1Z M9 49h1v1h-1Z M10 49h1v1h-1Z M11 49h1v1h-1Z M12 49h1v1h-1Z M25 49h1v1h-1Z M32 49h1v1h-1Z M39 49h1v1h-1Z M47 49h1v1h-1Z M7 50h1v1h-1Z M8 50h1v1h-1Z M9 50h1v1h-1Z M25 50h1v1h-1Z M32 50h1v1h-1Z M40 50h1v1h-1Z M48 50h1v1h-1Z M25 51h1v1h-1Z M32 51h1v1h-1Z M48 51h1v1h-1Z M41 52h1v1h-1Z M49 52h1v1h-1Z M31 53h1v1h-1Z M42 53h1v1h-1Z M49 53h1v1h-1Z M24 54h1v1h-1Z M31 54h1v1h-1Z M43 54h1v1h-1Z M49 54h1v1h-1Z M24 55h1v1h-1Z M31 55h1v1h-1Z M44 55h1v1h-1Z M49 55h1v1h-1Z M50 55h1v1h-1Z M24 56h1v1h-1Z M30 56h1v1h-1Z M45 56h1v1h-1Z M46 56h1v1h-1Z M47 56h1v1h-1Z M48 56h1v1h-1Z M49 56h1v1h-1Z M50 56h1v1h-1Z M24 57h1v1h-1Z M30 57h1v1h-1Z M46 57h1v1h-1Z M47 57h1v1h-1Z M48 57h1v1h-1Z M49 57h1v1h-1Z M50 57h1v1h-1Z M24 58h1v1h-1Z M25 58h1v1h-1Z M29 58h1v1h-1Z M30 58h1v1h-1Z M48 58h1v1h-1Z M49 58h1v1h-1Z M24 59h1v1h-1Z M25 59h1v1h-1Z M29 59h1v1h-1Z M25 60h1v1h-1Z M26 60h1v1h-1Z M27 60h1v1h-1Z M28 60h1v1h-1Z M29 60h1v1h-1Z M25 61h1v1h-1Z M26 61h1v1h-1Z M27 61h1v1h-1Z M28 61h1v1h-1Z M25 62h1v1h-1Z M26 62h1v1h-1Z M27 62h1v1h-1Z"
             fill="#39FF14"
+            stroke="#39FF14"
+            strokeWidth="0.5"
+            shapeRendering="crispEdges"
           />
         </svg>
       </motion.div>
@@ -214,9 +217,7 @@ export function Wrapped2023Slide({
       {/* Top Header: Wrapsy Logo */}
       <div className="relative z-30 w-full flex flex-col items-center pt-8 md:pt-12">
         <div className="flex items-center gap-2">
-          <svg className="fill-current" viewBox="0 0 24 24" style={{ color: "#000", width: "clamp(1.5rem, 4vw, 2.5rem)", height: "clamp(1.5rem, 4vw, 2.5rem)" }}>
-            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.48.66.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141 C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.18-1.38-.72-.18-.6.18-1.2.72-1.38 4.26-1.26 11.28-1.02 15.72 1.62.54.3.72 1.02.42 1.56-.3.42-1.02.6-1.56.3z" />
-          </svg>
+          <img src="/logo/logo-transparent.png" alt="Wrapsy" className="object-contain" style={{ width: "clamp(1.5rem, 4vw, 2.5rem)", height: "clamp(1.5rem, 4vw, 2.5rem)" }} />
           <span className="font-display font-black tracking-tight" style={{ color: "#000", fontSize: "clamp(1.2rem, 3vw, 1.6rem)" }}>Wrapsy</span>
         </div>
       </div>
@@ -274,7 +275,7 @@ export function Wrapped2023Slide({
           </p>
         </div>
       </motion.div>
-    </motion.div>
+      </motion.div>
     </motion.div>
   )
 }

@@ -25,6 +25,7 @@ export function StageThree({
   const { data, aiContent, generatedImageUrl } = useWrap()
   const [isIntroZoom, setIsIntroZoom] = useState(false)
   const [isFadeTransition, setIsFadeTransition] = useState(false)
+  const [isInstantTransition, setIsInstantTransition] = useState(false)
   const [isReverseExiting, setIsReverseExiting] = useState(false)
   const pages = useMemo(() => (aiContent ? buildPages(data, aiContent, generatedImageUrl, isReverseExiting) : []), [data, aiContent, generatedImageUrl, isReverseExiting])
   const [index, setIndex] = useState(0)
@@ -63,6 +64,11 @@ export function StageThree({
         ((pages[index]?.key === "s5-top-artists" && pages[next]?.key === "s3-artist-stats") ||
          (pages[index]?.key === "s3-artist-stats" && pages[next]?.key === "s5-top-artists"))
       setIsFadeTransition(nextIsFade)
+
+      const nextIsInstant =
+        !reducedMotion &&
+        ((pages[index]?.key === "s-wrapped-2023" && pages[next]?.key === "s-personality-card"))
+      setIsInstantTransition(nextIsInstant)
 
       const isForwardReverseExit =
         d > 0 && pages[index]?.key === "s5-top-artists" && pages[next]?.key === "s3-artist-stats"
@@ -212,7 +218,7 @@ export function StageThree({
 
   if (!current) return null
 
-  const customData = { dir, isIntroZoom, isFadeTransition }
+  const customData = { dir, isIntroZoom, isFadeTransition, isInstantTransition }
 
   return (
     <div className="fixed inset-0 z-50 h-[100dvh] w-screen overflow-hidden bg-ink select-none">
@@ -248,7 +254,7 @@ export function StageThree({
           key={current.key}
           custom={customData}
           variants={{
-            initial: ({ dir, isIntroZoom, isFadeTransition }: { dir: number; isIntroZoom: boolean; isFadeTransition: boolean }) => {
+            initial: ({ dir, isIntroZoom, isFadeTransition, isInstantTransition }: { dir: number; isIntroZoom: boolean; isFadeTransition: boolean; isInstantTransition: boolean }) => {
               if (isIntroZoom) {
                 return {
                   clipPath: dir > 0 ? "circle(0% at 50% 50%)" : "circle(150% at 50% 50%)",
@@ -268,6 +274,15 @@ export function StageThree({
                   filter: "blur(8px)",
                 }
               }
+              if (isInstantTransition) {
+                return {
+                  clipPath: "circle(150% at 50% 50%)",
+                  zIndex: dir > 0 ? 10 : 1,
+                  y: 0,
+                  opacity: 1,
+                  filter: "blur(0px)",
+                }
+              }
               return {
                 clipPath: "circle(150% at 50% 50%)",
                 zIndex: dir > 0 ? 10 : 1,
@@ -276,7 +291,7 @@ export function StageThree({
                 filter: "blur(0px)",
               }
             },
-            animate: ({ dir, isIntroZoom, isFadeTransition }: { dir: number; isIntroZoom: boolean; isFadeTransition: boolean }) => ({
+            animate: ({ dir, isIntroZoom, isFadeTransition, isInstantTransition }: { dir: number; isIntroZoom: boolean; isFadeTransition: boolean; isInstantTransition: boolean }) => ({
               clipPath: "circle(150% at 50% 50%)",
               zIndex: 10,
               y: "0%",
@@ -287,9 +302,11 @@ export function StageThree({
                 ? { duration: dir > 0 ? 3.2 : 1.0, ease: [0.76, 0, 0.24, 1] }
                 : isFadeTransition
                 ? { duration: 0.6, ease: [0.22, 1, 0.36, 1] }
+                : isInstantTransition
+                ? { duration: 0 }
                 : { type: "spring", stiffness: 300, damping: 30, mass: 1 },
             }),
-            exit: ({ dir, isIntroZoom, isFadeTransition }: { dir: number; isIntroZoom: boolean; isFadeTransition: boolean }) => {
+            exit: ({ dir, isIntroZoom, isFadeTransition, isInstantTransition }: { dir: number; isIntroZoom: boolean; isFadeTransition: boolean; isInstantTransition: boolean }) => {
               if (isIntroZoom) {
                 return {
                   clipPath: dir > 0 ? "circle(150% at 50% 50%)" : "circle(0% at 50% 50%)",
@@ -309,6 +326,16 @@ export function StageThree({
                   scale: dir > 0 ? 1.06 : 0.94,
                   filter: "blur(8px)",
                   transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+                }
+              }
+              if (isInstantTransition) {
+                return {
+                  clipPath: "circle(150% at 50% 50%)",
+                  zIndex: dir > 0 ? 1 : 10,
+                  y: 0,
+                  opacity: 1,
+                  filter: "blur(0px)",
+                  transition: { duration: 0 },
                 }
               }
               return {

@@ -20,8 +20,7 @@ export function Nav() {
       <nav className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-4 py-3 md:px-8 md:py-5">
         <a href="#top" className="flex items-center gap-2">
           <span className="relative flex size-9 items-center justify-center">
-            <Starburst className="absolute inset-0 size-full" color="var(--wr-green)" spikes={14} spin />
-            <span className="relative font-display text-sm font-black text-ink">YL</span>
+            <img src="/logo/logo-transparent.png" alt="Wrapsy Logo" className="w-full h-full object-contain" />
           </span>
           <span className="font-display text-lg font-black uppercase leading-none tracking-tight text-foreground">
             Life<span className="text-green">/</span>Wrapped
