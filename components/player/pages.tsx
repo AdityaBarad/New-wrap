@@ -19,7 +19,7 @@ export type WrapPage = { key: string; bg: string; node: ReactNode }
 
 /* fluid spring physics used across every slide */
 const SPRING = { type: "spring", stiffness: 120, damping: 14 } as const
-const HASHTAG = "#YOURLIFEWRAPPED"
+const HASHTAG = "#YOURSTORYWRAPPED"
 
 /* palette presets keyed by the card background (for the Burst monogram) */
 const PALETTES: Record<string, BurstPalette> = {
@@ -1997,8 +1997,8 @@ function FinaleCard({
 
   async function share() {
     const shareData = {
-      title: "Your Life, Wrapped",
-      text: ai.finale?.tagline ?? `Your year is officially wrapped. Your year. Unhinged.`,
+      title: "Your Story, Wrapped",
+      text: ai.finale?.tagline ?? `Your story is officially wrapped. Your era. Unhinged.`,
       url: typeof window !== "undefined" ? window.location.origin : "",
     }
     try {

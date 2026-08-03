@@ -9,7 +9,7 @@ export function Hero() {
   return (
     <section
       id="top"
-      className="relative flex min-h-screen w-full flex-col justify-center overflow-hidden bg-ink px-4 pb-16 pt-28 md:px-8 md:pt-32"
+      className="relative flex min-h-screen w-full flex-col justify-center overflow-hidden bg-ink px-4 pb-8 pt-24 md:px-8 md:pt-24 lg:pt-20"
     >
       {/* background blooms */}
       <Starburst
@@ -24,7 +24,7 @@ export function Hero() {
         spikes={10}
       />
 
-      <div className="mx-auto grid w-full max-w-[1600px] flex-1 items-center gap-10 lg:grid-cols-[1.15fr_0.85fr]">
+      <div className="mx-auto grid w-full max-w-[1600px] flex-1 items-center gap-6 lg:gap-10 lg:grid-cols-[1.15fr_0.85fr]">
         {/* copy */}
         <div className="relative z-10">
           <motion.span
@@ -36,7 +36,10 @@ export function Hero() {
             ★ 2026 Edition — Now Rolling Out
           </motion.span>
 
-          <h1 className="mt-6 font-display text-[16vw] font-black uppercase leading-[0.82] tracking-tighter text-foreground sm:text-[13vw] lg:text-[8.5rem] xl:text-[10rem]">
+          <h1 
+            className="mt-4 font-display font-black uppercase leading-[0.82] tracking-tighter text-foreground"
+            style={{ fontSize: 'clamp(3.5rem, 12vw, 7.5rem)' }}
+          >
             <motion.span
               className="block"
               initial={{ opacity: 0, x: -120 }}
@@ -51,7 +54,7 @@ export function Hero() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ type: 'spring', stiffness: 320, damping: 20, delay: 0.08 }}
             >
-              Life,
+              Moments,
             </motion.span>
             <motion.span
               className="block italic text-pink"
@@ -67,10 +70,10 @@ export function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.34, type: 'spring', stiffness: 260, damping: 22 }}
-            className="mt-6 max-w-md text-pretty text-base font-medium leading-relaxed text-foreground/70 md:text-lg"
+            className="mt-4 max-w-md text-pretty text-base font-medium leading-relaxed text-foreground/70 md:text-lg"
           >
             Your memories deserve a rollout. We blend your photos, milestones, and
-            unhinged personal stats into a cinematic year-in-review album built to be
+            unhinged personal stats into a cinematic highlight reel built to be
             screenshotted, flexed, and posted at 2AM.
           </motion.p>
 
@@ -79,7 +82,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.44, type: 'spring', stiffness: 260, damping: 22 }}
-            className="mt-8 flex flex-wrap items-center gap-3"
+            className="mt-6 flex flex-wrap items-center gap-3"
           >
             <a
               href="/create"
@@ -105,7 +108,7 @@ export function Hero() {
           initial={{ opacity: 0, y: 80, rotate: 6, scale: 0.8 }}
           animate={{ opacity: 1, y: 0, rotate: 0, scale: 1 }}
           transition={{ type: 'spring', stiffness: 220, damping: 18, delay: 0.2 }}
-          className="relative z-10 mx-auto w-full max-w-sm"
+          className="relative z-10 mx-auto w-full max-w-xs xl:max-w-sm"
         >
           <div className="relative aspect-[3/4] w-full rotate-2 rounded-2xl border-4 border-ink bg-purple p-4 shadow-2xl">
             <Checker className="absolute right-4 top-4 size-10" color="var(--wr-yellow)" />

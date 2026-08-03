@@ -43,7 +43,7 @@ export function Faq() {
           </h2>
           <p className="mt-4 max-w-sm text-pretty text-base font-medium leading-relaxed text-ink/60">
             Everything you want to know before you drop the most unhinged
-            year-in-review on the timeline.
+            recap on the timeline.
           </p>
         </Pop>
 

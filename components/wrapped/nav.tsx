@@ -23,7 +23,7 @@ export function Nav() {
             <img src="/logo/logo-transparent.png" alt="Wrapsy Logo" className="w-full h-full object-contain" />
           </span>
           <span className="font-display text-lg font-black uppercase leading-none tracking-tight text-foreground">
-            Life<span className="text-green">/</span>Wrapped
+            Moments<span className="text-green">/</span>Wrapped
           </span>
         </a>
 
@@ -40,6 +40,12 @@ export function Nav() {
         </div>
 
         <div className="flex items-center gap-2">
+          <a
+            href="/my-wraps"
+            className="hidden rounded-full border-2 border-foreground/20 px-5 py-2 font-display text-sm font-black uppercase tracking-wide text-foreground transition-colors hover:border-green hover:bg-green hover:text-ink sm:block"
+          >
+            My Wraps
+          </a>
           <a
             href="/create"
             className="hidden rounded-full bg-green px-5 py-2.5 font-display text-sm font-black uppercase tracking-wide text-ink transition-transform hover:-rotate-2 hover:scale-105 sm:block"
@@ -72,9 +78,16 @@ export function Nav() {
               </a>
             ))}
             <a
+              href="/my-wraps"
+              onClick={() => setOpen(false)}
+              className="mt-1 rounded-xl border-2 border-foreground/20 px-4 py-3 text-center font-display text-base font-black uppercase tracking-wide text-foreground transition-colors hover:border-green hover:bg-green hover:text-ink"
+            >
+              My Wraps
+            </a>
+            <a
               href="/create"
               onClick={() => setOpen(false)}
-              className="mt-1 rounded-xl bg-green px-4 py-3 text-center font-display text-base font-black uppercase tracking-wide text-ink"
+              className="mt-2 rounded-xl bg-green px-4 py-3 text-center font-display text-base font-black uppercase tracking-wide text-ink"
             >
               Get Wrapped
             </a>

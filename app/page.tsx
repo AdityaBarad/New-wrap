@@ -1,5 +1,6 @@
 import { Nav } from '@/components/wrapped/nav'
 import { Hero } from '@/components/wrapped/hero'
+import { DummyWrapsDemo } from '@/components/wrapped/dummy-wraps-demo'
 import { Marquee } from '@/components/wrapped/marquee'
 import { Features } from '@/components/wrapped/features'
 import { Demos } from '@/components/wrapped/demos'
@@ -13,9 +14,10 @@ export default function Page() {
     <main className="relative w-full overflow-x-hidden bg-ink">
       <Nav />
       <Hero />
+      <DummyWrapsDemo />
 
       <div className="w-full border-y-4 border-ink bg-pink py-3">
-        <Marquee text="#YOURLIFEWRAPPED —" textClassName="text-ink" />
+        <Marquee text="#YOURSTORYWRAPPED —" textClassName="text-ink" />
       </div>
 
       <Features />
@@ -32,7 +34,7 @@ export default function Page() {
       <Demos />
 
       <div className="w-full border-y-4 border-ink bg-green py-3">
-        <Marquee text="YOUR YEAR. UNHINGED. —" textClassName="text-ink" />
+        <Marquee text="YOUR ERA. UNHINGED. —" textClassName="text-ink" />
       </div>
 
       <HowItWorks />

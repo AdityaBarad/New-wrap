@@ -294,7 +294,7 @@ export function StageTwo() {
               </span>
             </label>
             <p className="font-sans text-[11px] font-medium text-foreground/40 leading-relaxed">
-              Write a paragraph about your year — the chaos, the wins, the late nights, the inside jokes. The more detail you share, the more personalized and unhinged your wrap gets.
+              Write a paragraph about your story — the chaos, the wins, the late nights, the inside jokes. The more detail you share, the more personalized and unhinged your wrap gets.
             </p>
             <textarea
               value={data.storyParagraph}
@@ -305,10 +305,10 @@ export function StageTwo() {
                   : purpose === "travel"
                     ? "Tell us about your travels — the best sunset, the worst airport, the food that changed your life, the hostel story you keep retelling, the city that stole your heart..."
                     : purpose === "birthday"
-                      ? "Tell us about your year — the glow up, the chaos, the friendships that hit different, the moment you peaked, the late night that became legendary..."
+                      ? "Tell us about your story — the glow up, the chaos, the friendships that hit different, the moment you peaked, the late night that became legendary..."
                       : purpose === "group"
                         ? "Tell us about your squad — the inside jokes, the group chat drama, the trip that almost ended friendships, the person who always shows up late..."
-                        : "Tell us about your year — the highs, the lows, the unhinged moments, the growth, the people who made it worth it, the main character moments..."
+                        : "Tell us about your story — the highs, the lows, the unhinged moments, the growth, the people who made it worth it, the main character moments..."
               }
               rows={5}
               className="w-full resize-none rounded-lg border-2 border-foreground/20 bg-ink/50 px-4 py-3 font-sans text-sm font-medium text-foreground placeholder:text-foreground/30 transition-all focus:border-cream focus:outline-none focus:ring-2 focus:ring-cream/20"

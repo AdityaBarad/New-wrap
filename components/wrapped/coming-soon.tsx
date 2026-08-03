@@ -55,8 +55,8 @@ export function ComingSoon() {
           transition={{ delay: 0.2, type: 'spring', stiffness: 260, damping: 22 }}
           className="mt-8 max-w-md text-pretty text-base font-medium leading-relaxed text-foreground/70 md:text-lg"
         >
-          We're putting the finishing touches on your personalized year-in-review. 
-          Check back later to generate your unhinged Life/Wrapped album.
+          We're putting the finishing touches on your personalized recap. 
+          Check back later to generate your unhinged Moments/Wrapped album.
         </motion.p>
 
         <motion.div

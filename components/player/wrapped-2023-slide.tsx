@@ -6,7 +6,7 @@ import { useState, useEffect } from "react"
 export function Wrapped2023Slide({
   year = "2026",
   title = "Your Wrapped is here",
-  subtitle = "Ready to reveal the soundtrack of your year?",
+  subtitle = "Ready to reveal the soundtrack of your era?",
 }: {
   year?: string
   title?: string

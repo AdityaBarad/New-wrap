@@ -27,7 +27,7 @@ function buildPrompt(body: Record<string, unknown>): string {
 
   const purposeLabel = purposeLabels[(purpose as string) ?? "life"] ?? "Personal Life Journey"
 
-  return `You are a world-class creative director for a viral "Life Wrapped" experience — think Wrapsy Wrapped but for someone's LIFE. Your job is to write punchy, Gen-Z, unhinged-but-heartfelt, meme-aware copy that makes every slide screenshot-worthy.
+  return `You are a world-class creative director for a viral "Story Wrapped" experience — think Wrapsy Wrapped but for someone's STORY. Your job is to write punchy, Gen-Z, unhinged-but-heartfelt, meme-aware copy that makes every slide screenshot-worthy.
 
 ## USER PROFILE
 - **Purpose**: ${purposeLabel}
@@ -63,7 +63,7 @@ Return ONLY a valid JSON object (no markdown, no backticks, no explanation) with
   },
   "share": {
     "title": "Creative 2-4 word title (e.g. 'Share your unhinged era')",
-    "hashtag": "A personalized hashtag (e.g. '#YourLifeWrapped')"
+    "hashtag": "A personalized hashtag (e.g. '#YourStoryWrapped')"
   },
   "dataHighlight": {
     "kicker": "2-4 word label for the big number slide (e.g. 'Time on the clock', 'The receipts are in')",

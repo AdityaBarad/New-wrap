@@ -6,7 +6,7 @@ const STEPS = [
   {
     n: '01',
     title: 'Dump It All',
-    body: 'Connect your camera roll, notes, and apps. Upload the receipts of your entire year in one messy drop.',
+    body: 'Connect your camera roll, notes, and apps. Upload the receipts of your era in one messy drop.',
     color: 'text-green',
     bg: 'bg-green',
   },

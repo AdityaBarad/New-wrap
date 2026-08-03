@@ -23,14 +23,14 @@ export function Footer() {
       <div className="relative mx-auto max-w-[1600px]">
         <Pop from="up">
           <h2 className="max-w-5xl text-balance font-display text-[13vw] font-black uppercase leading-[0.82] tracking-tighter lg:text-[9rem]">
-            Wrap your year.
+            Wrap your era.
           </h2>
         </Pop>
 
         <div className="mt-8 flex flex-col items-start justify-between gap-8 border-b-4 border-ink pb-14 md:flex-row md:items-end">
           <p className="max-w-md text-pretty text-lg font-medium leading-relaxed text-ink/70">
-            The year is not going to romanticize itself. Build your cinematic
-            year-in-review in minutes — free, instant, and built to break the
+            The moment is not going to romanticize itself. Build your cinematic
+            recap in minutes — free, instant, and built to break the
             timeline.
           </p>
           <motion.a
@@ -73,11 +73,11 @@ export function Footer() {
               <span className="relative font-display text-xs font-black text-green">YL</span>
             </span>
             <span className="font-display text-base font-black uppercase tracking-tight">
-              Life/Wrapped
+              Moments/Wrapped
             </span>
           </div>
           <p className="font-display text-xs font-bold uppercase tracking-widest text-ink/60">
-            © {new Date().getFullYear()} Life/Wrapped — Your Year. Unhinged.
+            © {new Date().getFullYear()} Moments/Wrapped — Your Era. Unhinged.
           </p>
         </div>
       </div>

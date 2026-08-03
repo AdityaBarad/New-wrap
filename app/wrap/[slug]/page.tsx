@@ -48,14 +48,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!wrap) {
     return {
-      title: "Wrap Not Found — Your Life, Wrapped",
+      title: "Wrap Not Found — Your Story, Wrapped",
       description: "This wrap doesn't exist or has been removed.",
     }
   }
 
   const ai = wrap.ai_content as AiWrapContent
-  const title = `${wrap.name}'s Life, Wrapped`
-  const description = ai?.intro?.sub || "Check out this Life Wrapped!"
+  const title = `${wrap.name}'s Story, Wrapped`
+  const description = ai?.intro?.sub || "Check out this Story Wrapped!"
 
   return {
     title,

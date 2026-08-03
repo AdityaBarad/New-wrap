@@ -17,9 +17,9 @@ const spaceGrotesk = Space_Grotesk({
 })
 
 export const metadata: Metadata = {
-  title: 'Your Life, Wrapped — Your Year. Unhinged.',
+  title: 'Your Story, Wrapped — Your Era. Unhinged.',
   description:
-    'Turn your memories, photos, and personal metrics into a cinematic, share-worthy year-in-review album. High-dopamine. Zero chill.',
+    'Turn your memories, photos, and personal metrics into a cinematic, share-worthy highlight reel. High-dopamine. Zero chill.',
   generator: 'v0.app',
 }
 

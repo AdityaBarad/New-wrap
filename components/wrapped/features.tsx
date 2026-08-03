@@ -38,7 +38,7 @@ const FEATURES = [
     span: 'md:col-span-2',
   },
   {
-    title: 'Soundtrack Your Year',
+    title: 'Soundtrack Your Recap',
     body: 'Sync the tracks that scored your milestones.',
     icon: Music4,
     bg: 'bg-orange',
@@ -71,7 +71,7 @@ export function Features() {
           <Pop from="right">
             <p className="max-w-sm text-pretty text-base font-medium leading-relaxed text-foreground/60">
               This is how it looks: a maximalist, spring-loaded album that snaps
-              through your year like a premium streaming recap.
+              through your story like a premium streaming recap.
             </p>
           </Pop>
         </div>

@@ -27,26 +27,22 @@ export function StageOne() {
         />
         <div className="relative z-10 flex items-center gap-2 font-display text-sm font-black uppercase tracking-widest text-ink">
           <span className="rounded-full bg-ink px-3 py-1 text-cream">★ 2026</span>
-          Your Life, Wrapped
+          Your Story, Wrapped
         </div>
 
         <div className="relative z-10 my-10">
           <h1 className="font-display text-[19vw] font-black uppercase leading-[0.8] tracking-tighter text-ink lg:text-[8rem] xl:text-[9.5rem]">
             <span className="block">Make</span>
             <span className="block italic text-cream">your</span>
-            <span className="block">year</span>
+            <span className="block">story</span>
             <span className="block text-pink text-stroke-ink">loud.</span>
           </h1>
           <p className="mt-6 max-w-sm text-pretty font-sans text-base font-semibold leading-relaxed text-ink/80">
-            Two minutes of inputs. One cinematic, screenshot-bait rollout of your entire year. No chill included.
+            Two minutes of inputs. One cinematic, screenshot-bait rollout of your entire story. No chill included.
           </p>
         </div>
 
-        <div className="relative z-10 flex flex-wrap items-center gap-x-6 gap-y-2 font-display text-sm font-black uppercase text-ink/70">
-          <span>4.2M+ wraps</span>
-          <span>190M memories</span>
-          <span>Free · Instant</span>
-        </div>
+
       </section>
 
       {/* RIGHT — onboarding form */}
@@ -64,7 +60,7 @@ export function StageOne() {
         >
           <div className="relative rounded-2xl border-4 border-cream bg-card p-6 shadow-[8px_8px_0_0_var(--wr-purple)] md:p-8">
             <Checker className="absolute right-5 top-5 size-8" color="var(--wr-yellow)" />
-            <p className="font-display text-xs font-black uppercase tracking-widest text-green">Step 01 / Lead Capture</p>
+
             <h2 className="mt-1 font-display text-3xl font-black uppercase leading-none text-foreground md:text-4xl">
               Start your mix
             </h2>
@@ -109,7 +105,7 @@ export function StageOne() {
               </div>
 
               <p className="text-center font-sans text-[11px] font-medium text-foreground/40 mt-4">
-                By continuing you agree to have the best rollout of the year.
+                By continuing you agree to have the best rollout of the era.
               </p>
             </div>
           </div>

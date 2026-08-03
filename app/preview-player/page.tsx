@@ -34,7 +34,7 @@ const mockAi: AiWrapContent = {
   },
   share: {
     title: "Share your unhinged era",
-    hashtag: "#YourLifeWrapped"
+    hashtag: "#YourStoryWrapped"
   },
   dataHighlight: { 
     kicker: "Time on the clock", 
@@ -79,7 +79,7 @@ const mockAi: AiWrapContent = {
   },
   finale: { 
     title: "Your 2026 Era",
-    tagline: "Your year is officially wrapped. Your year. Unhinged.",
+    tagline: "Your story is officially wrapped. Your era. Unhinged.",
     minutesLived: "525,600",
     minutesLabel: "min lived",
     topPercent: "1",

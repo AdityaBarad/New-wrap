@@ -6,7 +6,7 @@ import { Starburst } from './shapes'
 
 const QUOTES = [
   {
-    quote: 'Posted my Wrapped and my group chat has not recovered. This is the flex of the year.',
+    quote: 'Posted my Wrapped and my group chat has not recovered. This is the flex of the era.',
     name: 'Zara O.',
     handle: '@zaraonline',
     bg: 'bg-green',
@@ -22,7 +22,7 @@ const QUOTES = [
     img: '/wrapped-portrait-2.png',
   },
   {
-    quote: 'It made my mundane year feel like a Netflix trailer. 10/10 would relive.',
+    quote: 'It made my mundane life feel like a Netflix trailer. 10/10 would relive.',
     name: 'Priya K.',
     handle: '@priyakay',
     bg: 'bg-yellow',
@@ -38,7 +38,7 @@ const QUOTES = [
     img: null,
   },
   {
-    quote: 'My year in review made me cry then made me laugh. Emotional whiplash. Loved it.',
+    quote: 'My recap in review made me cry then made me laugh. Emotional whiplash. Loved it.',
     name: 'Lena M.',
     handle: '@lenam',
     bg: 'bg-cream',

@@ -141,7 +141,7 @@ export function AiLoading({ accentColor }: { accentColor: string }) {
           animate={{ opacity: 0.5, y: 0 }}
           className="font-display text-xs font-black uppercase tracking-[0.35em] text-cream"
         >
-          Your Life, Wrapped
+          Your Story, Wrapped
         </motion.p>
 
         {/* Main heading */}
