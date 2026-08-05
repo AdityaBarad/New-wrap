@@ -53,162 +53,94 @@ Generate creative, personalized, trendy content for an 8-slide wrapped experienc
 6. Be unique — NEVER generic. If they mentioned a city, reference it. If they mentioned a habit, roast it lovingly.
 7. CRITICAL LENGTH LIMIT: For "globalArtists" list, EACH item MUST be MAXIMUM 15 CHARACTERS (e.g. 'Maggie Mei', 'Momos Mafia'). Keep them short so they fit on screen!
 
-Return ONLY a valid JSON object (no markdown, no backticks, no explanation) with this exact structure:
+Return ONLY a valid JSON object (no markdown, no backticks, no explanation) adhering STRICTLY to the following structure and constraints.
+IMPORTANT: The values you generate MUST be wildly creative, unique, and deeply personalized to the user's story. DO NOT use generic Spotify defaults. Capture the true Spotify Wrapped vibe (punchy, rhythmic, slightly roasting, deeply celebratory).
 
 {
   "intro": {
-    "kicker": "2-3 word punchy intro label (e.g. 'Now Streaming', 'Main Character Alert')",
-    "lines": ["Word1", "Word2", "Word3"],
-    "sub": "1-2 sentence witty subtitle that references their story. Make it personal and cinematic."
+    "kicker": "2-3 word punchy intro label",
+    "lines": ["Exactly", "Three", "Words"],
+    "sub": "1-2 sentence witty subtitle that references their story."
   },
   "share": {
-    "title": "Creative 2-4 word title (e.g. 'Share your unhinged era')",
-    "hashtag": "A personalized hashtag (e.g. '#YourStoryWrapped')"
+    "title": "Creative 2-4 word title",
+    "hashtag": "A personalized camelCase hashtag"
   },
   "dataHighlight": {
-    "kicker": "2-4 word label for the big number slide (e.g. 'Time on the clock', 'The receipts are in')",
-    "label": "What the number represents (e.g. 'Days of chaos', 'Hours in transit')",
-    "note": "A witty 1-2 sentence observation about this number. Reference their story."
+    "kicker": "2-4 word label for a big number slide",
+    "label": "What the number represents",
+    "note": "A witty 1-2 sentence observation about this number."
   },
-  "topTrack": {
-    "kicker": "2-3 word label (e.g. 'Your anthem', 'On repeat')",
-    "title": "A personalized song title that encapsulates their vibe or story (e.g. 'Espresso (But More Anxious)', 'Tokyo Drifting')",
-    "artistLine": "A creative subtitle/artist line for the track card (e.g. 'the soundtrack of your villain arc')"
+  "highlightCard": {
+    "kicker": "2-3 word label",
+    "title": "A personalized title (e.g. for a couple, 'Biggest Fight', for travel 'Best Meal')",
+    "subtitle": "A creative subtitle for this card"
   },
-
-  "globalArtistsTitle": "Creative title for global artists (e.g. 'Your Main Character Influences')",
-  "globalArtists": [
-    "Item 1 (MAX 15 CHARS)",
-    "Item 2 (MAX 15 CHARS)",
-    "Item 3 (MAX 15 CHARS)",
-    "Item 4 (MAX 15 CHARS)",
-    "Item 5 (MAX 15 CHARS)"
+  "topListTitle": "Creative title for a top 5 list (e.g. 'Top Delusions', 'Top Inside Jokes')",
+  "topList": [
+    "Item 1 (MAX 15 CHARACTERS)",
+    "Item 2 (MAX 15 CHARACTERS)",
+    "Item 3 (MAX 15 CHARACTERS)",
+    "Item 4 (MAX 15 CHARACTERS)",
+    "Item 5 (MAX 15 CHARACTERS)"
   ],
-  "artistStats": {
-    "name": "Top artist name or main character persona",
-    "streams": "A funny made-up number (e.g. '420.6')",
-    "hours": "A funny made-up number (e.g. '69.4')",
-    "listeners": "A funny made-up number (e.g. '100')",
-    "countries": "A funny made-up number (e.g. '42')"
+  "statProfile": {
+    "name": "The main subject (e.g. the person's name or the group's name)",
+    "stat1Label": "Creative label for a metric (e.g. 'Tears Shed')",
+    "stat1Value": "A funny exaggerated number",
+    "stat2Label": "Creative label for a metric (e.g. 'Inside Jokes')",
+    "stat2Value": "A funny exaggerated number",
+    "stat3Label": "Creative label for a metric (e.g. 'Late Nights')",
+    "stat3Value": "A tiny or massive number",
+    "stat4Label": "Creative label for a metric (e.g. 'Apologies')",
+    "stat4Value": "A funny number or short text"
   },
-  "worldCitizen": {
-    "title": "Creative title for the globe slide (e.g. 'Mr. Worldwide')",
-    "description1": "1 sentence describing their global footprint (e.g. 'When it comes to your chaos, borders disappear.')",
-    "description2": "1 sentence describing their reach. MUST include '{count}' as a placeholder (e.g. 'Your delusions have traveled to {count} countries.')",
-    "countriesCount": 42,
-    "artists": [
-      { "name": "Artist 1", "country": "Country 1" },
-      { "name": "Artist 2", "country": "Country 2" },
-      { "name": "Artist 3", "country": "Country 3" },
-      { "name": "Artist 4", "country": "Country 4" },
-      { "name": "Artist 5", "country": "Country 5" },
-      { "name": "Artist 6", "country": "Country 6" }
+  "globalFootprint": {
+    "title": "Creative title for a location-based slide (e.g. 'Where You Caused Chaos')",
+    "description1": "1 sentence describing their footprint.",
+    "description2": "1 sentence describing their reach. MUST include '{count}' as a placeholder.",
+    "locationsCount": 42,
+    "locations": [
+      { "name": "Funny Location 1", "location": "City/Country 1" },
+      { "name": "Funny Location 2", "location": "City/Country 2" },
+      { "name": "Funny Location 3", "location": "City/Country 3" },
+      { "name": "Funny Location 4", "location": "City/Country 4" },
+      { "name": "Funny Location 5", "location": "City/Country 5" },
+      { "name": "Funny Location 6", "location": "City/Country 6" }
     ]
   },
-  "dashboard": {
-    "topArtistsTitle": "Creative title for top artists (e.g. 'Your Holy Trinity (Plus Two)')",
-    "topArtists": ["Artist 1", "Artist 2", "Artist 3", "Artist 4", "Artist 5"],
-    "topSongs": ["Song 1 (life moment)", "Song 2", "Song 3", "Song 4", "Song 5"],
-    "topGenresTitle": "Creative title for top genres (e.g. 'Your Chaotic Vibes')",
-    "topGenres": ["Genre 1 (e.g. Chaotic Soft Pop)", "Genre 2", "Genre 3", "Genre 4", "Genre 5"],
-    "minutesListened": "A funny made-up number (e.g. '69,420')"
+  "summaryDashboard": {
+    "list1Title": "Creative title for list 1 (e.g. 'Top Red Flags')",
+    "list1": ["Item 1", "Item 2", "Item 3", "Item 4", "Item 5"],
+    "list2Title": "Creative title for list 2 (e.g. 'Top Iconic Quotes')",
+    "list2": ["Item 1", "Item 2", "Item 3", "Item 4", "Item 5"],
+    "list3Title": "Creative title for list 3 (e.g. 'Top Excuses')",
+    "list3": ["Item 1", "Item 2", "Item 3", "Item 4", "Item 5"],
+    "bottomMetric": "A huge made-up number",
+    "bottomMetricLabel": "Creative label for the bottom metric (e.g. 'Minutes Wasted')"
   },
   "finale": {
-    "title": "Creative title for the final slide (e.g. 'Your 2026 Era')",
-    "tagline": "An epic, emotional 1-sentence farewell line. Make it feel like the end of a movie.",
-    "minutesLived": "A funny huge number (e.g. '525,600')",
-    "minutesLabel": "Creative label for minutes lived (e.g. 'min lived')",
-    "topPercent": "A funny number between 1 and 9 (e.g. '1')",
+    "title": "Creative title for the final slide",
+    "tagline": "An epic, emotional 1-sentence farewell line.",
+    "metricValue": "A funny huge number",
+    "metricLabel": "Creative label for this metric",
+    "topPercent": "A number between 1 and 9",
+    "topPercentLabel": "Creative label for the top percent metric"
   },
   "personalityCard": {
-    "title": "A 1-2 word personality archetype (e.g. 'Mastermind', 'Chaos Demon', 'Vampire')",
+    "title": "A 1-2 word personality archetype",
     "description": "A punchy 1-2 sentence description of why they got this personality.",
     "imagePrompt": "A highly detailed image generation prompt for Stable Diffusion. It MUST specify: 'Wrapsy Wrapped character card style, flat vector illustration, neon glowing colors on dark black background, surreal and mystical.' followed by the specific imagery for the archetype."
   }
 }
 
-Full Response Example- refer this
-
-json
-{
-  "intro": {
-    "kicker": "COUPLE ALERT",
-    "lines": ["SARAH", "&", "MARK"],
-    "sub": "You survived IKEA and moving in together. Truly, a miracle."
-  },
-  "share": {
-    "title": "Share your \ncouple era",
-    "hashtag": "#SarahAndMarkSurvived"
-  },
-  "dataHighlight": {
-    "kicker": "The receipts are in",
-    "label": "Steps walked in Paris",
-    "note": "Because taking the metro is for the weak, apparently. Two hours for a bakery? Worth it."
-  },
-  "topTrack": {
-    "kicker": "Your anthem",
-    "title": "Espresso (But More Caffeinated)",
-    "artistLine": "the soundtrack of your 3 AM reality TV binges"
-  },
-  "globalArtistsTitle": "Your Main Character Influences",
-  "globalArtists": [
-    "The IKEA Instruction Manual",
-    "Your Barista",
-    "The Reality TV Villains",
-    "The Paris Metro Map",
-    "Sabrina Carpenter"
-  ],
-  "artistStats": {
-    "name": "Iced Latte Enthusiasts",
-    "streams": "365",
-    "hours": "700",
-    "listeners": "2",
-    "countries": "1 (But you walked 10 miles in it)"
-  },
-  "worldCitizen": {
-    "title": "Mr & Mrs Worldwide",
-    "description1": "When it comes to walking in circles, borders disappear.",
-    "description2": "Your delusions have traveled to {count} countries.",
-    "countriesCount": 1,
-    "artists": [
-      { "name": "The Lost Bakery", "country": "France" },
-      { "name": "MALM Dresser", "country": "Sweden" },
-      { "name": "Iced Latte", "country": "USA" },
-      { "name": "Reality TV Drama", "country": "UK" },
-      { "name": "Espresso", "country": "Global" },
-      { "name": "Google Maps (Failed)", "country": "Internet" }
-    ]
-  },
-  "dashboard": {
-    "topArtistsTitle": "Your Holy Trinity (Plus Two)",
-    "topArtists": ["Sabrina Carpenter", "The Barista", "IKEA Founder", "Reality TV Host", "Parisian Baker"],
-    "topSongs": ["Espresso", "The Sound of IKEA Allen Keys", "3 AM TV Intro Theme", "Walking in Circles BGM", "Metro Announcements"],
-    "topGenresTitle": "Your Chaotic Vibes",
-    "topGenres": ["Caffeinated Pop", "IKEA Assembly Rage", "Reality TV Trash", "Parisian Lost-core", "Delusional Walking Beats"],
-    "minutesListened": "8,760"
-  },
-  "finale": {
-    "title": "Your 2026 Era",
-    "tagline": "You didn't kill each other assembling furniture. That's true love.",
-    "minutesLived": "525,600",
-    "minutesLabel": "min survived together",
-    "topPercent": "1",
-    "topPercentLabel": "most delusional walkers"
-  },
-  "personalityCard": {
-    "title": "Chaos Demon",
-    "description": "Because anyone who willingly walks 10 miles instead of taking the metro thrives on pure, unadulterated chaos.",
-    "imagePrompt": "Wrapsy Wrapped character card style, flat vector illustration, neon glowing colors on dark black background, surreal and mystical. A mischievous glowing demon walking furiously, neon synthwave lights, highly detailed."
-  }
-}
-
 CRITICAL: 
 - The "lines" array in "intro" MUST have exactly 3 short items (1-2 words each) — they're displayed as giant stacked text.
-- "globalArtists" MUST have exactly 5 items, and EACH ITEM MUST BE A MAXIMUM OF 15 CHARACTERS so text does not overlap background graphics.
-- "worldCitizen.artists" MUST have exactly 6 items.
-- "dashboard.topArtists" MUST have exactly 5 items.
-- "dashboard.topSongs" MUST have exactly 5 items.
-- "dashboard.topGenres" MUST have exactly 5 items.
+- "topList" MUST have exactly 5 items, and EACH ITEM MUST BE A MAXIMUM OF 15 CHARACTERS so text does not overlap background graphics.
+- "globalFootprint.locations" MUST have exactly 6 items.
+- "summaryDashboard.list1" MUST have exactly 5 items.
+- "summaryDashboard.list2" MUST have exactly 5 items.
+- "summaryDashboard.list3" MUST have exactly 5 items.
 - Return ONLY the JSON. No markdown code fences. No explanation.`
 }
 
@@ -339,8 +271,8 @@ export async function POST(req: NextRequest) {
     if (
       !parsed.intro ||
       !parsed.dataHighlight ||
-      !parsed.topTrack ||
-      !parsed.dashboard ||
+      !(parsed.highlightCard || parsed.topTrack) ||
+      !(parsed.summaryDashboard || parsed.dashboard) ||
       !parsed.finale ||
       !parsed.personalityCard
     ) {

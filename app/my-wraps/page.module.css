@@ -191,3 +191,55 @@
   transform: scale(1.05) !important;
   background-color: #1fdf64;
 }
+
+/* ── marquee scrolling ── */
+.marqueeContainer {
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+  padding: 12px 0;
+}
+
+.marqueeTrack {
+  display: flex;
+  width: max-content;
+  gap: 24px;
+}
+
+.marqueeGroup {
+  display: flex;
+  gap: 24px;
+  flex-shrink: 0;
+}
+
+@keyframes scrollLeft {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-50% - 12px));
+  }
+}
+
+@keyframes scrollRight {
+  0% {
+    transform: translateX(calc(-50% - 12px));
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.scrollLeft {
+  animation: scrollLeft 35s linear infinite;
+}
+
+.scrollRight {
+  animation: scrollRight 35s linear infinite;
+}
+
+.marqueeContainer:hover .scrollLeft,
+.marqueeContainer:hover .scrollRight {
+  animation-play-state: paused;
+}
+

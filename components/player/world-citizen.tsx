@@ -8,14 +8,14 @@ import { Shell } from "@/components/player/pages"
 
 const SPRING = { type: "spring", stiffness: 120, damping: 14 } as const
 
-// Sample artists from different countries for the carousel
-const WORLD_ARTISTS = [
-  { name: "Avicii", country: "Sweden", location: [59.33, 18.07] as [number, number] },
-  { name: "BTS", country: "South Korea", location: [37.57, 126.98] as [number, number] },
-  { name: "Shakira", country: "Colombia", location: [4.71, -74.07] as [number, number] },
-  { name: "Adele", country: "United Kingdom", location: [51.51, -0.13] as [number, number] },
-  { name: "Stromae", country: "Belgium", location: [50.85, 4.35] as [number, number] },
-  { name: "Bad Bunny", country: "Puerto Rico", location: [18.47, -66.11] as [number, number] },
+// Sample locations for the carousel
+const WORLD_LOCATIONS = [
+  { name: "Avicii", location: "Sweden", coordinates: [59.33, 18.07] as [number, number] },
+  { name: "BTS", location: "South Korea", coordinates: [37.57, 126.98] as [number, number] },
+  { name: "Shakira", location: "Colombia", coordinates: [4.71, -74.07] as [number, number] },
+  { name: "Adele", location: "United Kingdom", coordinates: [51.51, -0.13] as [number, number] },
+  { name: "Stromae", location: "Belgium", coordinates: [50.85, 4.35] as [number, number] },
+  { name: "Bad Bunny", location: "Puerto Rico", coordinates: [18.47, -66.11] as [number, number] },
 ]
 
 function useCountUp(target: number, duration = 1500) {
@@ -137,7 +137,7 @@ interface WorldCitizenProps {
   description1?: string
   description2?: string
   countriesCount: number
-  artists?: { name: string; country: string }[]
+  locations?: { name: string; location: string }[]
 }
 
 export function WorldCitizen({
@@ -145,12 +145,12 @@ export function WorldCitizen({
   description1 = "When it comes to your music, borders disappear.",
   description2 = "You've listened to artists from {count} countries.",
   countriesCount = 38,
-  artists = WORLD_ARTISTS,
+  locations = WORLD_LOCATIONS,
 }: WorldCitizenProps) {
   // Phase 1 (0-1.8s): globe centered, spinning fast
   // Phase 2 (1.8s+): globe slides to right, text fades in, spin slows down
   const [settled, setSettled] = useState(false)
-  const [artistIndex, setArtistIndex] = useState(0)
+  const [locationIndex, setLocationIndex] = useState(0)
 
   const count = useCountUp(settled ? countriesCount : 0, 2000)
 
@@ -159,15 +159,15 @@ export function WorldCitizen({
     return () => clearTimeout(timer)
   }, [])
 
-  const nextArtist = useCallback(() => {
-    setArtistIndex((prev) => (prev + 1) % artists.length)
-  }, [artists.length])
+  const nextLocation = useCallback(() => {
+    setLocationIndex((prev) => (prev + 1) % locations.length)
+  }, [locations.length])
 
-  const prevArtist = useCallback(() => {
-    setArtistIndex((prev) => (prev - 1 + artists.length) % artists.length)
-  }, [artists.length])
+  const prevLocation = useCallback(() => {
+    setLocationIndex((prev) => (prev - 1 + locations.length) % locations.length)
+  }, [locations.length])
 
-  const currentArtist = artists[artistIndex]
+  const currentLocation = locations[locationIndex]
 
   return (
     <Shell>
@@ -257,19 +257,19 @@ export function WorldCitizen({
           {/* Spacer */}
           <div className="flex-1" />
 
-          {/* Artist carousel at bottom */}
+          {/* Carousel at bottom */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={settled ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ ...SPRING, delay: 0.8 }}
             className="flex items-center justify-between px-5 pb-8"
           >
-            <button onClick={prevArtist} className="text-[#0b0b0b]/50 hover:text-[#0b0b0b]">
+            <button onClick={prevLocation} className="text-[#0b0b0b]/50 hover:text-[#0b0b0b]">
               <ChevronLeft className="size-5" />
             </button>
             <AnimatePresence mode="wait">
               <motion.div
-                key={artistIndex}
+                key={locationIndex}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
@@ -277,14 +277,14 @@ export function WorldCitizen({
                 className="text-right"
               >
                 <p className="font-display text-lg font-black text-[#0b0b0b]">
-                  {currentArtist.name}
+                  {currentLocation.name}
                 </p>
                 <p className="font-sans text-xs font-semibold text-[#0b0b0b]/60">
-                  {currentArtist.country}
+                  {currentLocation.location}
                 </p>
               </motion.div>
             </AnimatePresence>
-            <button onClick={nextArtist} className="text-[#0b0b0b]/50 hover:text-[#0b0b0b]">
+            <button onClick={nextLocation} className="text-[#0b0b0b]/50 hover:text-[#0b0b0b]">
               <ChevronRight className="size-5" />
             </button>
           </motion.div>
@@ -392,7 +392,7 @@ export function WorldCitizen({
           <div />
         </div>
 
-        {/* Bottom bar — artist carousel (desktop, absolute positioned) */}
+        {/* Bottom bar — carousel (desktop, absolute positioned) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={settled ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
@@ -400,14 +400,14 @@ export function WorldCitizen({
           className="absolute bottom-8 right-10 z-20 flex items-center gap-4 lg:right-14"
         >
           <button
-            onClick={prevArtist}
+            onClick={prevLocation}
             className="flex size-8 items-center justify-center rounded-full border border-[#0b0b0b]/20 text-[#0b0b0b]/50 transition-colors hover:border-[#0b0b0b]/50 hover:text-[#0b0b0b]"
           >
             <ChevronLeft className="size-4" />
           </button>
           <AnimatePresence mode="wait">
             <motion.div
-              key={artistIndex}
+              key={locationIndex}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
@@ -415,15 +415,15 @@ export function WorldCitizen({
               className="min-w-[8rem] text-right"
             >
               <p className="font-display text-xl font-black text-[#0b0b0b]">
-                {currentArtist.name}
+                {currentLocation.name}
               </p>
               <p className="font-sans text-sm font-semibold text-[#0b0b0b]/60">
-                {currentArtist.country}
+                {currentLocation.location}
               </p>
             </motion.div>
           </AnimatePresence>
           <button
-            onClick={nextArtist}
+            onClick={nextLocation}
             className="flex size-8 items-center justify-center rounded-full border border-[#0b0b0b]/20 text-[#0b0b0b]/50 transition-colors hover:border-[#0b0b0b]/50 hover:text-[#0b0b0b]"
           >
             <ChevronRight className="size-4" />

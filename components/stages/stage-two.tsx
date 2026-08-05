@@ -5,7 +5,7 @@ import { motion } from "@/components/wrapped/motion"
 import { cn } from "@/lib/utils"
 import { Starburst } from "@/components/wrapped/shapes"
 import { Field } from "@/components/wrapped/field"
-import { SinglePhotoDropzone, TxtDropzone } from "@/components/wrapped/dropzone"
+import { SinglePhotoDropzone } from "@/components/wrapped/dropzone"
 import { SongSelector } from "@/components/wrapped/song-selector"
 import { PURPOSES, useWrap } from "@/context/wrap-context"
 import { AiLoading } from "@/components/stages/ai-loading"
@@ -127,7 +127,6 @@ export function StageTwo() {
               value={data.userNames}
               onChange={(e) => update({ userNames: e.target.value })}
             />
-            <TxtDropzone fileName={data.chatExportName} onChange={(name) => update({ chatExportName: name })} />
           </div>
 
           {/* conditional divider */}

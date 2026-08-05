@@ -86,64 +86,73 @@ const ROW_3 = [
   createWrap("couple", COUPLE_IMGS, "Engagement", "She said yes!"),
 ]
 
-function WrapRow({ title, wraps }: { title: string, wraps: any[] }) {
+function WrapRow({ title, wraps, direction = 'left' }: { title: string, wraps: any[], direction?: 'left' | 'right' }) {
+  const scrollClass = direction === 'left' ? s.scrollLeft : s.scrollRight;
+
+  const renderCards = (isCopy = false) => (
+    <>
+      {wraps.map((wrap) => {
+        const label = PURPOSE_LABELS[wrap.purpose] ?? wrap.purpose.toUpperCase()
+        
+        return (
+          <div 
+            key={`${wrap.slug}${isCopy ? '-copy' : ''}`} 
+            className={`snap-start ${s.card}`} 
+            style={{ width: '220px', minWidth: '220px', flex: '0 0 220px' }}
+            onClick={(e) => e.preventDefault()}
+          >
+            <div 
+              className={s.imageArea} 
+              style={{ 
+                backgroundColor: wrap.color,
+                "--card-bg": wrap.color
+              } as React.CSSProperties}
+            >
+              <div className={s.circlesContainer}>
+                <img src={wrap.photos[1]} alt="" className={`${s.circleImage} ${s.leftCircle}`} />
+                <img src={wrap.photos[2]} alt="" className={`${s.circleImage} ${s.rightCircle}`} />
+                <img src={wrap.photos[0]} alt="" className={`${s.circleImage} ${s.centerCircle}`} />
+              </div>
+              
+              <img src="/logo/black-transparent.png" alt="Logo" className={s.logo} />
+              
+              <span className={s.badge}>
+                {label}
+              </span>
+              
+              <h3 className={s.name}>{wrap.name}</h3>
+
+              <div className={s.playButton}>
+                <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: '24px', height: '24px', color: '#000', marginLeft: '2px' }}>
+                  <path d="M7 6v12l10-6z" />
+                </svg>
+              </div>
+            </div>
+            
+            <p className={s.subtitle}>{wrap.subtitle}</p>
+          </div>
+        )
+      })}
+    </>
+  )
+
   return (
-    <div className="mb-12 last:mb-0">
-      <div className="flex justify-between items-end mb-6">
+    <div className="mb-2 last:mb-0">
+      <div className="flex justify-between items-end" style={{ marginBottom: '12px' }}>
         <h2 className="font-display text-2xl font-black text-white hover:underline cursor-pointer">
           {title}
         </h2>
-        <span className="text-sm font-bold text-[#b3b3b3] hover:underline cursor-pointer hidden sm:block">
-          Show all
-        </span>
       </div>
       
-      <div 
-        className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory items-start [&::-webkit-scrollbar]:hidden" 
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-      >
-        {wraps.map((wrap) => {
-          const label = PURPOSE_LABELS[wrap.purpose] ?? wrap.purpose.toUpperCase()
-          
-          return (
-            <div 
-              key={wrap.slug} 
-              className={`snap-start ${s.card}`} 
-              style={{ width: '220px', minWidth: '220px', flex: '0 0 220px' }}
-              onClick={(e) => e.preventDefault()}
-            >
-              <div 
-                className={s.imageArea} 
-                style={{ 
-                  backgroundColor: wrap.color,
-                  "--card-bg": wrap.color
-                } as React.CSSProperties}
-              >
-                <div className={s.circlesContainer}>
-                  <img src={wrap.photos[1]} alt="" className={`${s.circleImage} ${s.leftCircle}`} />
-                  <img src={wrap.photos[2]} alt="" className={`${s.circleImage} ${s.rightCircle}`} />
-                  <img src={wrap.photos[0]} alt="" className={`${s.circleImage} ${s.centerCircle}`} />
-                </div>
-                
-                <img src="/logo/black-transparent.png" alt="Logo" className={s.logo} />
-                
-                <span className={s.badge}>
-                  {label}
-                </span>
-                
-                <h3 className={s.name}>{wrap.name}</h3>
-
-                <div className={s.playButton}>
-                  <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: '24px', height: '24px', color: '#000', marginLeft: '2px' }}>
-                    <path d="M7 6v12l10-6z" />
-                  </svg>
-                </div>
-              </div>
-              
-              <p className={s.subtitle}>{wrap.subtitle}</p>
-            </div>
-          )
-        })}
+      <div className={s.marqueeContainer}>
+        <div className={`${s.marqueeTrack} ${scrollClass}`}>
+          <div className={s.marqueeGroup}>
+            {renderCards(false)}
+          </div>
+          <div className={s.marqueeGroup}>
+            {renderCards(true)}
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -153,9 +162,9 @@ export function DummyWrapsDemo() {
   return (
     <section className="relative w-full bg-[#121212] px-4 py-16 md:px-8 md:py-24 border-y-4 border-ink">
       <div className="mx-auto max-w-[1600px]">
-        <WrapRow title="Popular wraps" wraps={ROW_1} />
-        <WrapRow title="Trending Now" wraps={ROW_2} />
-        <WrapRow title="Made For You" wraps={ROW_3} />
+        <WrapRow title="Popular wraps" wraps={ROW_1} direction="left" />
+        <WrapRow title="Trending Now" wraps={ROW_2} direction="right" />
+        <WrapRow title="Made For You" wraps={ROW_3} direction="left" />
       </div>
     </section>
   )

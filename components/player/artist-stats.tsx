@@ -28,19 +28,27 @@ function useCountUp(target: number, duration = 1500) {
 interface ArtistStatsCardProps {
   artistName: string
   photoUrl: string
-  streams: string
-  hours: string
-  listeners: string
-  countries: string
+  stat1Label: string
+  stat1Value: string
+  stat2Label: string
+  stat2Value: string
+  stat3Label: string
+  stat3Value: string
+  stat4Label: string
+  stat4Value: string
 }
 
 export function ArtistStatsCard({
   artistName,
   photoUrl,
-  streams,
-  hours,
-  listeners,
-  countries
+  stat1Label,
+  stat1Value,
+  stat2Label,
+  stat2Value,
+  stat3Label,
+  stat3Value,
+  stat4Label,
+  stat4Value
 }: ArtistStatsCardProps) {
   // Cascading image effect constants
   const NUM_IMAGES = 6
@@ -124,10 +132,10 @@ export function ArtistStatsCard({
 
           <div className="grid grid-cols-4 gap-2">
             {[
-              { label: "STREAMS", value: streams, delay: 1.4 },
-              { label: "HOURS", value: hours, delay: 1.5 },
-              { label: "LISTENERS", value: listeners, delay: 1.6 },
-              { label: "COUNTRIES", value: countries, delay: 1.7 },
+              { label: stat1Label, value: stat1Value, delay: 1.4 },
+              { label: stat2Label, value: stat2Value, delay: 1.5 },
+              { label: stat3Label, value: stat3Value, delay: 1.6 },
+              { label: stat4Label, value: stat4Value, delay: 1.7 },
             ].map((stat, i) => (
               <motion.div 
                 key={i}

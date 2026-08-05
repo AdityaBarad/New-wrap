@@ -18,40 +18,46 @@ export type AiWrapContent = {
     label: string
     note: string
   }
-  topTrack: {
+  highlightCard: {
     kicker: string
     title: string
-    artistLine: string
+    subtitle: string
   }
-  globalArtistsTitle: string
-  globalArtists: string[]
-  artistStats: {
+  topListTitle: string
+  topList: string[]
+  statProfile: {
     name: string
-    streams: string
-    hours: string
-    listeners: string
-    countries: string
+    stat1Label: string
+    stat1Value: string
+    stat2Label: string
+    stat2Value: string
+    stat3Label: string
+    stat3Value: string
+    stat4Label: string
+    stat4Value: string
   }
-  worldCitizen: {
+  globalFootprint: {
     title: string
     description1: string
     description2: string
-    countriesCount: number
-    artists: { name: string; country: string }[]
+    locationsCount: number
+    locations: { name: string; location: string }[]
   }
-  dashboard: {
-    topArtistsTitle: string
-    topArtists: string[]
-    topSongs: string[]
-    topGenresTitle: string
-    topGenres: string[]
-    minutesListened: string
+  summaryDashboard: {
+    list1Title: string
+    list1: string[]
+    list2Title: string
+    list2: string[]
+    list3Title: string
+    list3: string[]
+    bottomMetric: string
+    bottomMetricLabel: string
   }
   finale: {
     title: string
     tagline: string
-    minutesLived: string
-    minutesLabel: string
+    metricValue: string
+    metricLabel: string
     topPercent: string
     topPercentLabel: string
   }

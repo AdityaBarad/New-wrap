@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useState } from "react"
-import { Upload, X, FileText } from "lucide-react"
+import { Upload, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { LocalPhoto } from "@/context/wrap-context"
 
@@ -90,60 +90,6 @@ export function PhotoDropzone({
           ))}
         </div>
       )}
-    </div>
-  )
-}
-
-export function TxtDropzone({
-  fileName,
-  onChange,
-}: {
-  fileName: string
-  onChange: (name: string) => void
-}) {
-  const inputRef = useRef<HTMLInputElement>(null)
-  const [drag, setDrag] = useState(false)
-
-  function handle(files: FileList | null) {
-    const f = files?.[0]
-    if (f) onChange(f.name)
-  }
-
-  return (
-    <div>
-      <span className="mb-1.5 flex items-baseline justify-between font-display text-xs font-black uppercase tracking-widest text-foreground/70">
-        WhatsApp Chat Export
-        <span className="text-[10px] text-foreground/40">.txt</span>
-      </span>
-      <button
-        type="button"
-        onClick={() => inputRef.current?.click()}
-        onDragOver={(e) => {
-          e.preventDefault()
-          setDrag(true)
-        }}
-        onDragLeave={() => setDrag(false)}
-        onDrop={(e) => {
-          e.preventDefault()
-          setDrag(false)
-          handle(e.dataTransfer.files)
-        }}
-        className={cn(
-          "flex w-full items-center gap-3 rounded-md border-2 border-dashed px-4 py-4 text-left transition-colors",
-          drag ? "border-pink bg-pink/10" : fileName ? "border-green" : "border-foreground/25 hover:border-cream",
-        )}
-      >
-        <FileText className={cn("size-6", fileName ? "text-green" : "text-pink")} />
-        <span className="min-w-0 flex-1">
-          <span className="block truncate font-display text-sm font-black uppercase text-foreground">
-            {fileName || "Drop your chat .txt"}
-          </span>
-          <span className="block font-sans text-xs text-foreground/40">
-            {fileName ? "Locked and loaded" : "Export from WhatsApp → attach here"}
-          </span>
-        </span>
-      </button>
-      <input ref={inputRef} type="file" accept=".txt,text/plain" hidden onChange={(e) => handle(e.target.files)} />
     </div>
   )
 }

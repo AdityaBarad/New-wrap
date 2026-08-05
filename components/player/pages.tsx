@@ -510,40 +510,39 @@ function PixelStair({
   return (
     <div
       aria-hidden="true"
-      className={`pointer-events-none absolute ${isTop ? "top-0" : "bottom-0"} ${
-        isRight ? "right-0 items-end" : "left-0 items-start"
-      } z-0 flex flex-col w-[50vw] overflow-hidden`} 
+      className={`pointer-events-none absolute ${isTop ? "top-0" : "bottom-0"} ${isRight ? "right-0 items-end" : "left-0 items-start"
+        } z-0 flex flex-col w-[50vw] overflow-hidden`}
     >
       {rows.map((width, i) => {
         const shutterDelay = isClosing ? i * 0.07 : (rows.length - 1 - i) * 0.05
         const shutterDuration = isClosing ? 2.6 - shutterDelay : 2.8 - shutterDelay
 
         return (
-        <motion.div
-          key={`${corner}-${i}`}
-          initial={
-            isShutter
-              ? {
+          <motion.div
+            key={`${corner}-${i}`}
+            initial={
+              isShutter
+                ? {
                   opacity: 1,
                   x: isClosing ? (slideInCorners ? (isRight ? "100%" : "-100%") : 0) : 0,
                   y: 0,
                   width: isClosing ? (slideInCorners ? 0 : width) : width,
                   height: PIXEL_ROW_HEIGHT,
                 }
-              : { opacity: 0, x: enterX, y: enterY }
-          }
-          animate={{
-            opacity: 1,
-            x: isShutter && !isClosing && slideInCorners ? (isRight ? "100%" : "-100%") : 0,
-            y: 0,
-            width: isShutter 
-              ? (isClosing ? `${isTop ? 42 + i * 4.8 : 61.2 - i * 4.8}vw` : (slideInCorners ? 0 : width))
-              : width,
-            height: PIXEL_ROW_HEIGHT,
-          }}
-          transition={
-            isShutter
-              ? {
+                : { opacity: 0, x: enterX, y: enterY }
+            }
+            animate={{
+              opacity: 1,
+              x: isShutter && !isClosing && slideInCorners ? (isRight ? "100%" : "-100%") : 0,
+              y: 0,
+              width: isShutter
+                ? (isClosing ? `${isTop ? 42 + i * 4.8 : 61.2 - i * 4.8}vw` : (slideInCorners ? 0 : width))
+                : width,
+              height: PIXEL_ROW_HEIGHT,
+            }}
+            transition={
+              isShutter
+                ? {
                   x: {
                     duration: shutterDuration,
                     delay: shutterDelay,
@@ -555,65 +554,65 @@ function PixelStair({
                     ease: [0.76, 0, 0.24, 1],
                   },
                 }
-              : {
+                : {
                   opacity: { ...SPRING, delay: delay + i * 0.08 },
                   x: { ...SPRING, delay: delay + i * 0.08 },
                   y: { ...SPRING, delay: delay + i * 0.08 },
                 }
-          }
-          className={`relative overflow-hidden flex ${columnDirection}`}
-          style={{
-            width,
-            height: PIXEL_ROW_HEIGHT,
-          }}
-        >
-          <motion.div
-            className="h-full w-[60%] shrink-0"
-            animate={{ filter: ["saturate(1)", "saturate(1.18)", "saturate(1)"] }}
-            transition={{
-              duration: 5.5,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "linear",
-              delay: delay + i * 0.08,
-            }}
+            }
+            className={`relative overflow-hidden flex ${columnDirection}`}
             style={{
-              backgroundImage: outerColumn,
+              width,
+              height: PIXEL_ROW_HEIGHT,
             }}
-          />
-          <motion.div
-            className="h-full flex-1"
-            animate={{ filter: ["saturate(1.08)", "saturate(1)", "saturate(1.08)"] }}
-            transition={{
-              duration: 6.2,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "linear",
-              delay: delay + i * 0.08,
-            }}
-            style={{
-              backgroundImage: innerColumn,
-            }}
-          />
-          {/* 2024 Wrapped Style Glare/Sheen Overlay */}
-          <motion.div
-            className="absolute inset-0 pointer-events-none mix-blend-overlay z-[2]"
-            style={{
-              backgroundImage: "linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.7) 50%, transparent 65%)",
-              backgroundSize: "250% 100%",
-            }}
-            animate={{
-              backgroundPosition: ["200% 0", "-150% 0"],
-            }}
-            transition={{
-              duration: 2.8,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "easeInOut",
-              delay: delay + i * 0.12,
-              repeatDelay: 2,
-            }}
-          />
-        </motion.div>
-      )
-    })}
+          >
+            <motion.div
+              className="h-full w-[60%] shrink-0"
+              animate={{ filter: ["saturate(1)", "saturate(1.18)", "saturate(1)"] }}
+              transition={{
+                duration: 5.5,
+                repeat: Number.POSITIVE_INFINITY,
+                ease: "linear",
+                delay: delay + i * 0.08,
+              }}
+              style={{
+                backgroundImage: outerColumn,
+              }}
+            />
+            <motion.div
+              className="h-full flex-1"
+              animate={{ filter: ["saturate(1.08)", "saturate(1)", "saturate(1.08)"] }}
+              transition={{
+                duration: 6.2,
+                repeat: Number.POSITIVE_INFINITY,
+                ease: "linear",
+                delay: delay + i * 0.08,
+              }}
+              style={{
+                backgroundImage: innerColumn,
+              }}
+            />
+            {/* 2024 Wrapped Style Glare/Sheen Overlay */}
+            <motion.div
+              className="absolute inset-0 pointer-events-none mix-blend-overlay z-[2]"
+              style={{
+                backgroundImage: "linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.7) 50%, transparent 65%)",
+                backgroundSize: "250% 100%",
+              }}
+              animate={{
+                backgroundPosition: ["200% 0", "-150% 0"],
+              }}
+              transition={{
+                duration: 2.8,
+                repeat: Number.POSITIVE_INFINITY,
+                ease: "easeInOut",
+                delay: delay + i * 0.12,
+                repeatDelay: 2,
+              }}
+            />
+          </motion.div>
+        )
+      })}
     </div>
   )
 }
@@ -638,9 +637,9 @@ function CenterClosingStrips({ phase }: { phase: "closing" | "opening" }) {
           <div
             key={count}
             className={`absolute inset-x-0 flex flex-col overflow-hidden ${className}`}
-            style={{ 
-              top: `calc(5 * ${PIXEL_ROW_HEIGHT})`, 
-              bottom: `calc(5 * ${PIXEL_ROW_HEIGHT})` 
+            style={{
+              top: `calc(5 * ${PIXEL_ROW_HEIGHT})`,
+              bottom: `calc(5 * ${PIXEL_ROW_HEIGHT})`
             }}
           >
             {rows.map((_, i) => {
@@ -698,11 +697,11 @@ function CenterClosingStrips({ phase }: { phase: "closing" | "opening" }) {
   )
 }
 
-export function PixelTransitionShutter({ 
-  phase, 
+export function PixelTransitionShutter({
+  phase,
   outward = false,
   slideInCorners = true,
-}: { 
+}: {
   phase: "closing" | "opening"
   outward?: boolean
   slideInCorners?: boolean
@@ -881,14 +880,14 @@ function DataHighlight({
 
 function TopSongReveal({
   photo,
+  kicker,
   title,
-  artist,
-  topPercent,
+  subtitle,
 }: {
   photo?: string
+  kicker: string
   title: string
-  artist: string
-  topPercent: number
+  subtitle: string
 }) {
   const ink = "var(--wr-ink)"
 
@@ -925,19 +924,9 @@ function TopSongReveal({
           className="mt-6 max-w-[34rem] font-display text-[clamp(1.15rem,4.4vw,2.25rem)] font-black leading-[1.02] tracking-tight text-balance"
           style={{ color: ink }}
         >
-          Your top song was {title}
-          <span className="block">by {artist}</span>
+          {kicker} <br /> {title}
+          <span className="block mt-2 opacity-80 text-[clamp(1rem,3vw,1.5rem)]">{subtitle}</span>
         </motion.h2>
-
-        <motion.p
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 0.82, y: 0 }}
-          transition={{ ...SPRING, delay: 1.92 }}
-          className="mt-5 max-w-[21rem] font-sans text-[clamp(0.72rem,2.6vw,0.95rem)] font-semibold leading-snug"
-          style={{ color: ink }}
-        >
-          You were in the top {topPercent}% of listeners globally.
-        </motion.p>
 
         <div className="absolute bottom-7 left-1/2 -translate-x-1/2 md:bottom-9">
           <WrapFooter ink={ink} hashtag={HASHTAG} />
@@ -1041,7 +1030,7 @@ function WrappedSparkleRibbon() {
   )
 }
 
-function GlobalArtists({ title = "Most Streamed\nArtists Globally", artists }: { title?: string; artists: string[] }) {
+function GlobalArtists({ title = "Most Streamed\nArtists Globally", items }: { title?: string; items: string[] }) {
   return (
     <Shell>
       <div className="flex h-full w-full items-center justify-center overflow-hidden bg-[#f8cdd6] text-[#050505]">
@@ -1078,10 +1067,10 @@ function GlobalArtists({ title = "Most Streamed\nArtists Globally", artists }: {
               {title.split('\n').map((line, i) => <span key={i} className="block">{line}</span>)}
             </h2>
             <ol className="mt-[4.2cqw] grid gap-[.3cqw] text-[4.05cqw] font-black leading-[1.08] tracking-normal">
-              {artists.map((artist, index) => (
-                <li key={artist} className="grid grid-cols-[4.2cqw_1fr] items-baseline gap-[2cqw]">
+              {items.map((item, index) => (
+                <li key={item} className="grid grid-cols-[4.2cqw_1fr] items-baseline gap-[2cqw]">
                   <span>{index + 1}</span>
-                  <span className="truncate max-w-[44cqw]">{artist}</span>
+                  <span className="truncate max-w-[44cqw]">{item}</span>
                 </li>
               ))}
             </ol>
@@ -1132,12 +1121,12 @@ function SmallWrapsyLogo() {
 
 function TopArtistsList({
   title = "My Top Artists",
-  artists,
+  items,
   photos,
   isExiting = false,
 }: {
   title?: string
-  artists: string[]
+  items: string[]
   photos: string[]
   isExiting?: boolean
 }) {
@@ -1160,9 +1149,9 @@ function TopArtistsList({
           </motion.h2>
 
           <ol className="absolute inset-x-[8.5%] top-[28.5%] flex flex-col gap-[1.35cqw]">
-            {artists.slice(0, 5).map((artist, index) => (
+            {items.slice(0, 5).map((item, index) => (
               <motion.li
-                key={`${artist}-${index}`}
+                key={`${item}-${index}`}
                 animate={isExiting ? "exit" : "animate"}
                 variants={{
                   initial: { opacity: 0, x: index % 2 === 0 ? "-13cqw" : "13cqw" },
@@ -1192,13 +1181,13 @@ function TopArtistsList({
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={photos[index] || `/wrapped-portrait-${(index % 3) + 1}.png`}
-                    alt={artist}
+                    alt={item}
                     className="h-full w-full object-cover"
                     crossOrigin="anonymous"
                   />
                 </motion.div>
                 <span className="min-w-0 overflow-hidden text-ellipsis font-display text-[clamp(0.72rem,4.15cqw,1.25rem)] font-black leading-[1.05] tracking-tight" style={{ color: "#07070d" }}>
-                  {artist}
+                  {item}
                 </span>
               </motion.li>
             ))}
@@ -1618,20 +1607,29 @@ function VersusBoard({
 function DashboardTicket({
   bg,
   ink,
+  year,
   photo,
-  topArtists,
-  topSongs,
-  minutesListened,
-  topGenre,
+  list1Title,
+  list1,
+  list2Title,
+  list2,
+  bottomMetricLabel,
+  bottomMetric,
+  list3Title,
+  list3,
 }: {
   bg: string
   ink: string
   year: string
   photo?: string
-  topArtists: string[]
-  topSongs: string[]
-  minutesListened: string
-  topGenre: string[]
+  list1Title: string
+  list1: string[]
+  list2Title: string
+  list2: string[]
+  bottomMetricLabel: string
+  bottomMetric: string
+  list3Title: string
+  list3: string[]
 }) {
   const cardRef = useRef<HTMLDivElement>(null)
   const inView = useInView(cardRef, { once: true })
@@ -1639,9 +1637,8 @@ function DashboardTicket({
   const cream = "var(--wr-cream)"
 
   const rankedLine = (item: string, i: number) => (
-    <p key={`${item}-${i}`} className="flex min-w-0 items-baseline gap-2 font-display leading-[1.05]" style={{ color: ink }}>
-      <span className="w-4 shrink-0 text-right text-lg font-black md:text-xl">{i + 1}</span>
-      <span className="min-w-0 truncate text-lg font-black md:text-xl">{item}</span>
+    <p key={`${item}-${i}`} className="min-w-0 truncate font-sans text-[16px] font-bold leading-[1.3] tracking-tight" style={{ color: ink }}>
+      {i + 1} {item}
     </p>
   )
 
@@ -1665,8 +1662,8 @@ function DashboardTicket({
           style={{ backgroundColor: cream }}
           className="relative w-full max-w-sm overflow-hidden shadow-2xl"
         >
-          <div className="absolute -left-10 -top-7 z-20 select-none overflow-hidden font-display text-[9.5rem] font-black uppercase leading-[0.78] md:text-[10.5rem]" style={{ color: red }}>
-            <span className="block [writing-mode:vertical-rl]">wrap</span>
+          <div className="absolute -left-8 top-0 z-20 h-[21.5rem] select-none overflow-hidden font-display text-[9rem] font-black italic leading-[0.82] tracking-tighter md:h-[22.5rem] md:text-[10rem]" style={{ color: red }}>
+            <span className="block [writing-mode:vertical-rl]">{year}</span>
           </div>
 
           <div className="relative h-[21.5rem] overflow-hidden md:h-[22.5rem]">
@@ -1681,7 +1678,10 @@ function DashboardTicket({
               animate={{ scale: [0.88, 1.24], opacity: [1, 1, 0.88] }}
               transition={{ duration: 5.4, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
             />
-            <div className="absolute left-1/2 top-9 z-30 aspect-square w-[72%] max-w-[18.5rem] -translate-x-1/2 overflow-hidden shadow-[0_8px_0_rgba(0,0,0,0.04)]">
+            <div 
+              className="absolute left-1/2 top-9 z-30 aspect-square w-[72%] max-w-[18.5rem] -translate-x-1/2 overflow-hidden shadow-[0_8px_0_rgba(0,0,0,0.04)] border-[3px]"
+              style={{ borderColor: ink }}
+            >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={photo || "/wrapped-portrait-1.png"}
@@ -1700,42 +1700,42 @@ function DashboardTicket({
           >
             <motion.div
               variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: SPRING } }}
-              className="grid grid-cols-2 gap-5"
+              className="grid grid-cols-2 gap-4"
             >
               <div className="min-w-0">
-                <p className="mb-3 font-display text-sm font-black leading-none" style={{ color: ink }}>
-                  Top Artists
+                <p className="mb-[0.2rem] font-sans text-[13px] opacity-80" style={{ color: ink }}>
+                  {list1Title}
                 </p>
-                <div className="space-y-1">{topArtists.map(rankedLine)}</div>
+                <div className="space-y-0">{list1.map(rankedLine)}</div>
               </div>
               <div className="min-w-0">
-                <p className="mb-3 font-display text-sm font-black leading-none" style={{ color: ink }}>
-                  Top Songs
+                <p className="mb-[0.2rem] font-sans text-[13px] opacity-80" style={{ color: ink }}>
+                  {list2Title}
                 </p>
-                <div className="space-y-1">{topSongs.map(rankedLine)}</div>
+                <div className="space-y-0">{list2.map(rankedLine)}</div>
               </div>
             </motion.div>
 
             <motion.div
               variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: SPRING } }}
-              className="mt-9 grid grid-cols-2 items-start gap-5"
+              className="mt-6 grid grid-cols-2 items-start gap-4"
             >
               <div className="min-w-0">
-                <p className="mb-3 font-display text-sm font-black leading-none" style={{ color: ink }}>
-                  Minutes Listened
+                <p className="mb-[0.2rem] font-sans text-[13px] opacity-80" style={{ color: ink }}>
+                  {bottomMetricLabel}
                 </p>
-                <p className="font-display text-[2.45rem] font-black leading-none tracking-normal tabular-nums md:text-[2.85rem]" style={{ color: ink }}>
-                  {minutesListened}
+                <p className="font-display text-[22px] font-black leading-[1.1] tracking-tight tabular-nums" style={{ color: ink }}>
+                  {bottomMetric}
                 </p>
               </div>
               <div className="min-w-0">
-                <p className="mb-3 font-display text-sm font-black leading-none" style={{ color: ink }}>
-                  Top Genres
+                <p className="mb-[0.2rem] font-sans text-[13px] opacity-80" style={{ color: ink }}>
+                  {list3Title}
                 </p>
-                <div className="space-y-1">
-                  {topGenre.slice(0, 2).map((genre, i) => (
-                    <p key={`${genre}-${i}`} className="truncate font-display text-[1.45rem] font-black leading-[1.1] md:text-[1.65rem]" style={{ color: ink }}>
-                      {genre}
+                <div className="space-y-0">
+                  {list3.slice(0, 2).map((item, i) => (
+                    <p key={`${item}-${i}`} className="truncate font-display text-[22px] font-black leading-[1.1] tracking-tight" style={{ color: ink }}>
+                      {item}
                     </p>
                   ))}
                 </div>
@@ -1744,17 +1744,17 @@ function DashboardTicket({
 
             <motion.div
               variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: SPRING } }}
-              className="mt-12 flex items-center justify-between gap-4"
+              className="mt-8 flex items-center justify-between gap-4"
             >
-              <div className="flex size-11 shrink-0 items-center justify-center rounded-full" style={{ backgroundColor: ink }}>
-                <svg viewBox="0 0 64 64" aria-hidden="true" className="size-8" fill="none">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-full" style={{ backgroundColor: ink }}>
+                <svg viewBox="0 0 64 64" aria-hidden="true" className="size-5" fill="none">
                   <path d="M17 25.5c10.5-3.2 21.5-2.4 31.7 2.5" stroke={cream} strokeWidth="5.2" strokeLinecap="round" />
                   <path d="M19.8 33.1c8.6-2.3 17.1-1.7 25.5 2" stroke={cream} strokeWidth="4.3" strokeLinecap="round" />
                   <path d="M22.3 40.2c6.4-1.5 12.5-1.1 18.9 1.6" stroke={cream} strokeWidth="3.7" strokeLinecap="round" />
                 </svg>
               </div>
-              <p className="font-display text-lg font-black uppercase tracking-normal md:text-xl" style={{ color: ink }}>
-                wrapsy.com/wrapped
+              <p className="font-sans text-[12px] font-bold uppercase tracking-wide" style={{ color: ink }}>
+                SPOTIFY.COM/WRAPPED
               </p>
             </motion.div>
           </motion.div>
@@ -1770,17 +1770,28 @@ function DashboardTicket({
 
 const GENRE_WIDTHS = [68, 57, 77, 73, 68]
 
-/* Decorative circles — each tied to a genre bar, positioned at the bar's right edge.
-   They sit BEHIND the bars (z-5 < z-10). Black circles do a 3D rotateY flip.
-   offsetX is added to the bar's right edge. */
-const GENRE_CIRCLES: { genre: number; offsetX: string; offsetY: string; color: string; size: string }[] = [
-  { genre: 0, offsetX: "-2cqmin",  offsetY: "-1cqmin",  color: "#f20d2f", size: "7cqmin"  },  // red, peeking right of genre 1
-  { genre: 0, offsetX: "4cqmin",   offsetY: "4cqmin",   color: "#202020", size: "11cqmin" },  // black, below-right of genre 1
-  { genre: 2, offsetX: "-3cqmin",  offsetY: "-2cqmin",  color: "#f20d2f", size: "8cqmin"  },  // red, right of genre 3
-  { genre: 2, offsetX: "5cqmin",   offsetY: "5cqmin",   color: "#202020", size: "10cqmin" },  // black, below-right of genre 3
-  { genre: 4, offsetX: "-4cqmin",  offsetY: "-2cqmin",  color: "#f20d2f", size: "6cqmin"  },  // red, right of genre 5
-  { genre: 4, offsetX: "3cqmin",   offsetY: "3cqmin",   color: "#202020", size: "9cqmin"  },  // black, below-right of genre 5
-]
+/* Decorative background grid of circles */
+const GRID_CIRCLES = (() => {
+  const circles = []
+  let id = 0
+  for (let r = 0; r < 5; r++) {
+    const isShifted = r % 2 !== 0
+    const cols = isShifted ? 3 : 4
+    for (let c = 0; c < cols; c++) {
+      const colFloat = isShifted ? c + 0.5 : c
+      const isBlack = colFloat < 2
+      circles.push({
+        id: id++,
+        right: `${4 + c * 15 + (isShifted ? 7.5 : 0)}cqmin`,
+        bottom: `${18 + r * 11}cqmin`,
+        color: isBlack ? "#202020" : "#f20d2f",
+        isBlack,
+        delay: 0.8 + (c + r) * 0.1,
+      })
+    }
+  }
+  return circles
+})()
 
 function GenreWrapsyMark() {
   return (
@@ -1795,12 +1806,12 @@ function GenreWrapsyMark() {
 
 function TopGenresSlide({
   title = "Your Top Genres",
-  genres,
+  items,
   bg,
   ink,
 }: {
   title?: string
-  genres: string[]
+  items: string[]
   bg: string
   ink: string
 }) {
@@ -1844,72 +1855,88 @@ function TopGenresSlide({
             {title}
           </motion.h2>
 
-          {/* Genre list — large text filling bars */}
+          {/* Background circles grid */}
+          <div className="absolute inset-0 z-0">
+            {GRID_CIRCLES.map((circle) => (
+              <motion.div
+                key={circle.id}
+                className="absolute"
+                style={{
+                  right: circle.right,
+                  bottom: circle.bottom,
+                  width: "8cqmin",
+                  height: "8cqmin",
+                  transformStyle: "preserve-3d",
+                }}
+                initial={{ scale: 0, rotateY: -90 }}
+                animate={{
+                  scale: 1,
+                  rotateY: circle.isBlack 
+                    ? [0, 0, 180, 180, 360, 360] 
+                    : [0, 180, 180, 360, 360],
+                  y: [0, -4, 0],
+                }}
+                transition={{
+                  scale: { type: "spring", stiffness: 180, damping: 12, delay: circle.delay },
+                  rotateY: { 
+                    duration: 6, 
+                    repeat: Number.POSITIVE_INFINITY, 
+                    ease: "easeInOut", 
+                    times: circle.isBlack 
+                      ? [0, 0.25, 0.35, 0.75, 0.85, 1] 
+                      : [0, 0.1, 0.5, 0.6, 1],
+                    delay: 1.5 + circle.delay * 0.2, // Small ripple
+                  },
+                  y: { duration: 2.6 + (circle.id % 4) * 0.35, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut", delay: 1.0 },
+                }}
+              >
+                {/* Front face (original color) */}
+                <span 
+                  className="absolute inset-0 rounded-full" 
+                  style={{ backgroundColor: circle.color, backfaceVisibility: "hidden" }} 
+                />
+                {/* Back face (flipped color) */}
+                <span 
+                  className="absolute inset-0 rounded-full" 
+                  style={{ backgroundColor: circle.isBlack ? "#f20d2f" : "#202020", backfaceVisibility: "hidden", transform: "rotateY(180deg)" }} 
+                />
+              </motion.div>
+            ))}
+          </div>
+
+          {/* List — large text filling bars */}
           <ol className="absolute inset-x-[6%] top-[21%] bottom-[22%] z-10 flex flex-col justify-evenly">
-            {genres.slice(0, 5).map((genre, index) => {
+            {items.slice(0, 5).map((item, index) => {
               // Dynamic font size: short names → huge, long names → smaller (like Wrapsy Wrapped)
-              const len = genre.length
+              const len = item.length
               const fontSize = len <= 5 ? 14 : len <= 8 ? 11 : len <= 12 ? 9 : 7
               return (
-              <motion.li
-                key={`${genre}-${index}`}
-                initial={{ opacity: 0, x: "-24cqmin" }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ type: "spring", stiffness: 135, damping: 17, delay: 0.38 + index * 0.12 }}
-                className="relative flex items-center"
-              >
-                <span className="w-[10cqmin] shrink-0 text-center font-display text-[5cqmin] font-black italic">{index + 1}</span>
-                <motion.div
-                  initial={{ scaleX: 0 }}
-                  animate={{ scaleX: 1 }}
-                  transition={{ duration: 0.48, delay: 0.45 + index * 0.12, ease: [0.76, 0, 0.24, 1] }}
-                  className="flex origin-left items-center bg-[#202020] px-[2.5cqmin] py-[1.5cqmin]"
-                  style={{ minWidth: `${GENRE_WIDTHS[index]}cqmin`, width: "fit-content" }}
+                <motion.li
+                  key={`${item}-${index}`}
+                  initial={{ opacity: 0, x: "-24cqmin" }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ type: "spring", stiffness: 135, damping: 17, delay: 0.38 + index * 0.12 }}
+                  className="relative flex items-center"
                 >
-                  <motion.span
-                    initial={{ opacity: 0, y: "3cqmin" }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.72 + index * 0.12 }}
-                    className="font-display font-black italic leading-[0.92] tracking-tight text-[#f2f4e7]"
-                    style={{ fontSize: `clamp(0.75rem, ${fontSize}cqmin, 4rem)` }}
+                  <span className="w-[10cqmin] shrink-0 text-center font-display text-[5cqmin] font-black italic">{index + 1}</span>
+                  <motion.div
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: 1 }}
+                    transition={{ duration: 0.48, delay: 0.45 + index * 0.12, ease: [0.76, 0, 0.24, 1] }}
+                    className="flex origin-left items-center bg-[#202020] px-[2.5cqmin] py-[1.5cqmin]"
+                    style={{ minWidth: `${GENRE_WIDTHS[index]}cqmin`, width: "fit-content" }}
                   >
-                    {genre}
-                  </motion.span>
-                </motion.div>
-
-                {/* Circles tied to THIS bar — sit behind it (z via parent stacking) */}
-                {GENRE_CIRCLES.filter(c => c.genre === index).map((circle, ci) => {
-                  const isBlack = circle.color === "#202020"
-                  return (
                     <motion.span
-                      key={ci}
-                      className="absolute rounded-full"
-                      style={{
-                        left: `calc(${10 + GENRE_WIDTHS[index]}cqmin + ${circle.offsetX})`,
-                        top: circle.offsetY,
-                        width: circle.size,
-                        height: circle.size,
-                        backgroundColor: circle.color,
-                        zIndex: -1,
-                        transformStyle: "preserve-3d",
-                      }}
-                      initial={{ scale: 0, rotateY: isBlack ? -90 : 0 }}
-                      animate={{
-                        scale: 1,
-                        rotateY: isBlack ? [0, 180, 360] : 0,
-                        y: [0, -3, 0],
-                      }}
-                      transition={{
-                        scale: { type: "spring", stiffness: 180, damping: 12, delay: 0.8 + index * 0.1 + ci * 0.08 },
-                        rotateY: isBlack
-                          ? { duration: 3.5, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut", delay: 1.2 + ci * 0.3 }
-                          : undefined,
-                        y: { duration: 2.6 + ci * 0.35, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut", delay: 1.0 },
-                      }}
-                    />
-                  )
-                })}
-              </motion.li>
+                      initial={{ opacity: 0, y: "3cqmin" }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: 0.72 + index * 0.12 }}
+                      className="font-display font-black italic leading-[0.92] tracking-tight text-[#f2f4e7]"
+                      style={{ fontSize: `clamp(0.75rem, ${fontSize}cqmin, 4rem)` }}
+                    >
+                      {item}
+                    </motion.span>
+                  </motion.div>
+                </motion.li>
               )
             })}
           </ol>
@@ -2143,46 +2170,46 @@ export function buildPages(
   const dataLabel = big.label
   const dataNote = big.note
 
-  // SLIDE 3: TOP TRACK
-  const anthem = ai.topTrack.title || "Your Anthem"
-  const trackKicker = ai.topTrack.kicker
-  const trackArtistLine = ai.topTrack.artistLine
+  // SLIDE 3: HIGHLIGHT
+  const highlightTitle = (ai as any).highlightCard?.title || (ai as any).topTrack?.title || "Your Anthem"
+  const highlightKicker = (ai as any).highlightCard?.kicker || (ai as any).topTrack?.kicker || "Highlight"
+  const highlightSubtitle = (ai as any).highlightCard?.subtitle || (ai as any).topTrack?.artistLine || "An Artist"
 
   // SLIDE 7: DASHBOARD
-  const dashboardArtists = ai.dashboard?.topArtists || ["The Beatles", "George Harrison", "Cigarettes After Sex", "Queen", "John Lennon"]
-  const topArtists = dashboardArtists
-  const dashboardSongs = (ai.dashboard?.topSongs || ["Song 1", "Song 2", "Song 3", "Song 4", "Song 5"]).slice(0, 5)
-  const topGenres = ai.dashboard?.topGenres || [(ai.dashboard as any)?.topGenre || "K-Pop", "R&B", "Experimental Hip Hop", "Techno", "Hyperpop"]
+  const dashboardList1 = (ai as any).summaryDashboard?.list1 || (ai as any).dashboard?.topArtists || ["The Beatles", "George Harrison", "Cigarettes After Sex", "Queen", "John Lennon"]
+  const topArtists = dashboardList1
+  const dashboardList2 = ((ai as any).summaryDashboard?.list2 || (ai as any).dashboard?.topSongs || ["Song 1", "Song 2", "Song 3", "Song 4", "Song 5"]).slice(0, 5)
+  const dashboardList3 = (ai as any).summaryDashboard?.list3 || (ai as any).dashboard?.topGenres || ["K-Pop", "R&B", "Experimental Hip Hop", "Techno", "Hyperpop"]
 
   // Fallbacks for newly added AI fields (to handle old cached sessions)
-  const globalArtists = ai.globalArtists || ["Bad Bunny", "Taylor Swift", "BTS", "Drake", "Justin Bieber"]
-  const artistStats = ai.artistStats || {
-    name: dashboardArtists[0] || "Top Artist",
-    streams: String(stats.int(50, 400) + stats.int(0, 9) / 10),
-    hours: String(stats.int(5, 50) + stats.int(0, 9) / 10),
-    listeners: String(stats.int(10, 100) + stats.int(0, 9) / 10),
-    countries: String(stats.int(30, 100))
+  const globalArtists = (ai as any).topList || (ai as any).globalArtists || ["Bad Bunny", "Taylor Swift", "BTS", "Drake", "Justin Bieber"]
+  const artistStats = (ai as any).statProfile || (ai as any).artistStats || {
+    name: dashboardList1[0] || "Main Character",
+    stat1Label: "Streams", stat1Value: String(stats.int(50, 400) + stats.int(0, 9) / 10),
+    stat2Label: "Hours", stat2Value: String(stats.int(5, 50) + stats.int(0, 9) / 10),
+    stat3Label: "Listeners", stat3Value: String(stats.int(10, 100) + stats.int(0, 9) / 10),
+    stat4Label: "Countries", stat4Value: String(stats.int(30, 100))
   }
-  const worldCitizen = ai.worldCitizen || {
-    countriesCount: stats.int(24, 58),
-    artists: [
-      { name: "Avicii", country: "Sweden" },
-      { name: "BTS", country: "South Korea" },
-      { name: "Shakira", country: "Colombia" },
-      { name: "Adele", country: "United Kingdom" },
-      { name: "Stromae", country: "Belgium" },
-      { name: "Bad Bunny", country: "Puerto Rico" },
+  const worldCitizen = (ai as any).globalFootprint || (ai as any).worldCitizen || {
+    locationsCount: stats.int(24, 58),
+    locations: [
+      { name: "Avicii", location: "Sweden" },
+      { name: "BTS", location: "South Korea" },
+      { name: "Shakira", location: "Colombia" },
+      { name: "Adele", location: "United Kingdom" },
+      { name: "Stromae", location: "Belgium" },
+      { name: "Bad Bunny", location: "Puerto Rico" },
     ]
   }
-  const minutesListened = ai.dashboard?.minutesListened || fmt(stats.int(40000, 90000))
+  const bottomMetric = (ai as any).summaryDashboard?.bottomMetric || (ai as any).dashboard?.minutesListened || fmt(stats.int(40000, 90000))
   const finaleTitle = ai.finale?.title || "Your wrapped"
-  const finaleMinutesLabel = ai.finale?.minutesLabel || "min lived"
+  const finaleMinutesLabel = (ai as any).finale?.metricLabel || (ai as any).finale?.minutesLabel || "min lived"
   const finaleTopPercentLabel = ai.finale?.topPercentLabel || "main character"
   const shareTitle = ai.share?.title || "Share your\nWrapsy Wrapped"
   const shareHashtag = ai.share?.hashtag || "#WrapsyWrapped"
-  const globalArtistsTitle = ai.globalArtistsTitle || "Most Streamed\nArtists Globally"
-  const topArtistsTitle = ai.dashboard?.topArtistsTitle || "My Top Artists"
-  const topGenresTitle = ai.dashboard?.topGenresTitle || "Your Top Genres"
+  const globalArtistsTitle = (ai as any).topListTitle || (ai as any).globalArtistsTitle || "Most Streamed\nArtists Globally"
+  const list1Title = (ai as any).summaryDashboard?.list1Title || (ai as any).dashboard?.topArtistsTitle || "My Top Highlights"
+  const list3Title = (ai as any).summaryDashboard?.list3Title || (ai as any).dashboard?.topGenresTitle || "Your Top Moments"
 
   const personalityTitle = (ai as any).personalityCard?.title || "Mastermind"
   const personalityDescription = (ai as any).personalityCard?.description || "You play the long game. You see everything."
@@ -2200,9 +2227,9 @@ export function buildPages(
           lines={introLines}
           sub={introSub}
           photo={photo1}
-          songTitle={anthem}
-          songArtist={trackArtistLine}
-          songStat={`${fmt(stats.int(100000, 5000000))} streams in ${data.destinationCity || "NYC"}`}
+          songTitle={highlightTitle}
+          songArtist={highlightSubtitle}
+          songStat={`${fmt(stats.int(100000, 5000000))} moments in ${data.destinationCity || "NYC"}`}
         />
       ),
     },
@@ -2232,21 +2259,21 @@ export function buildPages(
       node: (
         <TopSongReveal
           photo={photo2}
-          title={anthem}
-          artist={trackArtistLine}
-          topPercent={stats.topPercent}
+          kicker={highlightKicker}
+          title={highlightTitle}
+          subtitle={highlightSubtitle}
         />
       ),
     },
     {
       key: "s4-global-artists",
       bg: "#f8cdd6",
-      node: <GlobalArtists title={globalArtistsTitle} artists={globalArtists} />,
+      node: <GlobalArtists title={globalArtistsTitle} items={globalArtists} />,
     },
     {
       key: "s5-top-artists",
       bg: "#95eab1",
-      node: <TopArtistsList title={topArtistsTitle} artists={topArtists} photos={photos} isExiting={isReverseExiting} />,
+      node: <TopArtistsList title={list1Title} items={dashboardList1} photos={photos} isExiting={isReverseExiting} />,
     },
     {
       key: "s3-artist-stats",
@@ -2255,10 +2282,14 @@ export function buildPages(
         <ArtistStatsCard
           artistName={artistStats.name}
           photoUrl={photo3}
-          streams={artistStats.streams}
-          hours={artistStats.hours}
-          listeners={artistStats.listeners}
-          countries={artistStats.countries}
+          stat1Label={artistStats.stat1Label}
+          stat1Value={artistStats.stat1Value}
+          stat2Label={artistStats.stat2Label}
+          stat2Value={artistStats.stat2Value}
+          stat3Label={artistStats.stat3Label}
+          stat3Value={artistStats.stat3Value}
+          stat4Label={artistStats.stat4Label}
+          stat4Value={artistStats.stat4Value}
         />
       ),
     },
@@ -2267,11 +2298,11 @@ export function buildPages(
       bg: "#2D8C7E",
       node: (
         <WorldCitizen
-          title={ai.worldCitizen?.title || "World Citizen"}
-          description1={ai.worldCitizen?.description1 || "When it comes to your music, borders disappear."}
-          description2={ai.worldCitizen?.description2 || "You've listened to artists from {count} countries."}
-          countriesCount={worldCitizen.countriesCount}
-          artists={worldCitizen.artists}
+          title={ai.globalFootprint?.title || (ai as any).worldCitizen?.title || "World Citizen"}
+          description1={ai.globalFootprint?.description1 || (ai as any).worldCitizen?.description1 || "When it comes to your music, borders disappear."}
+          description2={ai.globalFootprint?.description2 || (ai as any).worldCitizen?.description2 || "You've listened to artists from {count} countries."}
+          countriesCount={worldCitizen.locationsCount}
+          locations={worldCitizen.locations}
         />
       ),
     },
@@ -2285,10 +2316,14 @@ export function buildPages(
           ink="var(--wr-ink)"
           year="2026"
           photo={photo5}
-          topArtists={dashboardArtists}
-          topSongs={dashboardSongs}
-          minutesListened={minutesListened}
-          topGenre={topGenres}
+          list1Title={list1Title}
+          list1={dashboardList1}
+          list2Title={(ai as any).summaryDashboard?.list2Title || "My Top Songs"}
+          list2={dashboardList2}
+          bottomMetricLabel={(ai as any).summaryDashboard?.bottomMetricLabel || "Minutes Listened"}
+          bottomMetric={bottomMetric}
+          list3Title={list3Title}
+          list3={dashboardList3}
         />
       ),
     },
@@ -2297,8 +2332,8 @@ export function buildPages(
       bg: "#f2f4e7",
       node: (
         <TopGenresSlide
-          title={topGenresTitle}
-          genres={topGenres}
+          title={list3Title}
+          items={dashboardList3}
           bg="#f2f4e7"
           ink="#202020"
         />

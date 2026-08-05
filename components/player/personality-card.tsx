@@ -8,7 +8,12 @@ function CardBack() {
     <div
       className="relative h-full w-full overflow-hidden rounded-xl border-[3px] border-black"
       style={{
-        background: "linear-gradient(135deg, #3b0764 0%, #6b21a8 40%, #9333ea 70%, #d8b4fe 100%)",
+        background: `
+          radial-gradient(ellipse at 20% 30%, rgba(255,255,255,0.55) 0%, transparent 55%),
+          radial-gradient(ellipse at 80% 70%, rgba(167,139,250,0.8) 0%, transparent 50%),
+          radial-gradient(ellipse at 60% 10%, rgba(110,198,245,0.9) 0%, transparent 45%),
+          linear-gradient(135deg, #38BDF8 0%, #818CF8 25%, #C084FC 50%, #34D399 75%, #A3E635 100%)
+        `,
       }}
     >
       <motion.div
