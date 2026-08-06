@@ -234,19 +234,23 @@ export function StageThree({
         ))}
       </div>
 
-      {/* click zones */}
-      <button
-        type="button"
-        aria-label="Previous"
-        onClick={back}
-        className="absolute inset-y-0 left-0 z-20 w-1/2 cursor-w-resize"
-      />
-      <button
-        type="button"
-        aria-label="Next"
-        onClick={advance}
-        className="absolute inset-y-0 right-0 z-20 w-1/2 cursor-e-resize"
-      />
+      {/* click zones — hidden on last slide so finale buttons are interactive */}
+      {!isLast && (
+        <>
+          <button
+            type="button"
+            aria-label="Previous"
+            onClick={back}
+            className="absolute inset-y-0 left-0 z-20 w-1/2 cursor-w-resize"
+          />
+          <button
+            type="button"
+            aria-label="Next"
+            onClick={advance}
+            className="absolute inset-y-0 right-0 z-20 w-1/2 cursor-e-resize"
+          />
+        </>
+      )}
 
       {/* pages */}
       <AnimatePresence mode="popLayout" custom={customData}>

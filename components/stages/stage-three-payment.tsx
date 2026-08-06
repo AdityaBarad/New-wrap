@@ -6,6 +6,13 @@ import { useWrap } from "@/context/wrap-context"
 import { useRazorpay } from "react-razorpay"
 import { trackEvent, updateProfile, incrementProfile } from "@/lib/mixpanel"
 
+declare global {
+  interface Window {
+    goaffpro_order: any
+    goaffproTrackConversion: (order: any) => void
+  }
+}
+
 function MiniWrapsyLogo({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
@@ -71,6 +78,20 @@ export function StageThreePayment() {
             incrementProfile("Total Spent", price)
             incrementProfile("Wraps Created", 1)
             trackEvent("Payment Completed", { plan: planName, price, wrap_slug: wrapSlug, draft_session_id: draftSessionId })
+
+            if (typeof window !== "undefined") {
+              window.goaffpro_order = {
+                number: order.id,
+                total: price,
+              }
+              
+              if (typeof window.goaffproTrackConversion !== "undefined") {
+                console.log("GoAffPro tracking conversion for order:", window.goaffpro_order)
+                window.goaffproTrackConversion(window.goaffpro_order)
+              } else {
+                console.warn("GoAffPro tracking script is NOT loaded or was blocked by an adblocker.")
+              }
+            }
 
             await generateWrap(planName)
 

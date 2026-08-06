@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { generateSlug } from "@/lib/slug"
+import { getCardColor } from "@/lib/color"
 
 function getSupabase() {
   return createClient(
@@ -46,7 +47,8 @@ export async function POST(req: NextRequest) {
       birth_year: wrapData.birthYear || null,
       story_paragraph: wrapData.storyParagraph || null,
       status: "draft",
-      is_active: false // By default inactive, elite will make it active
+      is_active: false, // By default inactive, elite will make it active
+      card_color: getCardColor(slug)
     })
 
     if (dbError) {

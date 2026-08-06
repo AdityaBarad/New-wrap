@@ -16,107 +16,7 @@ type WrapInfo = {
   user_names: string | null
 }
 
-/* ──────────── purpose → display label ──────────── */
-const PURPOSE_LABELS: Record<string, string> = {
-  couple: "COUPLE",
-  travel: "TRAVEL",
-  birthday: "BIRTHDAY",
-  life: "LIFE",
-  group: "GROUP / FAMILY",
-}
-
-const SPOTIFY_COLORS = [
-  "#ff6666", "#ff8a8a", "#ffa1a1", "#ff4da8", "#ff66b3",
-  "#ff99cc", "#ffb3e6", "#e60073", "#ff4d4d", "#ff6a13",
-  "#ff876a", "#ff9640", "#ffb366", "#ffcc99", "#ffdb4d",
-  "#ffe854", "#ffff66", "#c4f033", "#a6ff4d", "#ccff99",
-  "#21e065", "#3de3a3", "#4de3a8", "#66ffcc", "#00e673",
-  "#33cc33", "#4dd2ff", "#66c2ff", "#7ac5ff", "#99ddff",
-  "#3399ff", "#0073e6", "#4d4dff", "#7b2ff2", "#9933ff",
-  "#b366ff", "#cca3ff", "#d6a3ff", "#e6ccff", "#ff33cc",
-  "#ff66d9", "#ff99e6", "#cc0099", "#ff5050", "#ff9999",
-  "#ffd480", "#80ffaa", "#80bfff", "#d279d2", "#e6b3b3"
-]
-
-function getCardColor(slug: string) {
-  let hash = 0
-  for (let i = 0; i < slug.length; i++) {
-    hash = slug.charCodeAt(i) + ((hash << 5) - hash)
-  }
-  return SPOTIFY_COLORS[Math.abs(hash) % SPOTIFY_COLORS.length]
-}
-
-/* ──────────── Spotify-Radio–style wrap card ──────────── */
-function WrapCard({ wrap }: { wrap: WrapInfo }) {
-  const photos = wrap.photo_urls ?? []
-  const label = PURPOSE_LABELS[wrap.purpose] ?? wrap.purpose?.toUpperCase() ?? "WRAP"
-  const cardColor = getCardColor(wrap.slug)
-
-  // Build subtitle from user_names (comma-separated in DB)
-  const names = wrap.user_names
-    ? wrap.user_names
-      .split(",")
-      .map((n) => n.trim())
-      .filter(Boolean)
-    : []
-
-  const subtitle =
-    names.length > 0 ? `With ${names.join(", ")}` : ""
-
-  return (
-    <a href={`/wrap/${wrap.slug}`} className={s.card}>
-      {/* ── image area (colored square) ── */}
-      <div 
-        className={s.imageArea} 
-        style={{ 
-          backgroundColor: cardColor,
-          "--card-bg": cardColor
-        } as React.CSSProperties}
-      >
-        {/* Images (overlapping circles) */}
-        <div className={s.circlesContainer}>
-          {photos.length >= 3 ? (
-            <>
-              <img src={photos[1]} alt="" className={`${s.circleImage} ${s.leftCircle}`} />
-              <img src={photos[2]} alt="" className={`${s.circleImage} ${s.rightCircle}`} />
-              <img src={photos[0]} alt="" className={`${s.circleImage} ${s.centerCircle}`} />
-            </>
-          ) : photos.length === 2 ? (
-            <>
-              <img src={photos[1]} alt="" className={`${s.circleImage} ${s.leftCircle}`} />
-              <img src={photos[0]} alt="" className={`${s.circleImage} ${s.centerCircle}`} />
-            </>
-          ) : photos.length === 1 ? (
-            <img src={photos[0]} alt="" className={`${s.circleImage} ${s.fallbackCircle}`} />
-          ) : wrap.personality_image_url ? (
-            <img src={wrap.personality_image_url} alt="" className={`${s.circleImage} ${s.fallbackCircle}`} />
-          ) : null}
-        </div>
-
-        {/* Custom logo (top-left) - Black */}
-        <img src="/logo/logo-solid.jpeg" alt="Logo" className={s.logo} />
-
-        {/* Type badge (top-right) – just text, like RADIO badge */}
-        <span className={s.badge}>
-          {label}
-        </span>
-
-        {/* Name overlaid at bottom of the colored square */}
-        <h3 className={s.name}>{wrap.name}</h3>
-
-        {/* Play button (visible on hover) */}
-        <div className={s.playButton}>
-          <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: '24px', height: '24px', color: '#000', marginLeft: '2px' }}>
-            <path d="M7 6v12l10-6z" />
-          </svg>
-        </div>
-      </div>
-
-      {/* ── subtitle (user names) below the colored square ── */}
-      {subtitle && <p className={s.subtitle}>{subtitle}</p>}
-    </a>
-  )
-}
+import { WrapCard } from "@/components/shared/wrap-card"
 
 /* ──────────────────────────── page ──────────────────────────── */
 export default function MyWrapsPage() {
@@ -247,7 +147,16 @@ export default function MyWrapsPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.06 }}
                     >
-                      <WrapCard wrap={wrap} />
+                      <WrapCard wrap={{
+                        name: wrap.name,
+                        purpose: wrap.purpose,
+                        slug: wrap.slug,
+                        photos: wrap.photo_urls || [],
+                        userNames: wrap.user_names,
+                        personalityImageUrl: wrap.personality_image_url,
+                        cardColor: (wrap as any).card_color,
+                        href: `/wrap/${wrap.slug}`
+                      }} />
                     </motion.div>
                   ))}
                 </div>

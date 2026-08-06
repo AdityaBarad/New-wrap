@@ -1,6 +1,7 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { Archivo, Space_Grotesk } from 'next/font/google'
+import Script from 'next/script'
 import { MixpanelProvider } from '@/components/providers/mixpanel-provider'
 import './globals.css'
 
@@ -41,6 +42,7 @@ export default function RootLayout({
           {children}
           {process.env.NODE_ENV === 'production' && <Analytics />}
         </MixpanelProvider>
+        <Script strategy="beforeInteractive" src="https://api.goaffpro.com/loader.js?shop=xywkxqqnxh" />
       </body>
     </html>
   )

@@ -13,7 +13,9 @@ import { useWrap, type WrapData } from "@/context/wrap-context"
 import { PURPOSES } from "@/context/wrap-context"
 import { buildStats, fmt, type WrapStats } from "@/lib/wrap-stats"
 import type { AiWrapContent } from "@/lib/ai-types"
-
+import { WrapCard } from "@/components/shared/wrap-card"
+import { ShareModal } from "./share-modal"
+import * as htmlToImage from "html-to-image"
 
 export type WrapPage = { key: string; bg: string; node: ReactNode }
 
@@ -2021,21 +2023,82 @@ function FinaleCard({
   topPercentLabel?: string
 }) {
   const { reset } = useWrap()
+  const exportRef = useRef<HTMLDivElement>(null)
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false)
+  const [isExporting, setIsExporting] = useState(false)
 
-  async function share() {
-    const shareData = {
-      title: "Your Story, Wrapped",
-      text: ai.finale?.tagline ?? `Your story is officially wrapped. Your era. Unhinged.`,
-      url: typeof window !== "undefined" ? window.location.origin : "",
-    }
+  function openShareModal() {
+    setIsShareModalOpen(true)
+  }
+
+  async function generateImageBlob() {
+    if (!exportRef.current) return null
     try {
-      if (typeof navigator !== "undefined" && navigator.share) await navigator.share(shareData)
-      else if (typeof navigator !== "undefined") {
-        await navigator.clipboard.writeText(shareData.url)
-        alert("Link copied. Go post it.")
+      setIsExporting(true)
+      // High quality export specifically for social media
+      const dataUrl = await htmlToImage.toJpeg(exportRef.current, { quality: 0.95, pixelRatio: 2 })
+      const res = await fetch(dataUrl)
+      return await res.blob()
+    } catch (err) {
+      console.error("Image generation failed", err)
+      return null
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
+  async function handleShareIgStory() {
+    const blob = await generateImageBlob()
+    if (!blob) {
+      alert("Failed to generate image.")
+      return
+    }
+    const file = new File([blob], "story-wrapped.jpg", { type: "image/jpeg" })
+    
+    // Web Share API with files triggers Instagram Stories automatically on iOS/Android
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          files: [file]
+        })
+      } catch (e) {
+        console.error(e)
       }
-    } catch {
-      /* user dismissed */
+    } else {
+      alert("Direct Instagram sharing isn't supported on this device. Downloading image instead!")
+      handleDownload()
+    }
+  }
+
+  async function handleDownload() {
+    const blob = await generateImageBlob()
+    if (!blob) return
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `wrapsy-${data.slug || "export"}.jpg`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  function handleCopyLink() {
+    const shareUrl = data.slug ? `${window.location.origin}/wrap/${data.slug}` : window.location.origin
+    navigator.clipboard.writeText(shareUrl)
+    alert("Link copied!")
+  }
+
+  function handleNativeShare() {
+    const shareUrl = data.slug ? `${window.location.origin}/wrap/${data.slug}` : window.location.origin
+    if (navigator.share) {
+      navigator.share({
+        title: "My Story Wrapped",
+        text: ai.finale?.tagline || "My story wrapped.",
+        url: shareUrl
+      }).catch(console.error)
+    } else {
+      handleCopyLink()
     }
   }
 
@@ -2053,66 +2116,110 @@ function FinaleCard({
           initial={{ opacity: 0, y: 50, rotate: 3, scale: 0.85 }}
           animate={{ opacity: 1, y: 0, rotate: -1.5, scale: 1 }}
           transition={{ type: "spring", stiffness: 140, damping: 16 }}
-          className="relative z-10 w-full max-w-xs border-4 border-ink bg-cream p-5 shadow-2xl"
+          className="relative z-[30] w-full max-w-xs"
         >
-          <div className="flex items-center justify-between">
-            <p className="font-display text-xs font-black uppercase tracking-widest" style={{ color: meta.color }}>
-              {meta.label}
-            </p>
-            <span className="font-display text-2xl font-black text-ink">2026</span>
+          <div className="rounded-xl overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.5)] border-2 border-white/10 bg-ink">
+            <WrapCard wrap={{
+              name: data.name,
+              purpose: data.purpose || "life",
+              slug: data.slug || "draft",
+              photos: data.photos.map(p => p.url),
+              userNames: data.userNames,
+              personalityImageUrl: null
+            }} />
           </div>
-          <p className="font-display text-4xl font-black uppercase leading-none text-ink">
-            {title}
-          </p>
-          <div className="relative mx-auto my-4 aspect-square w-full max-w-[14rem]">
-            <Burst photo={data.photos[0]?.url} palette={palette} delay={0.2} className="h-full w-full" spinningVinyl />
-          </div>
-          <div className="grid grid-cols-2 gap-2 font-display uppercase">
-            <div className="bg-ink p-3">
-              <p className="text-2xl font-black text-green tabular-nums">{ai.finale?.minutesLived || fmt(stats.minutesLived)}</p>
-              <p className="text-[10px] font-bold tracking-widest text-cream/70">{minutesLabel}</p>
-            </div>
-            <div className="bg-ink p-3">
-              <p className="text-2xl font-black text-pink">Top {ai.finale?.topPercent || stats.topPercent}%</p>
-              <p className="text-[10px] font-bold tracking-widest text-cream/70">{topPercentLabel}</p>
-            </div>
-          </div>
-          <p className="mt-4 text-center font-display text-sm font-black uppercase tracking-widest text-ink/50">
-            {HASHTAG}
-          </p>
         </motion.div>
 
-        {/* pulsing action footer */}
+        {/* Lead Gen / CTA Section */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ ...SPRING, delay: 0.5 }}
-          className="z-10 flex items-center gap-3"
+          transition={{ delay: 0.6, type: "spring" }}
+          className="z-[30] flex flex-col items-center mt-2 w-full max-w-sm"
         >
-          <motion.button
-            type="button"
-            onClick={share}
-            animate={{ scale: [1, 1.05, 1] }}
-            transition={{ duration: 1.6, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
-            whileHover={{ scale: 1.12, y: -6, rotate: -2 }}
-            whileTap={{ scale: 0.96 }}
-            className="flex items-center gap-2 rounded-full bg-green px-6 py-3 font-display text-sm font-black uppercase tracking-wide text-ink shadow-xl"
-          >
-            <Share2 className="size-4" />
-            Share
-          </motion.button>
-          <motion.button
-            type="button"
-            onClick={reset}
-            whileHover={{ rotate: -180 }}
-            whileTap={{ scale: 0.92 }}
-            transition={SPRING}
-            className="flex items-center justify-center rounded-full border-2 border-cream/60 bg-ink/40 p-3 text-cream backdrop-blur-md"
-            aria-label="Start over"
-          >
-            <RotateCcw className="size-5" />
-          </motion.button>
+          <div className="bg-ink/60 backdrop-blur-md border border-white/10 rounded-3xl p-5 w-full flex flex-col items-center text-center shadow-2xl">
+            <p className="text-white font-display uppercase tracking-widest text-[10px] opacity-70 mb-1">
+              Want your own story wrapped?
+            </p>
+            <p className="text-green font-display uppercase tracking-tight text-xl font-black leading-none mb-4 drop-shadow-[0_0_10px_rgba(30,215,96,0.3)]">
+              Get yours free at Wrapsy.com
+            </p>
+            
+            <div className="flex flex-row items-center justify-center gap-3 w-full">
+              <motion.button
+                type="button"
+                onClick={openShareModal}
+                disabled={isExporting}
+                animate={{ scale: [1, 1.03, 1] }}
+                transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+                whileHover={{ scale: 1.08, y: -4, rotate: -2 }}
+                whileTap={{ scale: 0.96 }}
+                className="flex flex-1 items-center justify-center gap-2 rounded-full bg-green px-6 py-3.5 font-display text-sm font-black uppercase tracking-wide text-ink shadow-[0_0_20px_rgba(30,215,96,0.4)] disabled:opacity-50"
+              >
+                <Share2 className="size-4" />
+                {isExporting ? "Generating..." : "Share Wrap"}
+              </motion.button>
+              
+              <motion.button
+                type="button"
+                onClick={reset}
+                whileHover={{ rotate: -180 }}
+                whileTap={{ scale: 0.92 }}
+                transition={{ type: "spring", stiffness: 200, damping: 10 }}
+                className="flex size-12 items-center justify-center rounded-full border-2 border-white/10 bg-white/5 text-white backdrop-blur-md hover:bg-white hover:text-ink"
+                aria-label="Start over"
+              >
+                <RotateCcw className="size-5" />
+              </motion.button>
+            </div>
+          </div>
         </motion.div>
+      </div>
+
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        onDownload={handleDownload}
+        onShareIgStory={handleShareIgStory}
+        onCopyLink={handleCopyLink}
+        onNativeShare={handleNativeShare}
+      />
+
+      {/* Off-screen Export Container for html-to-image (9:16 IG Story aspect ratio) */}
+      <div 
+        ref={exportRef}
+        className="pointer-events-none"
+        style={{
+          position: "fixed",
+          left: "-9999px",
+          top: 0,
+          width: "1080px",
+          height: "1920px",
+          backgroundColor: meta.color || "var(--wr-purple)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: -1,
+        }}
+      >
+        <div style={{ width: "860px" }} className="rounded-2xl overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.8)] border-4 border-white/20 bg-ink">
+          <WrapCard wrap={{
+            name: data.name,
+            purpose: data.purpose || "life",
+            slug: data.slug || "draft",
+            photos: data.photos.map(p => p.url),
+            userNames: data.userNames,
+            personalityImageUrl: null
+          }} />
+        </div>
+        
+        {/* Export Footer Logo */}
+        <div style={{ marginTop: "120px", display: "flex", flexDirection: "column", alignItems: "center", gap: "20px" }}>
+          <p style={{ color: "white", fontSize: "32px", fontFamily: "var(--font-display), sans-serif", letterSpacing: "0.2em", textTransform: "uppercase", opacity: 0.8 }}>
+            Get yours at Wrapsy.com
+          </p>
+        </div>
       </div>
     </Shell>
   )
