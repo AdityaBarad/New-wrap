@@ -27,7 +27,7 @@ function buildPrompt(body: Record<string, unknown>): string {
 
   const purposeLabel = purposeLabels[(purpose as string) ?? "life"] ?? "Personal Life Journey"
 
-  return `You are a world-class creative director for a viral "Story Wrapped" experience — think Wrapsy Wrapped but for someone's STORY. Your job is to write punchy, Gen-Z, unhinged-but-heartfelt, meme-aware copy that makes every slide screenshot-worthy.
+  return `You are a world-class creative director for a viral "Story Wrapped" experience — think Spotify Wrapped but for someone's STORY. Your job is to write punchy, Gen-Z, unhinged-but-heartfelt, meme-aware copy that makes every slide screenshot-worthy.
 
 ## USER PROFILE
 - **Purpose**: ${purposeLabel}
@@ -44,14 +44,15 @@ ${song ? `- **Chosen theme song**: ${song}` : ""}
 "${storyParagraph || "No story provided — improvise based on the profile above."}"
 
 ## INSTRUCTIONS
-Generate creative, personalized, trendy content for an 8-slide wrapped experience. The content must:
+Generate creative, personalized, trendy unique content for an 8-slide wrapped experience. The content must:
 1. Be deeply personalized using the user's story and details
-2. Sound like a mix of Wrapsy Wrapped + Instagram Reels + Twitter shitposting
+2. Sound like a mix of spotify Wrapped + Instagram Reels + Twitter shitposting
 3. Use Gen-Z slang naturally (slay, era, main character, unhinged, no cap, ate, etc.)
-4. Reference specific details from their story paragraph
+4. Reference specific details from their story paragraph, and every slide should have different content and topic
 5. Be witty, warm, and shareable — every line should make someone want to screenshot it
 6. Be unique — NEVER generic. If they mentioned a city, reference it. If they mentioned a habit, roast it lovingly.
 7. CRITICAL LENGTH LIMIT: For "globalArtists" list, EACH item MUST be MAXIMUM 15 CHARACTERS (e.g. 'Maggie Mei', 'Momos Mafia'). Keep them short so they fit on screen!
+8. dont assume things by your own stay with the data only that users gave.
 
 Return ONLY a valid JSON object (no markdown, no backticks, no explanation) adhering STRICTLY to the following structure and constraints.
 IMPORTANT: The values you generate MUST be wildly creative, unique, and deeply personalized to the user's story. DO NOT use generic Spotify defaults. Capture the true Spotify Wrapped vibe (punchy, rhythmic, slightly roasting, deeply celebratory).
@@ -63,12 +64,12 @@ IMPORTANT: The values you generate MUST be wildly creative, unique, and deeply p
     "sub": "1-2 sentence witty subtitle that references their story."
   },
   "share": {
-    "title": "Creative 2-4 word title",
+    "title": "Creative 2-3 word title",
     "hashtag": "A personalized camelCase hashtag"
   },
   "dataHighlight": {
     "kicker": "2-4 word label for a big number slide",
-    "label": "What the number represents",
+    "label": "What the number represents(can calculate from any date or number user has given",
     "note": "A witty 1-2 sentence observation about this number."
   },
   "highlightCard": {
@@ -76,7 +77,7 @@ IMPORTANT: The values you generate MUST be wildly creative, unique, and deeply p
     "title": "A personalized title (e.g. for a couple, 'Biggest Fight', for travel 'Best Meal')",
     "subtitle": "A creative subtitle for this card"
   },
-  "topListTitle": "Creative title for a top 5 list (e.g. 'Top Delusions', 'Top Inside Jokes')",
+  "topListTitle": "Creative title for a top 5 list (e.g. 'Top Delusions', 'Top Inside Jokes') ",
   "topList": [
     "Item 1 (MAX 15 CHARACTERS)",
     "Item 2 (MAX 15 CHARACTERS)",
@@ -95,20 +96,12 @@ IMPORTANT: The values you generate MUST be wildly creative, unique, and deeply p
     "stat4Label": "Creative label for a metric (e.g. 'Apologies')",
     "stat4Value": "A funny number or short text"
   },
-  "globalFootprint": {
-    "title": "Creative title for a location-based slide (e.g. 'Where You Caused Chaos')",
-    "description1": "1 sentence describing their footprint.",
-    "description2": "1 sentence describing their reach. MUST include '{count}' as a placeholder.",
-    "locationsCount": 42,
-    "locations": [
-      { "name": "Funny Location 1", "location": "City/Country 1" },
-      { "name": "Funny Location 2", "location": "City/Country 2" },
-      { "name": "Funny Location 3", "location": "City/Country 3" },
-      { "name": "Funny Location 4", "location": "City/Country 4" },
-      { "name": "Funny Location 5", "location": "City/Country 5" },
-      { "name": "Funny Location 6", "location": "City/Country 6" }
-    ]
-  },
+    "globalFootprint": {
+      "title": "Creative title for a general impact-based slide (e.g. 'Main Character Energy', 'Unstoppable')",
+      "description1": "1 punchy sentence describing their undeniable presence or vibe.",
+      "description2": "1 punchy sentence describing how far their energy reaches."
+    }
+,
   "summaryDashboard": {
     "list1Title": "Creative title for list 1 (e.g. 'Top Red Flags')",
     "list1": ["Item 1", "Item 2", "Item 3", "Item 4", "Item 5"],
@@ -130,7 +123,7 @@ IMPORTANT: The values you generate MUST be wildly creative, unique, and deeply p
   "personalityCard": {
     "title": "A 1-2 word personality archetype",
     "description": "A punchy 1-2 sentence description of why they got this personality.",
-    "imagePrompt": "A highly detailed image generation prompt for Stable Diffusion. It MUST specify: 'Wrapsy Wrapped character card style, flat vector illustration, neon glowing colors on dark black background, surreal and mystical.' followed by the specific imagery for the archetype."
+    "imagePrompt": "A highly detailed image generation prompt for Stable Diffusion. It MUST specify: 'Spotify Wrapped character card style, flat vector illustration and mystical.' followed by the specific imagery for the archetype."
   }
 }
 

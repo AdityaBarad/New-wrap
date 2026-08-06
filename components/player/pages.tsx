@@ -2125,7 +2125,8 @@ function FinaleCard({
               slug: data.slug || "draft",
               photos: data.photos.map(p => p.url),
               userNames: data.userNames,
-              personalityImageUrl: null
+              personalityImageUrl: null,
+              cardColor: data.cardColor
             }} />
           </div>
         </motion.div>
@@ -2210,7 +2211,8 @@ function FinaleCard({
             slug: data.slug || "draft",
             photos: data.photos.map(p => p.url),
             userNames: data.userNames,
-            personalityImageUrl: null
+            personalityImageUrl: null,
+            cardColor: data.cardColor
           }} />
         </div>
         
@@ -2297,17 +2299,7 @@ export function buildPages(
     stat3Label: "Listeners", stat3Value: String(stats.int(10, 100) + stats.int(0, 9) / 10),
     stat4Label: "Countries", stat4Value: String(stats.int(30, 100))
   }
-  const worldCitizen = (ai as any).globalFootprint || (ai as any).worldCitizen || {
-    locationsCount: stats.int(24, 58),
-    locations: [
-      { name: "Avicii", location: "Sweden" },
-      { name: "BTS", location: "South Korea" },
-      { name: "Shakira", location: "Colombia" },
-      { name: "Adele", location: "United Kingdom" },
-      { name: "Stromae", location: "Belgium" },
-      { name: "Bad Bunny", location: "Puerto Rico" },
-    ]
-  }
+  const worldCitizen = (ai as any).globalFootprint || (ai as any).worldCitizen || {}
   const bottomMetric = (ai as any).summaryDashboard?.bottomMetric || (ai as any).dashboard?.minutesListened || fmt(stats.int(40000, 90000))
   const finaleTitle = ai.finale?.title || "Your wrapped"
   const finaleMinutesLabel = (ai as any).finale?.metricLabel || (ai as any).finale?.minutesLabel || "min lived"
@@ -2407,9 +2399,7 @@ export function buildPages(
         <WorldCitizen
           title={ai.globalFootprint?.title || (ai as any).worldCitizen?.title || "World Citizen"}
           description1={ai.globalFootprint?.description1 || (ai as any).worldCitizen?.description1 || "When it comes to your music, borders disappear."}
-          description2={ai.globalFootprint?.description2 || (ai as any).worldCitizen?.description2 || "You've listened to artists from {count} countries."}
-          countriesCount={worldCitizen.locationsCount}
-          locations={worldCitizen.locations}
+          description2={ai.globalFootprint?.description2 || (ai as any).worldCitizen?.description2 || "Your vibe is truly global."}
         />
       ),
     },

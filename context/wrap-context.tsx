@@ -57,6 +57,8 @@ export type WrapData = {
   isBasicPlan?: boolean
   // Draft Slug
   slug?: string
+  // DB Card Color
+  cardColor?: string
 }
 
 const initialData: WrapData = {

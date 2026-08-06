@@ -40,8 +40,6 @@ export type AiWrapContent = {
     title: string
     description1: string
     description2: string
-    locationsCount: number
-    locations: { name: string; location: string }[]
   }
   summaryDashboard: {
     list1Title: string

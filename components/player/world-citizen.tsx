@@ -1,39 +1,13 @@
 "use client"
 
-import { useEffect, useRef, useState, useCallback } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { motion } from "framer-motion"
 import createGlobe from "cobe"
 import { Shell } from "@/components/player/pages"
 
 const SPRING = { type: "spring", stiffness: 120, damping: 14 } as const
 
-// Sample locations for the carousel
-const WORLD_LOCATIONS = [
-  { name: "Avicii", location: "Sweden", coordinates: [59.33, 18.07] as [number, number] },
-  { name: "BTS", location: "South Korea", coordinates: [37.57, 126.98] as [number, number] },
-  { name: "Shakira", location: "Colombia", coordinates: [4.71, -74.07] as [number, number] },
-  { name: "Adele", location: "United Kingdom", coordinates: [51.51, -0.13] as [number, number] },
-  { name: "Stromae", location: "Belgium", coordinates: [50.85, 4.35] as [number, number] },
-  { name: "Bad Bunny", location: "Puerto Rico", coordinates: [18.47, -66.11] as [number, number] },
-]
 
-function useCountUp(target: number, duration = 1500) {
-  const [val, setVal] = useState(0)
-  useEffect(() => {
-    let raf = 0
-    const t0 = performance.now()
-    const tick = (now: number) => {
-      const p = Math.min(1, (now - t0) / duration)
-      const eased = 1 - Math.pow(1 - p, 3)
-      setVal(Math.round(target * eased))
-      if (p < 1) raf = requestAnimationFrame(tick)
-    }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
-  }, [target, duration])
-  return val
-}
 
 /* ──────────────────────────────────────────────────────────────────── */
 /* Real WebGL Globe using cobe — with decelerating spin               */
@@ -136,38 +110,21 @@ interface WorldCitizenProps {
   title?: string
   description1?: string
   description2?: string
-  countriesCount: number
-  locations?: { name: string; location: string }[]
 }
 
 export function WorldCitizen({
   title = "World Citizen",
   description1 = "When it comes to your music, borders disappear.",
-  description2 = "You've listened to artists from {count} countries.",
-  countriesCount = 38,
-  locations = WORLD_LOCATIONS,
+  description2 = "Your vibe is truly global.",
 }: WorldCitizenProps) {
   // Phase 1 (0-1.8s): globe centered, spinning fast
   // Phase 2 (1.8s+): globe slides to right, text fades in, spin slows down
   const [settled, setSettled] = useState(false)
-  const [locationIndex, setLocationIndex] = useState(0)
-
-  const count = useCountUp(settled ? countriesCount : 0, 2000)
 
   useEffect(() => {
     const timer = setTimeout(() => setSettled(true), 1800)
     return () => clearTimeout(timer)
   }, [])
-
-  const nextLocation = useCallback(() => {
-    setLocationIndex((prev) => (prev + 1) % locations.length)
-  }, [locations.length])
-
-  const prevLocation = useCallback(() => {
-    setLocationIndex((prev) => (prev - 1 + locations.length) % locations.length)
-  }, [locations.length])
-
-  const currentLocation = locations[locationIndex]
 
   return (
     <Shell>
@@ -235,59 +192,12 @@ export function WorldCitizen({
               {description1}
             </p>
             <p className="mt-3 font-sans text-sm font-semibold leading-relaxed text-[#0b0b0b]/80">
-              {description2.split("{count}").map((part, i, arr) => (
-                <span key={i}>
-                  {part}
-                  {i < arr.length - 1 && (
-                    <motion.span
-                      className="inline-block font-display text-2xl font-black text-[#e4ff31]"
-                      style={{ textShadow: "0 2px 8px rgba(0,0,0,0.2)" }}
-                      initial={{ scale: 0 }}
-                      animate={settled ? { scale: 1 } : { scale: 0 }}
-                      transition={{ type: "spring", stiffness: 200, damping: 12, delay: 1.0 }}
-                    >
-                      {count}
-                    </motion.span>
-                  )}
-                </span>
-              ))}
+              {description2}
             </p>
           </motion.div>
 
           {/* Spacer */}
           <div className="flex-1" />
-
-          {/* Carousel at bottom */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={settled ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ ...SPRING, delay: 0.8 }}
-            className="flex items-center justify-between px-5 pb-8"
-          >
-            <button onClick={prevLocation} className="text-[#0b0b0b]/50 hover:text-[#0b0b0b]">
-              <ChevronLeft className="size-5" />
-            </button>
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={locationIndex}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.2 }}
-                className="text-right"
-              >
-                <p className="font-display text-lg font-black text-[#0b0b0b]">
-                  {currentLocation.name}
-                </p>
-                <p className="font-sans text-xs font-semibold text-[#0b0b0b]/60">
-                  {currentLocation.location}
-                </p>
-              </motion.div>
-            </AnimatePresence>
-            <button onClick={nextLocation} className="text-[#0b0b0b]/50 hover:text-[#0b0b0b]">
-              <ChevronRight className="size-5" />
-            </button>
-          </motion.div>
         </div>
       </div>
 
@@ -368,22 +278,7 @@ export function WorldCitizen({
               transition={{ ...SPRING, delay: 0.8 }}
             >
               <p className="font-sans text-base font-semibold leading-relaxed text-[#0b0b0b]/80 lg:text-lg">
-                {description2.split("{count}").map((part, i, arr) => (
-                  <span key={i}>
-                    {part}
-                    {i < arr.length - 1 && (
-                      <motion.span
-                        className="inline-block font-display text-3xl font-black text-[#e4ff31] lg:text-4xl"
-                        style={{ textShadow: "0 2px 12px rgba(0,0,0,0.15)" }}
-                        initial={{ scale: 0 }}
-                        animate={settled ? { scale: 1 } : { scale: 0 }}
-                        transition={{ type: "spring", stiffness: 200, damping: 12, delay: 1.0 }}
-                      >
-                        {count}
-                      </motion.span>
-                    )}
-                  </span>
-                ))}
+                {description2}
               </p>
             </motion.div>
           </div>
@@ -391,44 +286,6 @@ export function WorldCitizen({
           {/* Empty spacer at bottom-left */}
           <div />
         </div>
-
-        {/* Bottom bar — carousel (desktop, absolute positioned) */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={settled ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ ...SPRING, delay: 1.0 }}
-          className="absolute bottom-8 right-10 z-20 flex items-center gap-4 lg:right-14"
-        >
-          <button
-            onClick={prevLocation}
-            className="flex size-8 items-center justify-center rounded-full border border-[#0b0b0b]/20 text-[#0b0b0b]/50 transition-colors hover:border-[#0b0b0b]/50 hover:text-[#0b0b0b]"
-          >
-            <ChevronLeft className="size-4" />
-          </button>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={locationIndex}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.25 }}
-              className="min-w-[8rem] text-right"
-            >
-              <p className="font-display text-xl font-black text-[#0b0b0b]">
-                {currentLocation.name}
-              </p>
-              <p className="font-sans text-sm font-semibold text-[#0b0b0b]/60">
-                {currentLocation.location}
-              </p>
-            </motion.div>
-          </AnimatePresence>
-          <button
-            onClick={nextLocation}
-            className="flex size-8 items-center justify-center rounded-full border border-[#0b0b0b]/20 text-[#0b0b0b]/50 transition-colors hover:border-[#0b0b0b]/50 hover:text-[#0b0b0b]"
-          >
-            <ChevronRight className="size-4" />
-          </button>
-        </motion.div>
       </div>
 
       {/* Bottom down arrow */}

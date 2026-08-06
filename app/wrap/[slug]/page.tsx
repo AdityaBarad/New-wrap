@@ -129,6 +129,7 @@ export default async function WrapPage({ params }: Props) {
         } as SongData
       : null,
     isBasicPlan,
+    cardColor: wrap.card_color,
   }
 
   const aiContent = wrap.ai_content as AiWrapContent
