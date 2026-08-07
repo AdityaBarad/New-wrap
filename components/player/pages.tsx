@@ -334,12 +334,12 @@ const SHARE_ORBS = [
 function ShareWrapsyLogo() {
   return (
     <div className="flex items-center gap-2 text-[#101010] sm:gap-[1.2cqw]">
-      <svg viewBox="0 0 64 64" aria-hidden="true" className="size-[clamp(1.8rem,7vw,3rem)] sm:size-[clamp(2.5rem,6cqw,4rem)]">
-        <circle cx="32" cy="32" r="30" fill="currentColor" />
-        <path d="M17 25c10-3 22-2 31 2.5" fill="none" stroke="#ff861b" strokeLinecap="round" strokeWidth="5" />
-        <path d="M20 33c8-2 17-1.3 25 2" fill="none" stroke="#ff861b" strokeLinecap="round" strokeWidth="4.2" />
-        <path d="M22 41c6-1.5 13-.8 19 1.7" fill="none" stroke="#ff861b" strokeLinecap="round" strokeWidth="3.6" />
-      </svg>
+      <img
+        src="/logo/logo-solid.jpeg"
+        alt="Logo"
+        className="size-[clamp(1.8rem,7vw,3rem)] sm:size-[clamp(2.5rem,6cqw,4rem)] object-contain rounded-[6px]"
+        style={{ borderRadius: '6px' }}
+      />
       <span className="font-display text-[clamp(1.2rem,5vw,2.2rem)] font-black tracking-tight sm:text-[clamp(1.7rem,4.2cqw,3rem)]">Wrapsy</span>
     </div>
   )
@@ -944,30 +944,12 @@ function TopSongReveal({
 
 function WrapsyMark() {
   return (
-    <svg viewBox="0 0 64 64" aria-hidden="true" className="h-[7.7cqw] w-[7.7cqw] shrink-0">
-      <circle cx="32" cy="32" r="30" fill="currentColor" />
-      <path
-        d="M18.5 25.2c9.2-2.6 21.5-1.4 29.1 3"
-        fill="none"
-        stroke="#f8cdd6"
-        strokeLinecap="round"
-        strokeWidth="5.2"
-      />
-      <path
-        d="M20.6 33.2c7.8-2 17.5-1.1 24.2 2.4"
-        fill="none"
-        stroke="#f8cdd6"
-        strokeLinecap="round"
-        strokeWidth="4.4"
-      />
-      <path
-        d="M22.2 40.8c6.2-1.5 13.6-.7 18.6 1.9"
-        fill="none"
-        stroke="#f8cdd6"
-        strokeLinecap="round"
-        strokeWidth="3.8"
-      />
-    </svg>
+    <img
+      src="/logo/logo-solid.jpeg"
+      alt="Logo"
+      className="h-[7.7cqw] w-[7.7cqw] shrink-0 object-contain rounded-[6px]"
+      style={{ borderRadius: '6px' }}
+    />
   )
 }
 
@@ -1112,12 +1094,12 @@ function FlameStrip() {
 
 function SmallWrapsyLogo() {
   return (
-    <svg viewBox="0 0 42 42" aria-hidden="true" className="size-[7cqw] shrink-0">
-      <circle cx="21" cy="21" r="20" fill="currentColor" />
-      <path d="M10 17c8-2 17-1 23 2" fill="none" stroke="#95eab1" strokeLinecap="round" strokeWidth="3.3" />
-      <path d="M12 23c6-1.5 13-.8 19 1.8" fill="none" stroke="#95eab1" strokeLinecap="round" strokeWidth="2.8" />
-      <path d="M14 29c5-1 10-.5 15 1.5" fill="none" stroke="#95eab1" strokeLinecap="round" strokeWidth="2.3" />
-    </svg>
+    <img
+      src="/logo/logo-solid.jpeg"
+      alt="Logo"
+      className="size-[7cqw] shrink-0 object-contain rounded-[6px]"
+      style={{ borderRadius: '6px' }}
+    />
   )
 }
 
@@ -1748,13 +1730,12 @@ function DashboardTicket({
               variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: SPRING } }}
               className="mt-8 flex items-center justify-between gap-4"
             >
-              <div className="flex size-9 shrink-0 items-center justify-center rounded-full" style={{ backgroundColor: ink }}>
-                <svg viewBox="0 0 64 64" aria-hidden="true" className="size-5" fill="none">
-                  <path d="M17 25.5c10.5-3.2 21.5-2.4 31.7 2.5" stroke={cream} strokeWidth="5.2" strokeLinecap="round" />
-                  <path d="M19.8 33.1c8.6-2.3 17.1-1.7 25.5 2" stroke={cream} strokeWidth="4.3" strokeLinecap="round" />
-                  <path d="M22.3 40.2c6.4-1.5 12.5-1.1 18.9 1.6" stroke={cream} strokeWidth="3.7" strokeLinecap="round" />
-                </svg>
-              </div>
+              <img
+                src="/logo/logo-solid.jpeg"
+                alt="Logo"
+                className="size-9 shrink-0 object-contain rounded-[6px]"
+                style={{ borderRadius: '6px' }}
+              />
               <p className="font-sans text-[12px] font-bold uppercase tracking-wide" style={{ color: ink }}>
                 SPOTIFY.COM/WRAPPED
               </p>
@@ -1797,12 +1778,12 @@ const GRID_CIRCLES = (() => {
 
 function GenreWrapsyMark() {
   return (
-    <svg viewBox="0 0 44 44" aria-hidden="true" className="size-[8cqmin] text-[#202020]">
-      <circle cx="22" cy="22" r="20" fill="currentColor" />
-      <path d="M11 17c8-2.3 17-1.4 23 2" fill="none" stroke="#f2f4e7" strokeLinecap="round" strokeWidth="3.2" />
-      <path d="M13 23c6.5-1.6 13.5-.9 19 1.7" fill="none" stroke="#f2f4e7" strokeLinecap="round" strokeWidth="2.7" />
-      <path d="M15 29c5-1.1 10-.6 14 1.2" fill="none" stroke="#f2f4e7" strokeLinecap="round" strokeWidth="2.2" />
-    </svg>
+    <img
+      src="/logo/logo-solid.jpeg"
+      alt="Logo"
+      className="size-[8cqmin] object-contain rounded-[6px]"
+      style={{ borderRadius: '6px' }}
+    />
   )
 }
 

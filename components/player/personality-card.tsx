@@ -144,7 +144,7 @@ export function PersonalityCardSlide({
 
       {/* 2. Spiky Star Burst (Bottom Right) */}
       <motion.div
-        className="absolute z-50 pointer-events-none"
+        className={`absolute pointer-events-none ${isMobile ? "z-20" : "z-50"}`}
         style={isMobile
           ? { right: "clamp(-60px, -2vw, 0px)", bottom: "35vh" }
           : { right: "clamp(-60px, -2vw, 0px)", bottom: "clamp(-80px, -10vh, 0px)" }
@@ -253,7 +253,12 @@ export function PersonalityCardSlide({
       {/* Top Header: Wrapsy Logo */}
       <div className="relative z-30 w-full flex flex-col items-center pt-8 md:pt-12">
         <div className="flex items-center gap-2">
-          <img src="/logo/logo-transparent.png" alt="Wrapsy" className="object-contain" style={{ width: "clamp(1.5rem, 4vw, 2.5rem)", height: "clamp(1.5rem, 4vw, 2.5rem)" }} />
+          <img
+            src="/logo/logo-solid.jpeg"
+            alt="Wrapsy"
+            className="object-contain rounded-[6px]"
+            style={{ width: "clamp(1.5rem, 4vw, 2.5rem)", height: "clamp(1.5rem, 4vw, 2.5rem)", borderRadius: "6px" }}
+          />
           <span className="font-display font-black tracking-tight" style={{ color: "#000", fontSize: "clamp(1.2rem, 3vw, 1.6rem)" }}>Wrapsy</span>
         </div>
       </div>

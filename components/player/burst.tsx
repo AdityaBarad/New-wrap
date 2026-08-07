@@ -284,30 +284,12 @@ export function WrapFooter({ ink, hashtag }: { ink: string; hashtag: string }) {
     >
       {/* Wrapsy-style logo */}
       <span className="flex items-center gap-1.5 md:gap-2">
-        <svg viewBox="0 0 24 24" className="size-5 md:size-7" aria-hidden="true">
-          <circle cx="12" cy="12" r="12" fill={ink} />
-          <path
-            d="M7 9.5c2.5-1 5.5-.8 7.5.5"
-            stroke="var(--wr-cream)"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            fill="none"
-          />
-          <path
-            d="M6 12c3-1.2 6.5-.9 9 .5"
-            stroke="var(--wr-cream)"
-            strokeWidth="1.4"
-            strokeLinecap="round"
-            fill="none"
-          />
-          <path
-            d="M5.5 14.5c3.5-1.2 7.5-.8 10.5.5"
-            stroke="var(--wr-cream)"
-            strokeWidth="1.2"
-            strokeLinecap="round"
-            fill="none"
-          />
-        </svg>
+        <img
+          src="/logo/logo-solid.jpeg"
+          alt="Logo"
+          className="size-5 md:size-7 object-contain rounded-[6px]"
+          style={{ borderRadius: '6px' }}
+        />
         <span className="font-display text-sm font-black lowercase tracking-tight md:text-lg">wrapsy</span>
       </span>
       <span className="font-display text-[10px] font-black uppercase tracking-widest opacity-80 md:text-sm">{hashtag}</span>

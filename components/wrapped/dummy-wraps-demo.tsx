@@ -114,7 +114,7 @@ function WrapRow({ title, wraps, direction = 'left' }: { title: string, wraps: a
                 <img src={wrap.photos[0]} alt="" className={`${s.circleImage} ${s.centerCircle}`} />
               </div>
               
-              <img src="/logo/black-transparent.png" alt="Logo" className={s.logo} />
+              <img src="/logo/logo-solid.jpeg" alt="Logo" className={s.logo} />
               
               <span className={s.badge}>
                 {label}

@@ -162,9 +162,12 @@ export function WorldCitizen({
             className="flex items-center justify-between px-5 pt-8"
           >
             <div className="flex items-center gap-2 text-[#eeeee4]">
-              <svg viewBox="0 0 24 24" fill="currentColor" className="size-5">
-                <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.5 17.3c-.2.3-.6.4-.9.2-2.5-1.5-5.7-1.9-9.5-1-.3.1-.7-.1-.8-.4-.1-.3.1-.7.4-.8 4.2-1 7.7-.5 10.5 1.2.3.2.4.6.3.8zm1.3-2.9c-.3.4-.8.5-1.2.2-2.9-1.8-7.3-2.4-10.9-1.3-.5.1-1-.2-1.1-.6-.1-.5.2-1 .6-1.1 4.1-1.2 9-1.1 12.3 1 1 .5 1.2 1 .9 1.4zm.1-3c-3.5-2.1-9.2-2.3-12.5-1.3-.6.2-1.2-.2-1.4-.8-.2-.6.2-1.2.8-1.4 3.9-1.1 10.2-.9 14.3 1.6.5.3.7.9.4 1.4-.3.5-.9.7-1.5.4z" />
-              </svg>
+              <img
+                src="/logo/logo-solid.jpeg"
+                alt="Logo"
+                className="size-5 object-contain rounded-[6px]"
+                style={{ borderRadius: '6px' }}
+              />
               <span className="font-sans text-sm font-bold">Wrapsy Premium</span>
             </div>
           </motion.div>
@@ -243,9 +246,12 @@ export function WorldCitizen({
             transition={{ ...SPRING, delay: 0.2 }}
             className="flex items-center gap-2 text-[#eeeee4]"
           >
-            <svg viewBox="0 0 24 24" fill="currentColor" className="size-6">
-              <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.5 17.3c-.2.3-.6.4-.9.2-2.5-1.5-5.7-1.9-9.5-1-.3.1-.7-.1-.8-.4-.1-.3.1-.7.4-.8 4.2-1 7.7-.5 10.5 1.2.3.2.4.6.3.8zm1.3-2.9c-.3.4-.8.5-1.2.2-2.9-1.8-7.3-2.4-10.9-1.3-.5.1-1-.2-1.1-.6-.1-.5.2-1 .6-1.1 4.1-1.2 9-1.1 12.3 1 1 .5 1.2 1 .9 1.4zm.1-3c-3.5-2.1-9.2-2.3-12.5-1.3-.6.2-1.2-.2-1.4-.8-.2-.6.2-1.2.8-1.4 3.9-1.1 10.2-.9 14.3 1.6.5.3.7.9.4 1.4-.3.5-.9.7-1.5.4z" />
-            </svg>
+            <img
+              src="/logo/logo-solid.jpeg"
+              alt="Logo"
+              className="size-6 object-contain rounded-[6px]"
+              style={{ borderRadius: '6px' }}
+            />
             <span className="font-sans text-lg font-bold">Wrapsy Premium</span>
           </motion.div>
 

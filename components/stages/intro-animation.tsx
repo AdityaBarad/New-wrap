@@ -59,7 +59,7 @@ export function IntroAnimation({ onComplete }: { onComplete: () => void }) {
                 style={{ willChange: "transform, opacity" }}
               >
                 <div
-                  className="flex w-[250%] items-center"
+                  className="flex w-[250%] items-center py-[1vw] md:py-[0.8rem]"
                   style={{ backgroundColor: row.bg }}
                 >
                   <motion.span
@@ -74,7 +74,9 @@ export function IntroAnimation({ onComplete }: { onComplete: () => void }) {
                       ease: "linear",
                     }}
                   >
-                    {row.text}&nbsp;&nbsp;&nbsp;{row.text}&nbsp;&nbsp;&nbsp;{row.text}&nbsp;&nbsp;&nbsp;{row.text}&nbsp;&nbsp;&nbsp;{row.text}
+                    <span style={{ display: "inline-block", transform: "translateY(-7%)" }}>
+                      {row.text}&nbsp;&nbsp;&nbsp;{row.text}&nbsp;&nbsp;&nbsp;{row.text}&nbsp;&nbsp;&nbsp;{row.text}&nbsp;&nbsp;&nbsp;{row.text}
+                    </span>
                   </motion.span>
                 </div>
               </motion.div>
