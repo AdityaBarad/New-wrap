@@ -71,7 +71,7 @@ export function WrapViewer({ wrapData, aiContent, personalityImageUrl, slug, vie
                   transition={{ delay: 0.4 }}
                   className="mt-6 font-display text-[3.5rem] font-black leading-[0.9] tracking-tight text-cream sm:text-[5rem]"
                 >
-                  {aiContent.intro?.lines?.[0] || wrapData.user_names || "Your"}
+                  {wrapData.wrapTitle || aiContent.intro?.lines?.[0] || wrapData.userNames || "Your"}
                   <br />
                   <span className="text-cream/40">Wrapped</span>
                 </motion.h1>

@@ -86,7 +86,7 @@ export function ArtistStatsCard({
           </div>
           
           <div className="font-display text-sm font-bold tracking-widest text-[#e4ff31]">
-            2026 WRAPPED
+            WRAPPED
           </div>
         </motion.div>
 

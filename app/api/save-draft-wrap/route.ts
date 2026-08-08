@@ -38,6 +38,7 @@ export async function POST(req: NextRequest) {
       phone: wrapData.phone,
       slug,
       name: wrapData.name,
+      wrap_title: wrapData.wrapTitle || null,
       purpose: wrapData.purpose,
       user_names: wrapData.userNames || null,
       anniversary_date: wrapData.anniversaryDate || null,

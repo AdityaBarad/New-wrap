@@ -217,7 +217,7 @@ export function Wrapped2023Slide({
 
       {/* Fade-in wrapper for CONTENT (hidden during 2s star intro) */}
       <motion.div
-        className={`absolute inset-0 w-full h-full flex flex-col items-center justify-between pointer-events-auto ${isMobile ? "z-[30]" : "z-10"}`}
+        className="absolute inset-0 w-full h-full flex flex-col items-center justify-between pointer-events-auto z-30"
         animate={{ opacity: [0, 0, 1] }}
         transition={{ duration: 3, times: [0, 0.66, 1], ease: "easeInOut" }}
       >

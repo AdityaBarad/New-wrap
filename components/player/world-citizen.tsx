@@ -211,7 +211,7 @@ export function WorldCitizen({
                 className="size-5 object-contain rounded-[6px]"
                 style={{ borderRadius: '6px' }}
               />
-              <span className="font-sans text-sm font-bold">Wrapsy Premium</span>
+              <span className="font-sans text-sm font-bold">Wrapsy</span>
             </div>
           </motion.div>
 
@@ -297,7 +297,7 @@ export function WorldCitizen({
               className="size-6 object-contain rounded-[6px]"
               style={{ borderRadius: '6px' }}
             />
-            <span className="font-sans text-lg font-bold">Wrapsy Premium</span>
+            <span className="font-sans text-lg font-bold">Wrapsy</span>
           </motion.div>
 
           {/* Title - World Citizen */}

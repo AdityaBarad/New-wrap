@@ -250,18 +250,7 @@ export function PersonalityCardSlide({
         </svg>
       </motion.div>
 
-      {/* Top Header: Wrapsy Logo */}
-      <div className="relative z-30 w-full flex flex-col items-center pt-8 md:pt-12">
-        <div className="flex items-center gap-2">
-          <img
-            src="/logo/logo-solid.jpeg"
-            alt="Wrapsy"
-            className="object-contain rounded-[6px]"
-            style={{ width: "clamp(1.5rem, 4vw, 2.5rem)", height: "clamp(1.5rem, 4vw, 2.5rem)", borderRadius: "6px" }}
-          />
-          <span className="font-display font-black tracking-tight" style={{ color: "#000", fontSize: "clamp(1.2rem, 3vw, 1.6rem)" }}>Wrapsy</span>
-        </div>
-      </div>
+
 
       {/* Main Card Content */}
       <motion.div 

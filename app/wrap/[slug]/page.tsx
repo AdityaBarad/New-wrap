@@ -104,6 +104,7 @@ export default async function WrapPage({ params }: Props) {
   // Reconstruct WrapData from the stored fields
   const wrapData: WrapData = {
     name: wrap.name,
+    wrapTitle: wrap.wrap_title || "",
     phone: "", // Not stored in wraps table (privacy)
     whatsThisFor: "",
     promoCode: "",

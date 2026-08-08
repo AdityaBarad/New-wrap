@@ -947,8 +947,8 @@ function WrapsyMark() {
     <img
       src="/logo/logo-solid.jpeg"
       alt="Logo"
-      className="h-[7.7cqw] w-[7.7cqw] shrink-0 object-contain rounded-[6px]"
-      style={{ borderRadius: '6px' }}
+      className="shrink-0 object-contain rounded-[6px]"
+      style={{ borderRadius: '6px', width: '6.5cqw', height: '6.5cqw' }}
     />
   )
 }
@@ -1666,11 +1666,22 @@ function DashboardTicket({
           style={{ backgroundColor: cream }}
           className="relative w-full max-w-sm overflow-hidden shadow-2xl"
         >
-          <div className="absolute -left-8 top-0 z-20 h-[21.5rem] select-none overflow-hidden font-display text-[9rem] font-black italic leading-[0.82] tracking-tighter md:h-[22.5rem] md:text-[10rem]" style={{ color: red }}>
-            <span className="block [writing-mode:vertical-rl]">{year}</span>
-          </div>
-
           <div className="relative h-[21.5rem] overflow-hidden md:h-[22.5rem]">
+            {/* 2026 vertical text - aligned to image area */}
+            <div 
+              className="absolute -left-4 md:-left-6 top-0 bottom-0 z-20 select-none overflow-hidden font-display font-black italic tracking-tighter" 
+              style={{ 
+                color: red,
+                writingMode: "vertical-rl",
+                fontSize: "clamp(7.5rem, 22vw, 10rem)",
+                lineHeight: 0.82,
+                display: "flex",
+                alignItems: "stretch"
+              }}
+            >
+              <span className="block" style={{ height: "100%" }}>{year}</span>
+            </div>
+
             <motion.div
               aria-hidden="true"
               className="absolute -inset-20"
@@ -1684,7 +1695,7 @@ function DashboardTicket({
             />
             <div 
               className="absolute left-1/2 top-9 z-30 aspect-square w-[72%] max-w-[18.5rem] -translate-x-1/2 overflow-hidden shadow-[0_8px_0_rgba(0,0,0,0.04)] border-[3px]"
-              style={{ borderColor: ink }}
+              style={{ borderColor: ink, left: "55%" }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -1757,7 +1768,7 @@ function DashboardTicket({
                 style={{ borderRadius: '6px' }}
               />
               <p className="font-sans text-[12px] font-bold uppercase tracking-wide" style={{ color: ink }}>
-                SPOTIFY.COM/WRAPPED
+                WRAPSY.CO/WRAPPED
               </p>
             </motion.div>
           </motion.div>
@@ -2107,10 +2118,10 @@ function FinaleCard({
     <Shell>
       {/* moving typography wall */}
       <div className="pointer-events-none absolute inset-0 flex flex-col justify-between py-6 z-0">
-        <MarqueeRow text={HASHTAG} ink="var(--wr-yellow)" duration={22} />
-        <MarqueeRow text={HASHTAG} ink="var(--wr-yellow)" duration={16} reverse outline />
-        <MarqueeRow text={HASHTAG} ink="var(--wr-yellow)" duration={28} />
-        <MarqueeRow text={HASHTAG} ink="var(--wr-yellow)" duration={19} reverse outline />
+        <MarqueeRow text="WRAPPED" ink="var(--wr-green)" duration={22} />
+        <MarqueeRow text="WRAPPED" ink="var(--wr-green)" duration={16} reverse outline />
+        <MarqueeRow text="WRAPPED" ink="var(--wr-green)" duration={28} />
+        <MarqueeRow text="WRAPPED" ink="var(--wr-green)" duration={19} reverse outline />
       </div>
       <div className="relative flex h-full w-full flex-col items-center justify-center gap-6 px-6 py-8">
         <motion.div
@@ -2121,7 +2132,7 @@ function FinaleCard({
         >
           <div className="rounded-xl overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.5)] border-2 border-white/10 bg-ink">
             <WrapCard wrap={{
-              name: data.name,
+              name: data.wrapTitle || data.name,
               purpose: data.purpose || "life",
               slug: data.slug || "draft",
               photos: data.photos.map(p => p.url),
@@ -2156,9 +2167,9 @@ function FinaleCard({
                 transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
                 whileHover={{ scale: 1.08, y: -4, rotate: -2 }}
                 whileTap={{ scale: 0.96 }}
-                className="flex flex-1 items-center justify-center gap-2 rounded-full bg-green px-6 py-3.5 font-display text-sm font-black uppercase tracking-wide text-ink shadow-[0_0_20px_rgba(30,215,96,0.4)] disabled:opacity-50"
+                className="flex flex-1 items-center justify-center gap-3 rounded-full bg-green px-8 py-5 font-display text-lg font-black uppercase tracking-wide text-ink shadow-[0_0_20px_rgba(30,215,96,0.4)] disabled:opacity-50"
               >
-                <Share2 className="size-4" />
+                <Share2 className="size-5" />
                 {isExporting ? "Generating..." : "Share Wrap"}
               </motion.button>
               

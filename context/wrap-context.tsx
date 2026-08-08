@@ -40,6 +40,7 @@ export type WrapData = {
   whatsThisFor: string
   promoCode: string
   purpose: Purpose | null
+  wrapTitle: string
   // Stage 2
   userNames: string
   chatExportName: string
@@ -67,6 +68,7 @@ const initialData: WrapData = {
   whatsThisFor: "",
   promoCode: "",
   purpose: null,
+  wrapTitle: "",
   userNames: "",
   chatExportName: "",
   anniversaryDate: "",
@@ -189,8 +191,8 @@ export function WrapProvider({
   const submitStage1 = useCallback(async (verifiedPhone?: string) => {
     setError(null)
     const phoneToUse = verifiedPhone || data.phone
-    if (!data.name.trim() || !phoneToUse.trim()) {
-      setError("Drop your name and number first.")
+    if (!data.name.trim() || !data.wrapTitle.trim() || !phoneToUse.trim()) {
+      setError("Drop your name, wrap title, and number first.")
       return false
     }
     
