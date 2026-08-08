@@ -95,7 +95,10 @@ export async function POST(req: NextRequest) {
     if (photos && Array.isArray(photos)) {
       for (let i = 0; i < photos.length; i++) {
         const photo = photos[i]
-        if (!photo?.base64) continue
+        if (!photo?.base64) {
+          photoUrls.push("")
+          continue
+        }
 
         let contentType = "image/jpeg"
         if (photo.base64.startsWith("data:")) {
@@ -111,7 +114,11 @@ export async function POST(req: NextRequest) {
           photo.base64,
           contentType,
         )
-        if (url) photoUrls.push(url)
+        if (url) {
+          photoUrls.push(url)
+        } else {
+          photoUrls.push("")
+        }
       }
     }
 

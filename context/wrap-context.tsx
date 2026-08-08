@@ -305,7 +305,9 @@ export function WrapProvider({
         }
 
         const photosBase64 = await Promise.all(
-          data.photos.map(async (photo) => {
+          Array.from({ length: 14 }).map(async (_, i) => {
+            const photo = data.photos[i]
+            if (!photo) return null
             try {
               const base64 = await blobUrlToBase64(photo.url)
               return { name: photo.name, base64 }
@@ -322,7 +324,7 @@ export function WrapProvider({
             wrapData: data,
             aiContent: content,
             personalityImageBase64,
-            photos: photosBase64.filter(Boolean),
+            photos: photosBase64,
           }),
         })
 

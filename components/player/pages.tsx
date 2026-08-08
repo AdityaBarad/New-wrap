@@ -1014,7 +1014,7 @@ function WrappedSparkleRibbon() {
   )
 }
 
-function GlobalArtists({ title = "Most Streamed\nArtists Globally", items }: { title?: string; items: string[] }) {
+function GlobalArtists({ title = "Most Streamed\nArtists Globally", items, photo }: { title?: string; items: string[]; photo?: string }) {
   return (
     <Shell>
       <div className="flex h-full w-full items-center justify-center overflow-hidden bg-[#f8cdd6] text-[#050505]">
@@ -1059,6 +1059,26 @@ function GlobalArtists({ title = "Most Streamed\nArtists Globally", items }: { t
               ))}
             </ol>
           </motion.main>
+
+          {/* Circular Image (4th quadrant) */}
+          {photo && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0, rotate: -20 }}
+              animate={{ opacity: 1, scale: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 140, damping: 15, delay: 1.2 }}
+              className="absolute z-30"
+              style={{ bottom: "5%", right: "8%", width: "40%", aspectRatio: "1 / 1" }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img 
+                src={photo} 
+                alt="Quirks memory" 
+                className="w-full h-full rounded-full object-cover border-[4px] border-[#050505]" 
+                style={{ boxShadow: "0 10px 30px rgba(0,0,0,0.3)" }}
+                crossOrigin="anonymous" 
+              />
+            </motion.div>
+          )}
         </div>
       </div>
     </Shell>
@@ -2240,12 +2260,27 @@ export function buildPages(
 ): WrapPage[] {
   const stats = buildStats(data)
   const purpose = data.purpose ?? "life"
-  const photos = data.photos.map((p) => p?.url || "")
-  const photo1 = photos[0] || "/wrapped-portrait-1.png"
-  const photo2 = photos[1] || photo1
-  const photo3 = photos[2] || photo1
-  const photo4 = photos[3] || photo1
-  const photo5 = photos[4] || photo1
+  const rawPhotos = Array.from({ length: 14 }).map((_, i) => {
+    const p = data.photos[i]
+    return (typeof p === 'string' ? p : p?.url) || ""
+  })
+
+  const photo1 = rawPhotos[0] || "/wrapped-portrait-1.png"
+  const photo2 = rawPhotos[1] || photo1
+  const photo3 = rawPhotos[2] || photo1
+  const photo4 = rawPhotos[3] || photo1
+  const photo5 = rawPhotos[4] || photo1
+  const photo6 = rawPhotos[13] || photo1 // The new 6th slide image
+
+  const basePhotos = [photo1, photo2, photo3, photo4, photo5]
+
+  const topListPhotos = [5, 6, 7, 8, 9].map((i, index) => {
+    return rawPhotos[i] || basePhotos[index % 5]
+  })
+
+  const globePhotos = [10, 11, 12].map((i, index) => {
+    return rawPhotos[i] || basePhotos[(index + 2) % 5]
+  })
   const meta = PURPOSES.find((p) => p.id === (data.purpose ?? "life"))!
   const palette = PALETTES["var(--wr-yellow)"]
 
@@ -2348,12 +2383,12 @@ export function buildPages(
     {
       key: "s4-global-artists",
       bg: "#f8cdd6",
-      node: <GlobalArtists title={globalArtistsTitle} items={globalArtists} />,
+      node: <GlobalArtists title={globalArtistsTitle} items={globalArtists} photo={photo6} />,
     },
     {
       key: "s5-top-artists",
       bg: "#95eab1",
-      node: <TopArtistsList title={list1Title} items={dashboardList1} photos={photos} isExiting={isReverseExiting} />,
+      node: <TopArtistsList title={list1Title} items={dashboardList1} photos={topListPhotos} isExiting={isReverseExiting} />,
     },
     {
       key: "s3-artist-stats",
@@ -2381,6 +2416,7 @@ export function buildPages(
           title={ai.globalFootprint?.title || (ai as any).worldCitizen?.title || "World Citizen"}
           description1={ai.globalFootprint?.description1 || (ai as any).worldCitizen?.description1 || "When it comes to your music, borders disappear."}
           description2={ai.globalFootprint?.description2 || (ai as any).worldCitizen?.description2 || "Your vibe is truly global."}
+          photos={globePhotos}
         />
       ),
     },
@@ -2441,7 +2477,7 @@ export function buildPages(
     },
     {
       key: "s8",
-      bg: "var(--wr-purple)",
+      bg: "#050505",
       node: (
         <FinaleCard
           meta={meta}

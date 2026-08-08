@@ -235,7 +235,7 @@ export function Wrapped2023Slide({
         </div>
       </div>
 
-      {/* Main Center Typography: 2023 Wrapped */}
+      {/* Main Center Typography */}
       <div className="relative z-30 flex flex-col items-center justify-center text-center flex-1 w-full mix-blend-normal">
         <div style={{ background: "#FA5838", padding: "0.2em 0.4em", display: "inline-block" }}>
           <motion.h1
@@ -245,13 +245,14 @@ export function Wrapped2023Slide({
             className="font-display font-black"
             style={{
               color: "#000",
-              fontSize: "clamp(5rem, 18vw, 12rem)",
+              fontSize: "clamp(2.5rem, 8vw, 6rem)", // Scaled down for "Unlock Your"
               letterSpacing: "-0.05em",
               lineHeight: "0.85",
-              marginBottom: "-0.05em"
+              marginBottom: "-0.05em",
+              textTransform: "uppercase"
             }}
           >
-            {year}
+            Unlock Your
           </motion.h1>
           <motion.h2
             initial={{ y: 20, opacity: 0 }}
@@ -260,13 +261,14 @@ export function Wrapped2023Slide({
             className="font-display font-black"
             style={{
               color: "#000",
-              fontSize: "clamp(3.5rem, 12vw, 9rem)",
+              fontSize: "clamp(2.8rem, 9vw, 6.5rem)", // Scaled down for "Personality"
               letterSpacing: "-0.05em",
               lineHeight: "0.85",
-              marginTop: "-0.05em"
+              marginTop: "-0.05em",
+              textTransform: "uppercase"
             }}
           >
-            Wrapped
+            Personality
           </motion.h2>
         </div>
       </div>

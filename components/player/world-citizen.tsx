@@ -110,12 +110,53 @@ interface WorldCitizenProps {
   title?: string
   description1?: string
   description2?: string
+  photos?: string[]
+}
+
+function FloatingPhotos({ photos, settled }: { photos?: string[], settled: boolean }) {
+  if (!photos || photos.length === 0) return null;
+  
+  // Define positions and sizes around the globe
+  const variants = [
+    { pos: { top: "4%", left: "4%" }, size: "clamp(60px, 14vw, 100px)" },       // Small
+    { pos: { top: "35%", right: "-10%" }, size: "clamp(80px, 18vw, 130px)" },     // Medium
+    { pos: { bottom: "-15%", left: "10%" }, size: "clamp(100px, 25vw, 170px)" }   // Large
+  ];
+
+  return (
+    <>
+      {photos.map((p, i) => {
+        if (!p) return null;
+        const v = variants[i % variants.length];
+        return (
+          <motion.div
+            key={i}
+            className="absolute z-20 overflow-hidden border border-white/20"
+            style={{ 
+              width: v.size, 
+              height: v.size,
+              ...v.pos 
+            }}
+            initial={{ opacity: 0, scale: 0.5, rotate: i % 2 === 0 ? -30 : 30 }}
+            animate={settled ? { opacity: 1, scale: 1, rotate: 0 } : { opacity: 0, scale: 0.5, rotate: i % 2 === 0 ? -30 : 30 }}
+            transition={{
+              type: "spring", stiffness: 60, damping: 14, delay: 1.2 + i * 0.15
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={p} alt="Globe memory" className="h-full w-full object-cover" crossOrigin="anonymous" />
+          </motion.div>
+        );
+      })}
+    </>
+  );
 }
 
 export function WorldCitizen({
   title = "World Citizen",
   description1 = "When it comes to your music, borders disappear.",
   description2 = "Your vibe is truly global.",
+  photos = []
 }: WorldCitizenProps) {
   // Phase 1 (0-1.8s): globe centered, spinning fast
   // Phase 2 (1.8s+): globe slides to right, text fades in, spin slows down
@@ -135,9 +176,9 @@ export function WorldCitizen({
       <div className="relative flex h-full w-full flex-col md:hidden">
         {/* Single globe — starts centered, slides down to its spot */}
         <motion.div
-          className="absolute inset-0 z-10 flex items-center justify-center"
+          className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none"
           initial={{ y: 0 }}
-          animate={settled ? { y: "15%" } : { y: 0 }}
+          animate={settled ? { y: "20%" } : { y: 0 }}
           transition={{ type: "spring", stiffness: 40, damping: 16 }}
         >
           <motion.div
@@ -147,19 +188,21 @@ export function WorldCitizen({
               scale: { type: "spring", stiffness: 50, damping: 18 },
               opacity: { duration: 0.4 },
             }}
+            className="relative flex items-center justify-center w-[300px] h-[300px] pointer-events-auto"
           >
             <CobeGlobe size={300} />
+            <FloatingPhotos photos={photos} settled={settled} />
           </motion.div>
         </motion.div>
 
         {/* Text content — fades in after globe settles */}
-        <div className="relative z-20 flex flex-1 flex-col">
+        <div className="relative z-20 flex flex-1 flex-col pointer-events-none">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={settled ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
             transition={{ ...SPRING, delay: 0.2 }}
-            className="flex items-center justify-between px-5 pt-8"
+            className="flex items-center justify-between px-5 pt-8 pointer-events-auto"
           >
             <div className="flex items-center gap-2 text-[#eeeee4]">
               <img
@@ -177,7 +220,7 @@ export function WorldCitizen({
             initial={{ opacity: 0, y: 20 }}
             animate={settled ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ ...SPRING, delay: 0.4 }}
-            className="mt-3 px-5"
+            className="mt-3 px-5 pointer-events-auto"
           >
             <h2 className="font-display text-3xl font-black tracking-tight text-[#0b0b0b]">
               {title}
@@ -189,12 +232,12 @@ export function WorldCitizen({
             initial={{ opacity: 0, y: 20 }}
             animate={settled ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ ...SPRING, delay: 0.6 }}
-            className="mt-3 px-5"
+            className="mt-3 px-5 pointer-events-auto"
           >
-            <p className="max-w-[16rem] font-sans text-sm font-semibold leading-relaxed text-[#0b0b0b]/80">
+            <p className="max-w-[16rem] font-sans text-sm font-semibold leading-relaxed text-[#0b0b0b]/80 drop-shadow-md">
               {description1}
             </p>
-            <p className="mt-3 font-sans text-sm font-semibold leading-relaxed text-[#0b0b0b]/80">
+            <p className="mt-3 font-sans text-sm font-semibold leading-relaxed text-[#0b0b0b]/80 drop-shadow-md">
               {description2}
             </p>
           </motion.div>
@@ -208,7 +251,7 @@ export function WorldCitizen({
       <div className="relative hidden h-full w-full md:block">
         {/* SINGLE GLOBE — starts dead center, slides right to its final position */}
         <motion.div
-          className="absolute z-10 flex items-center justify-center"
+          className="absolute z-10 flex items-center justify-center pointer-events-none"
           style={{ top: 0, bottom: 0, left: 0, right: 0 }}
           initial={{ x: 0 }}
           animate={
@@ -229,11 +272,13 @@ export function WorldCitizen({
               scale: { type: "spring", stiffness: 40, damping: 16 },
               opacity: { duration: 0.5 },
             }}
+            className="relative flex items-center justify-center w-[480px] h-[480px] lg:w-[520px] lg:h-[520px] xl:w-[560px] xl:h-[560px] pointer-events-auto"
           >
             <CobeGlobe
               size={480}
-              className="lg:!h-[520px] lg:!w-[520px] xl:!h-[560px] xl:!w-[560px]"
+              className="!w-full !h-full"
             />
+            <FloatingPhotos photos={photos} settled={settled} />
           </motion.div>
         </motion.div>
 

@@ -48,11 +48,12 @@ Generate creative, personalized, trendy unique content for an 8-slide wrapped ex
 1. Be deeply personalized using the user's story and details
 2. Sound like a mix of spotify Wrapped + Instagram Reels + Twitter shitposting
 3. Use Gen-Z slang naturally (slay, era, main character, unhinged, no cap, ate, etc.)
-4. Reference specific details from their story paragraph, and every slide should have different content and topic
-5. Be witty, warm, and shareable — every line should make someone want to screenshot it
-6. Be unique — NEVER generic. If they mentioned a city, reference it. If they mentioned a habit, roast it lovingly.
-7. CRITICAL LENGTH LIMIT: For "globalArtists" list, EACH item MUST be MAXIMUM 15 CHARACTERS (e.g. 'Maggie Mei', 'Momos Mafia'). Keep them short so they fit on screen!
-8. dont assume things by your own stay with the data only that users gave.
+4. CRITICAL: NEVER REPEAT THE SAME DETAIL ACROSS MULTIPLE SLIDES. Every slide MUST focus on a DIFFERENT aspect, quirk, or memory from the user's story. If you use a detail on one slide (e.g., stealing hoodies), DO NOT use it again anywhere else.
+5. Utilize as many DIFFERENT points from the user's story as possible to make the whole wrap feel rich, diverse, and interesting.
+6. Be witty, warm, and shareable — every line should make someone want to screenshot it
+7. Be unique — NEVER generic. If they mentioned a city, reference it. If they mentioned a habit, roast it lovingly.
+8. CRITICAL LENGTH LIMIT: For "globalArtists" list and all list items, EACH item MUST be MAXIMUM 15 CHARACTERS. Keep them short so they fit on screen!
+9. Don't assume things on your own, stay with the data only that users gave.
 
 Return ONLY a valid JSON object (no markdown, no backticks, no explanation) adhering STRICTLY to the following structure and constraints.
 IMPORTANT: The values you generate MUST be wildly creative, unique, and deeply personalized to the user's story. DO NOT use generic Spotify defaults. Capture the true Spotify Wrapped vibe (punchy, rhythmic, slightly roasting, deeply celebratory).

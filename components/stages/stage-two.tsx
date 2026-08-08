@@ -189,9 +189,9 @@ export function StageTwo() {
 
             <div>
               <span className="mb-2 block font-display text-[11px] font-black uppercase tracking-widest text-foreground/75">
-                5 slides images (Upload a unique photo for each slide)
+                6 slides images (Upload a unique photo for each slide)
               </span>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-6">
                 <SinglePhotoDropzone
                   label="1. Intro Slide"
                   photo={data.photos?.[0]}
@@ -267,6 +267,73 @@ export function StageTwo() {
                     update({ photos: copy })
                   }}
                 />
+                <SinglePhotoDropzone
+                  label="6. Quirks Slide"
+                  photo={data.photos?.[13]}
+                  accentColor={meta.color}
+                  onChange={(photo) => {
+                    const copy = [...(data.photos || [])]
+                    copy[13] = photo
+                    update({ photos: copy })
+                  }}
+                  onRemove={() => {
+                    const copy = [...(data.photos || [])]
+                    delete copy[13]
+                    update({ photos: copy })
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <span className="mb-2 block font-display text-[11px] font-black uppercase tracking-widest text-foreground/75">
+                Top List Images (5 photos for the Top Moods list slide)
+              </span>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+                {[5, 6, 7, 8, 9].map((index) => (
+                  <SinglePhotoDropzone
+                    key={index}
+                    label={`#${index - 4} Photo`}
+                    photo={data.photos?.[index]}
+                    accentColor={meta.color}
+                    onChange={(photo) => {
+                      const copy = [...(data.photos || [])]
+                      copy[index] = photo
+                      update({ photos: copy })
+                    }}
+                    onRemove={() => {
+                      const copy = [...(data.photos || [])]
+                      delete copy[index]
+                      update({ photos: copy })
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <span className="mb-2 block font-display text-[11px] font-black uppercase tracking-widest text-foreground/75">
+                Globe Images (3 photos floating around the globe)
+              </span>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+                {[10, 11, 12].map((index) => (
+                  <SinglePhotoDropzone
+                    key={index}
+                    label={`Globe Photo ${index - 9}`}
+                    photo={data.photos?.[index]}
+                    accentColor={meta.color}
+                    onChange={(photo) => {
+                      const copy = [...(data.photos || [])]
+                      copy[index] = photo
+                      update({ photos: copy })
+                    }}
+                    onRemove={() => {
+                      const copy = [...(data.photos || [])]
+                      delete copy[index]
+                      update({ photos: copy })
+                    }}
+                  />
+                ))}
               </div>
             </div>
           </div>
