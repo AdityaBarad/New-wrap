@@ -23,19 +23,22 @@ const PURPOSE_LABELS: Record<string, string> = {
   group: "GROUP / FAMILY",
 }
 
-export default async function Image({ params }: { params: { slug: string } }) {
+export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   const supabase = getSupabase()
-  const { data: wrap } = await supabase
+  const { data: wrap, error } = await supabase
     .from("wraps")
     .select("*")
-    .eq("slug", params.slug)
+    .eq("slug", slug)
     .single()
 
   if (!wrap) {
     return new ImageResponse(
       (
-        <div style={{ width: "100%", height: "100%", display: "flex", backgroundColor: "#0b0b0b", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", backgroundColor: "#0b0b0b", alignItems: "center", justifyContent: "center" }}>
           <div style={{ color: "#fff", fontSize: 60, fontWeight: "bold" }}>Wrap Not Found</div>
+          {error && <div style={{ color: "#ff4444", fontSize: 30, marginTop: 20 }}>Error: {error.message}</div>}
+          <div style={{ color: "#888", fontSize: 30, marginTop: 20 }}>Slug: {slug}</div>
         </div>
       ),
       { ...size }
