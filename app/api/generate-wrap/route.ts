@@ -52,7 +52,6 @@ Generate creative, personalized, trendy unique content for an 8-slide wrapped ex
 5. Utilize as many DIFFERENT points from the user's story as possible to make the whole wrap feel rich, diverse, and interesting.
 6. Be witty, warm, and shareable — every line should make someone want to screenshot it
 7. Be unique — NEVER generic. If they mentioned a city, reference it. If they mentioned a habit, roast it lovingly.
-8. CRITICAL LENGTH LIMIT: For "globalArtists" list and all list items, EACH item MUST be MAXIMUM 15 CHARACTERS. Keep them short so they fit on screen!
 9. Don't assume things on your own, stay with the data only that users gave.
 
 Return ONLY a valid JSON object (no markdown, no backticks, no explanation) adhering STRICTLY to the following structure and constraints.
@@ -60,9 +59,9 @@ IMPORTANT: The values you generate MUST be wildly creative, unique, and deeply p
 
 {
   "intro": {
-    "kicker": "2-3 word punchy intro label",
-    "lines": ["Exactly", "Three", "Words"],
-    "sub": "1-2 sentence witty subtitle that references their story."
+    "kicker": "Short welcoming phrase (e.g. 'Hello', 'Ready?')",
+    "lines": ["WORD1", "WORD2", "WORD3"], // ONE OF THESE MUST BE THE USER'S NAME
+    "sub": "A warm subtitle to get them excited"
   },
   "share": {
     "title": "Creative 2-3 word title",
@@ -70,7 +69,8 @@ IMPORTANT: The values you generate MUST be wildly creative, unique, and deeply p
   },
   "dataHighlight": {
     "kicker": "2-4 word label for a big number slide",
-    "label": "What the number represents(can calculate from any date or number user has given",
+    "value": "The actual calculated number (e.g. 279, 14000, 52). You MUST calculate this based on the specific primary data the user entered (e.g., age calculated from birth year, days calculated from an anniversary, or travel hours). Only use photo count or made up stats if NO birth year, anniversary, or travel hours are provided. Only return the raw number.",
+    "label": "What the number represents (e.g. DAYS SINCE WE MET, YEARS OF EXCELLENCE)",
     "note": "A witty 1-2 sentence observation about this number."
   },
   "highlightCard": {
@@ -80,11 +80,11 @@ IMPORTANT: The values you generate MUST be wildly creative, unique, and deeply p
   },
   "topListTitle": "Creative title for a top 5 list (e.g. 'Top Delusions', 'Top Inside Jokes') ",
   "topList": [
-    "Item 1 (MAX 15 CHARACTERS)",
-    "Item 2 (MAX 15 CHARACTERS)",
-    "Item 3 (MAX 15 CHARACTERS)",
-    "Item 4 (MAX 15 CHARACTERS)",
-    "Item 5 (MAX 15 CHARACTERS)"
+    "Item 1 (MAX 20 CHARACTERS 2 words)",
+    "Item 2 (MAX 20 CHARACTERS 2 words)",
+    "Item 3 (MAX 20 CHARACTERS 2 words)",
+    "Item 4 (MAX 20 CHARACTERS 2 words)",
+    "Item 5 (MAX 20 CHARACTERS 2 words)"
   ],
   "statProfile": {
     "name": "The main subject (e.g. the person's name or the group's name)",
@@ -101,15 +101,22 @@ IMPORTANT: The values you generate MUST be wildly creative, unique, and deeply p
       "title": "Creative title for a general impact-based slide (e.g. 'Main Character Energy', 'Unstoppable')",
       "description1": "1 punchy sentence describing their undeniable presence or vibe.",
       "description2": "1 punchy sentence describing how far their energy reaches."
-    }
-,
+    },
+    "photoRanking": {
+      "title": "Creative title for a ranking list (e.g. 'Top Red Flags', 'Most Used Excuses')",
+      "items": ["Item 1 (2-4 words, MAX 25 CHARACTERS)", "Item 2 (2-4 words, MAX 25 CHARACTERS)", "Item 3 (2-4 words, MAX 25 CHARACTERS)", "Item 4 (2-4 words, MAX 25 CHARACTERS)", "Item 5 (2-4 words, MAX 25 CHARACTERS)"]
+    },
+    "blockRanking": {
+      "title": "Creative title for another ranking list (e.g. 'Iconic Quotes', 'Top Excuses')",
+      "items": ["Item 1 (3-4 words, MAX 25 CHARACTERS)", "Item 2 (3-4 words, MAX 25 CHARACTERS)", "Item 3 (3-4 words, MAX 25 CHARACTERS)", "Item 4 (3-4 words, MAX 25 CHARACTERS)", "Item 5 (3-4 words, MAX 25 CHARACTERS)"]
+    },
   "summaryDashboard": {
     "list1Title": "Creative title for list 1 (e.g. 'Top Red Flags')",
-    "list1": ["Item 1", "Item 2", "Item 3", "Item 4", "Item 5"],
+    "list1": ["Item 1 (1-2 words, MAX 20 CHARACTERS)", "Item 2", "Item 3", "Item 4", "Item 5"],
     "list2Title": "Creative title for list 2 (e.g. 'Top Iconic Quotes')",
-    "list2": ["Item 1", "Item 2", "Item 3", "Item 4", "Item 5"],
+    "list2": ["Item 1 (1-2 words, MAX 20 CHARACTERS)", "Item 2", "Item 3", "Item 4", "Item 5"],
     "list3Title": "Creative title for list 3 (e.g. 'Top Excuses')",
-    "list3": ["Item 1", "Item 2", "Item 3", "Item 4", "Item 5"],
+    "list3": ["Item 1 (1-2 words, MAX 20 CHARACTERS)", "Item 2", "Item 3", "Item 4", "Item 5"],
     "bottomMetric": "A huge made-up number",
     "bottomMetricLabel": "Creative label for the bottom metric (e.g. 'Minutes Wasted')"
   },
@@ -129,12 +136,12 @@ IMPORTANT: The values you generate MUST be wildly creative, unique, and deeply p
 }
 
 CRITICAL: 
-- The "lines" array in "intro" MUST have exactly 3 short items (1-2 words each) — they're displayed as giant stacked text.
-- "topList" MUST have exactly 5 items, and EACH ITEM MUST BE A MAXIMUM OF 15 CHARACTERS so text does not overlap background graphics.
-- "globalFootprint.locations" MUST have exactly 6 items.
-- "summaryDashboard.list1" MUST have exactly 5 items.
-- "summaryDashboard.list2" MUST have exactly 5 items.
-- "summaryDashboard.list3" MUST have exactly 5 items.
+- The "lines" array in "intro" MUST have exactly 3 short items (1-2 words each) AND ONE OF THE ITEMS MUST BE THE USER'S NAME.
+- "photoRanking.items" MUST have exactly 5 items, and EACH ITEM MUST BE 2-4 WORDS (MAXIMUM OF 25 CHARACTERS).
+- "blockRanking.items" MUST have exactly 5 items, and EACH ITEM MUST BE 3-4 WORDS (MAXIMUM OF 25 CHARACTERS).
+- "summaryDashboard.list1" MUST have exactly 5 items, EACH 1-2 WORDS (MAX 20 CHARACTERS).
+- "summaryDashboard.list2" MUST have exactly 5 items, EACH 1-2 WORDS (MAX 20 CHARACTERS).
+- "summaryDashboard.list3" MUST have exactly 5 items, EACH 1-2 WORDS (MAX 20 CHARACTERS).
 - Return ONLY the JSON. No markdown code fences. No explanation.`
 }
 

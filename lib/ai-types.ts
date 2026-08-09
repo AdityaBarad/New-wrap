@@ -15,6 +15,7 @@ export type AiWrapContent = {
   }
   dataHighlight: {
     kicker: string
+    value: string | number
     label: string
     note: string
   }
@@ -40,6 +41,14 @@ export type AiWrapContent = {
     title: string
     description1: string
     description2: string
+  }
+  photoRanking: {
+    title: string
+    items: string[]
+  }
+  blockRanking: {
+    title: string
+    items: string[]
   }
   summaryDashboard: {
     list1Title: string

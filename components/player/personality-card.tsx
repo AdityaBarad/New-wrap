@@ -282,14 +282,17 @@ export function PersonalityCardSlide({
           </motion.div>
         </div>
 
-        <div style={{ background: "#050505", padding: "0.3em 0.6em", display: "inline-block", marginTop: "2rem", border: "3px solid #050505" }}>
+        <div className="flex flex-col items-center w-full mt-8 relative z-40">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: showFront ? 1 : 0, y: showFront ? 0 : 20 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-col items-center text-center"
+            className="flex flex-col items-center text-center w-full"
           >
-            <h2 className="font-display text-4xl font-black uppercase tracking-tight text-white md:text-5xl">
+            <h2 
+              className="font-display text-4xl font-black uppercase tracking-tight text-white md:text-5xl text-center"
+              style={{ textShadow: "0 4px 24px rgba(0,0,0,0.8)" }}
+            >
               {title}
             </h2>
           </motion.div>
@@ -298,7 +301,8 @@ export function PersonalityCardSlide({
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: showFront ? 1 : 0, y: showFront ? 0 : 16 }}
             transition={{ delay: 0.2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-4 max-w-sm text-center font-sans text-[clamp(0.85rem,3vw,1rem)] font-medium leading-relaxed tracking-wide text-white md:text-base"
+            className="mt-4 max-w-sm w-full text-center font-sans text-[clamp(0.85rem,3vw,1rem)] font-medium leading-relaxed tracking-wide text-white md:text-base"
+            style={{ textShadow: "0 2px 12px rgba(0,0,0,0.8)" }}
           >
             {description}
           </motion.p>

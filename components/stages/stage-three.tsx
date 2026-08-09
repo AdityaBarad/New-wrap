@@ -438,34 +438,6 @@ export function StageThree({
         </button>
       </div>
 
-      {/* bottom bar */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 flex items-center justify-between p-4 md:p-6">
-        <span className="font-display text-xs font-black uppercase tracking-widest text-cream/60">
-          {String(index + 1).padStart(2, "0")} / {String(pages.length).padStart(2, "0")}
-        </span>
-        <div className="pointer-events-auto flex items-center gap-2">
-          {index > 0 && (
-            <button
-              type="button"
-              onClick={back}
-              className="rounded-full border border-cream/30 bg-cream/10 p-2.5 text-cream shadow-lg backdrop-blur-md transition-colors hover:border-cream/70 hover:bg-cream/20"
-              aria-label="Back"
-            >
-              <ChevronLeft className="size-4" />
-            </button>
-          )}
-          {!isLast && (
-            <button
-              type="button"
-              onClick={advance}
-              className="rounded-full border border-cream/30 bg-cream/10 p-2.5 text-cream shadow-lg backdrop-blur-md transition-colors hover:border-cream/70 hover:bg-cream/20"
-              aria-label="Next"
-            >
-              <ChevronRight className="size-4" />
-            </button>
-          )}
-        </div>
-      </div>
     </div>
   )
 }

@@ -868,7 +868,7 @@ function DataHighlight({
           </motion.p>
         </motion.div>
 
-        <div className="absolute bottom-7 left-6 md:left-14">
+        <div className="absolute bottom-7 left-1/2 -translate-x-1/2 md:bottom-9">
           <WrapFooter ink={ink} hashtag={HASHTAG} />
         </div>
       </div>
@@ -923,10 +923,11 @@ function TopSongReveal({
           initial={{ opacity: 0, y: 22 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...SPRING, delay: 1.7 }}
-          className="mt-6 max-w-[34rem] font-display text-[clamp(1.15rem,4.4vw,2.25rem)] font-black leading-[1.02] tracking-tight text-balance"
+          className="mt-6 max-w-[34rem] font-display font-black leading-[1.02] tracking-tight text-balance"
           style={{ color: ink }}
         >
-          {kicker} <br /> {title}
+          <span className="block text-[clamp(1.15rem,4.4vw,2.25rem)]">{kicker}</span>
+          <span className="block text-[clamp(1.10rem,4.25vw,2.15rem)] mt-1">{title}</span>
           <span className="block mt-2 opacity-80 text-[clamp(1rem,3vw,1.5rem)]">{subtitle}</span>
         </motion.h2>
 
@@ -1070,12 +1071,12 @@ function GlobalArtists({ title = "Most Streamed\nArtists Globally", items, photo
               style={{ bottom: "5%", right: "8%", width: "40%", aspectRatio: "1 / 1" }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img 
-                src={photo} 
-                alt="Quirks memory" 
-                className="w-full h-full rounded-full object-cover border-[4px] border-[#050505]" 
+              <img
+                src={photo}
+                alt="Quirks memory"
+                className="w-full h-full rounded-full object-cover border-[4px] border-[#050505]"
                 style={{ boxShadow: "0 10px 30px rgba(0,0,0,0.3)" }}
-                crossOrigin="anonymous" 
+                crossOrigin="anonymous"
               />
             </motion.div>
           )}
@@ -1208,7 +1209,7 @@ function TopArtistsList({
               <SmallWrapsyLogo />
               <span className="text-[4.2cqw]">Wrapsy</span>
             </div>
-            <span className="text-[3.15cqw] uppercase">wrapsy.com/wrapped</span>
+            <span className="text-[3.15cqw] uppercase">wrapsy.co/wrapped</span>
           </motion.footer>
         </div>
       </div>
@@ -1668,9 +1669,9 @@ function DashboardTicket({
         >
           <div className="relative h-[21.5rem] overflow-hidden md:h-[22.5rem]">
             {/* 2026 vertical text - aligned to image area */}
-            <div 
-              className="absolute -left-4 md:-left-6 top-0 bottom-0 z-20 select-none overflow-hidden font-display font-black italic tracking-tighter" 
-              style={{ 
+            <div
+              className="absolute -left-4 md:-left-6 top-0 bottom-0 z-20 select-none overflow-hidden font-display font-black italic tracking-tighter"
+              style={{
                 color: red,
                 writingMode: "vertical-rl",
                 fontSize: "clamp(7.5rem, 22vw, 10rem)",
@@ -1693,7 +1694,7 @@ function DashboardTicket({
               animate={{ scale: [0.88, 1.24], opacity: [1, 1, 0.88] }}
               transition={{ duration: 5.4, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
             />
-            <div 
+            <div
               className="absolute left-1/2 top-9 z-30 aspect-square w-[72%] max-w-[18.5rem] -translate-x-1/2 overflow-hidden shadow-[0_8px_0_rgba(0,0,0,0.04)] border-[3px]"
               style={{ borderColor: ink, left: "55%" }}
             >
@@ -1885,19 +1886,19 @@ function TopGenresSlide({
                 initial={{ scale: 0, rotateY: -90 }}
                 animate={{
                   scale: 1,
-                  rotateY: circle.isBlack 
-                    ? [0, 0, 180, 180, 360, 360] 
+                  rotateY: circle.isBlack
+                    ? [0, 0, 180, 180, 360, 360]
                     : [0, 180, 180, 360, 360],
                   y: [0, -4, 0],
                 }}
                 transition={{
                   scale: { type: "spring", stiffness: 180, damping: 12, delay: circle.delay },
-                  rotateY: { 
-                    duration: 6, 
-                    repeat: Number.POSITIVE_INFINITY, 
-                    ease: "easeInOut", 
-                    times: circle.isBlack 
-                      ? [0, 0.25, 0.35, 0.75, 0.85, 1] 
+                  rotateY: {
+                    duration: 6,
+                    repeat: Number.POSITIVE_INFINITY,
+                    ease: "easeInOut",
+                    times: circle.isBlack
+                      ? [0, 0.25, 0.35, 0.75, 0.85, 1]
                       : [0, 0.1, 0.5, 0.6, 1],
                     delay: 1.5 + circle.delay * 0.2, // Small ripple
                   },
@@ -1905,14 +1906,14 @@ function TopGenresSlide({
                 }}
               >
                 {/* Front face (original color) */}
-                <span 
-                  className="absolute inset-0 rounded-full" 
-                  style={{ backgroundColor: circle.color, backfaceVisibility: "hidden" }} 
+                <span
+                  className="absolute inset-0 rounded-full"
+                  style={{ backgroundColor: circle.color, backfaceVisibility: "hidden" }}
                 />
                 {/* Back face (flipped color) */}
-                <span 
-                  className="absolute inset-0 rounded-full" 
-                  style={{ backgroundColor: circle.isBlack ? "#f20d2f" : "#202020", backfaceVisibility: "hidden", transform: "rotateY(180deg)" }} 
+                <span
+                  className="absolute inset-0 rounded-full"
+                  style={{ backgroundColor: circle.isBlack ? "#f20d2f" : "#202020", backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
                 />
               </motion.div>
             ))}
@@ -2066,7 +2067,7 @@ function FinaleCard({
       return
     }
     const file = new File([blob], "story-wrapped.jpg", { type: "image/jpeg" })
-    
+
     // Web Share API with files triggers Instagram Stories automatically on iOS/Android
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
       try {
@@ -2155,9 +2156,9 @@ function FinaleCard({
               Want your own story wrapped?
             </p>
             <p className="text-green font-display uppercase tracking-tight text-xl font-black leading-none mb-4 drop-shadow-[0_0_10px_rgba(30,215,96,0.3)]">
-              Get yours free at Wrapsy.com
+              Get yours at Wrapsy.co
             </p>
-            
+
             <div className="flex flex-row items-center justify-center gap-3 w-full">
               <motion.button
                 type="button"
@@ -2172,18 +2173,8 @@ function FinaleCard({
                 <Share2 className="size-5" />
                 {isExporting ? "Generating..." : "Share Wrap"}
               </motion.button>
-              
-              <motion.button
-                type="button"
-                onClick={reset}
-                whileHover={{ rotate: -180 }}
-                whileTap={{ scale: 0.92 }}
-                transition={{ type: "spring", stiffness: 200, damping: 10 }}
-                className="flex size-12 items-center justify-center rounded-full border-2 border-white/10 bg-white/5 text-white backdrop-blur-md hover:bg-white hover:text-ink"
-                aria-label="Start over"
-              >
-                <RotateCcw className="size-5" />
-              </motion.button>
+
+
             </div>
           </div>
         </motion.div>
@@ -2199,7 +2190,7 @@ function FinaleCard({
       />
 
       {/* Off-screen Export Container for html-to-image (9:16 IG Story aspect ratio) */}
-      <div 
+      <div
         ref={exportRef}
         className="pointer-events-none"
         style={{
@@ -2227,11 +2218,11 @@ function FinaleCard({
             cardColor: data.cardColor
           }} />
         </div>
-        
+
         {/* Export Footer Logo */}
         <div style={{ marginTop: "120px", display: "flex", flexDirection: "column", alignItems: "center", gap: "20px" }}>
           <p style={{ color: "white", fontSize: "32px", fontFamily: "var(--font-display), sans-serif", letterSpacing: "0.2em", textTransform: "uppercase", opacity: 0.8 }}>
-            Get yours at Wrapsy.com
+            Get yours at Wrapsy.co
           </p>
         </div>
       </div>
@@ -2303,8 +2294,11 @@ export function buildPages(
   // SLIDE 2: DATA HIGHLIGHT
   const big = bigMetric(data, stats, ai)
   const dataKicker = ai.dataHighlight.kicker
-  const dataLabel = big.label
-  const dataNote = big.note
+  const rawAiValue = ai.dataHighlight.value
+  const aiValue = rawAiValue != null ? Number(String(rawAiValue).replace(/[^0-9.]/g, '')) : NaN
+  const dataValue = !isNaN(aiValue) && aiValue > 0 ? aiValue : big.value
+  const dataLabel = ai.dataHighlight.label || big.label
+  const dataNote = ai.dataHighlight.note || big.note
 
   // SLIDE 3: HIGHLIGHT
   const highlightTitle = (ai as any).highlightCard?.title || (ai as any).topTrack?.title || "Your Anthem"
@@ -2334,7 +2328,14 @@ export function buildPages(
   const shareTitle = ai.share?.title || "Share your\nWrapsy Wrapped"
   const shareHashtag = ai.share?.hashtag || "#WrapsyWrapped"
   const globalArtistsTitle = (ai as any).topListTitle || (ai as any).globalArtistsTitle || "Most Streamed\nArtists Globally"
+
   const list1Title = (ai as any).summaryDashboard?.list1Title || (ai as any).dashboard?.topArtistsTitle || "My Top Highlights"
+
+  const photoRankingTitle = ai.photoRanking?.title || list1Title || "Top Things"
+  const photoRankingItems = ai.photoRanking?.items || dashboardList1 || ["Thing 1", "Thing 2", "Thing 3", "Thing 4", "Thing 5"]
+
+  const blockRankingTitle = ai.blockRanking?.title || list3Title || "Top Things"
+  const blockRankingItems = ai.blockRanking?.items || dashboardList3 || ["Thing 1", "Thing 2", "Thing 3", "Thing 4", "Thing 5"]
   const list3Title = (ai as any).summaryDashboard?.list3Title || (ai as any).dashboard?.topGenresTitle || "Your Top Moments"
 
   const personalityTitle = (ai as any).personalityCard?.title || "Mastermind"
@@ -2355,7 +2356,6 @@ export function buildPages(
           photo={photo1}
           songTitle={highlightTitle}
           songArtist={highlightSubtitle}
-          songStat={`${fmt(stats.int(100000, 5000000))} moments in ${data.destinationCity || "NYC"}`}
         />
       ),
     },
@@ -2373,7 +2373,7 @@ export function buildPages(
           ink="var(--wr-ink)"
           accent="#18ddec"
           kicker={dataKicker}
-          value={big.value}
+          value={dataValue}
           label={dataLabel}
           note={dataNote}
         />
@@ -2399,7 +2399,7 @@ export function buildPages(
     {
       key: "s5-top-artists",
       bg: "#95eab1",
-      node: <TopArtistsList title={list1Title} items={dashboardList1} photos={topListPhotos} isExiting={isReverseExiting} />,
+      node: <TopArtistsList title={photoRankingTitle} items={photoRankingItems} photos={topListPhotos} isExiting={isReverseExiting} />,
     },
     {
       key: "s3-artist-stats",
@@ -2457,8 +2457,8 @@ export function buildPages(
       bg: "#f2f4e7",
       node: (
         <TopGenresSlide
-          title={list3Title}
-          items={dashboardList3}
+          title={blockRankingTitle}
+          items={blockRankingItems}
           bg="#f2f4e7"
           ink="#202020"
         />

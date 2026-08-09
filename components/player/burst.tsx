@@ -279,7 +279,7 @@ export function WrapFooter({ ink, hashtag }: { ink: string; hashtag: string }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 2.8, type: "spring", stiffness: 260, damping: 24 }}
-      className="flex items-center justify-center gap-2 md:justify-start md:gap-4"
+      className="flex flex-col items-center justify-center gap-1"
       style={{ color: ink }}
     >
       {/* Wrapsy-style logo */}
@@ -292,7 +292,7 @@ export function WrapFooter({ ink, hashtag }: { ink: string; hashtag: string }) {
         />
         <span className="font-display text-sm font-black lowercase tracking-tight md:text-lg">wrapsy</span>
       </span>
-      <span className="font-display text-[10px] font-black uppercase tracking-widest opacity-80 md:text-sm">{hashtag}</span>
+      <span className="font-display text-[10px] font-black uppercase tracking-widest opacity-80 md:text-sm mt-0.5">{hashtag}</span>
     </motion.div>
   )
 }

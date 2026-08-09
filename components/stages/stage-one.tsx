@@ -74,13 +74,7 @@ export function StageOne() {
                 disabled={verifierStep === "CODE"}
               />
 
-              <Field
-                label="Wrap Title"
-                placeholder="e.g. Our 1 Year Anniversary"
-                value={data.wrapTitle}
-                onChange={(e) => update({ wrapTitle: e.target.value })}
-                disabled={verifierStep === "CODE"}
-              />
+
 
               {error && (
                 <p className="rounded-md border-2 border-orange bg-orange/10 px-3 py-2 font-display text-xs font-bold uppercase text-orange">

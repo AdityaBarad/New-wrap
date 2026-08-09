@@ -119,8 +119,13 @@ export function StageTwo() {
             <div className="h-1 flex-1 bg-foreground/10" />
           </div>
 
-          {/* universal */}
           <div className="flex flex-col gap-4">
+            <Field
+              label="Wrap Title"
+              placeholder="e.g. Our 1 Year Anniversary"
+              value={data.wrapTitle}
+              onChange={(e) => update({ wrapTitle: e.target.value })}
+            />
             <Field
               label="User Names"
               placeholder={purpose === "couple" ? "e.g. Sam & Riley" : "who's starring in this?"}

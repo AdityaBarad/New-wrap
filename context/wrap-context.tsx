@@ -191,8 +191,8 @@ export function WrapProvider({
   const submitStage1 = useCallback(async (verifiedPhone?: string) => {
     setError(null)
     const phoneToUse = verifiedPhone || data.phone
-    if (!data.name.trim() || !data.wrapTitle.trim() || !phoneToUse.trim()) {
-      setError("Drop your name, wrap title, and number first.")
+    if (!data.name.trim() || !phoneToUse.trim()) {
+      setError("Drop your name and number first.")
       return false
     }
     
