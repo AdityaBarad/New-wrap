@@ -2041,14 +2041,30 @@ function FinaleCard({
 
   const wrapShareUrl = `https://www.wrapsy.co/wrap/${data.slug || "draft"}`
   const shareTitle = `${data.wrapTitle || data.name}'s Story, Wrapped`
-  const shareText = `Check out my story Wrapped!`
-  const clipboardText = `${shareText} \n${wrapShareUrl}`
+  const shareText = `Check out my Story Wrapped! \n`
 
   const handleShare = useCallback(async () => {
     if (sharing) return
     setSharing(true)
 
     try {
+      // Capture the card as an image
+      let imageFile: File | null = null
+      if (exportRef.current) {
+        try {
+          const dataUrl = await toPng(exportRef.current, {
+            quality: 0.95,
+            pixelRatio: 2,
+            cacheBust: true,
+          })
+          const res = await fetch(dataUrl)
+          const blob = await res.blob()
+          imageFile = new File([blob], "wrap-card.png", { type: "image/png" })
+        } catch (err) {
+          console.warn("[share] Failed to capture card image:", err)
+        }
+      }
+
       // Try native share (mobile)
       if (navigator.share) {
         const shareData: ShareData = {
@@ -2056,10 +2072,14 @@ function FinaleCard({
           text: shareText,
           url: wrapShareUrl,
         }
+        // Attach image file if supported
+        if (imageFile && navigator.canShare?.({ files: [imageFile] })) {
+          shareData.files = [imageFile]
+        }
         await navigator.share(shareData)
       } else {
         // Desktop fallback: copy link to clipboard
-        await navigator.clipboard.writeText(clipboardText)
+        await navigator.clipboard.writeText(wrapShareUrl)
         setCopied(true)
         setTimeout(() => setCopied(false), 2500)
       }
@@ -2068,7 +2088,7 @@ function FinaleCard({
       if (err?.name !== "AbortError") {
         // Fallback: copy link
         try {
-          await navigator.clipboard.writeText(clipboardText)
+          await navigator.clipboard.writeText(wrapShareUrl)
           setCopied(true)
           setTimeout(() => setCopied(false), 2500)
         } catch {
@@ -2078,7 +2098,7 @@ function FinaleCard({
     } finally {
       setSharing(false)
     }
-  }, [sharing, shareTitle, shareText, wrapShareUrl, clipboardText])
+  }, [sharing, shareTitle, shareText, wrapShareUrl])
 
   return (
     <Shell>
