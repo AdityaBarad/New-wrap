@@ -5,6 +5,7 @@ import { getCardColor } from "@/lib/color"
 export const alt = "Story Wrapped"
 export const size = { width: 1080, height: 1080 }
 export const contentType = "image/png"
+export const dynamic = "force-dynamic"
 
 // Supabase client for fetching wrap data
 function getSupabase() {
