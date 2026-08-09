@@ -2041,7 +2041,7 @@ function FinaleCard({
 
   const wrapShareUrl = `https://www.wrapsy.co/wrap/${data.slug || "draft"}`
   const shareTitle = `${data.wrapTitle || data.name}'s Story, Wrapped`
-  const shareText = `Check out this Story Wrapped! ✨`
+  const shareText = `Check out my story Wrapped! \n${wrapShareUrl}`
 
   const handleShare = useCallback(async () => {
     if (sharing) return
@@ -2152,11 +2152,10 @@ function FinaleCard({
                 transition={copied ? { duration: 0.2 } : { duration: 2, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
                 whileHover={{ scale: 1.08, y: -4, rotate: -2 }}
                 whileTap={{ scale: 0.96 }}
-                className={`flex flex-1 items-center justify-center gap-3 rounded-full px-8 py-5 font-display text-lg font-black uppercase tracking-wide text-ink transition-colors duration-300 ${
-                  copied
-                    ? "bg-cream shadow-[0_0_20px_rgba(238,238,228,0.3)]"
-                    : "bg-green shadow-[0_0_20px_rgba(30,215,96,0.4)]"
-                }`}
+                className={`flex flex-1 items-center justify-center gap-3 rounded-full px-8 py-5 font-display text-lg font-black uppercase tracking-wide text-ink transition-colors duration-300 ${copied
+                  ? "bg-cream shadow-[0_0_20px_rgba(238,238,228,0.3)]"
+                  : "bg-green shadow-[0_0_20px_rgba(30,215,96,0.4)]"
+                  }`}
                 disabled={sharing}
               >
                 <AnimatePresence mode="wait">
