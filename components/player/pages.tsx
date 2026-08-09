@@ -2041,8 +2041,7 @@ function FinaleCard({
   const [isExporting, setIsExporting] = useState(false)
 
   const actualSlug = wrapSlug || data.slug;
-  // Use wrapUrl if available, otherwise construct it from the slug. If no slug, fallback to origin.
-  const resolvedShareUrl = wrapUrl || (actualSlug ? `${window.location.origin}/wrap/${actualSlug}` : window.location.origin)
+  const resolvedShareUrl = actualSlug ? `https://www.wrapsy.co/wrap/${actualSlug}` : "https://www.wrapsy.co";
 
   function openShareModal() {
     setIsShareModalOpen(true)

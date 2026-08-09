@@ -37,7 +37,7 @@ export function WrapViewer({ wrapData, aiContent, personalityImageUrl, slug, vie
       initialAiContent={aiContent}
       initialImageUrl={personalityImageUrl}
       initialWrapSlug={slug}
-      initialWrapUrl={wrapUrl || `https://yourlifewrapped.com/wrap/${slug}`}
+      initialWrapUrl={`https://www.wrapsy.co/wrap/${slug}`}
     >
       <div className="fixed inset-0 bg-[#0b0b0b]">
         {!hasStarted ? (
