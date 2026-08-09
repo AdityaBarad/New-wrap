@@ -2,7 +2,6 @@ import { ImageResponse } from "next/og"
 import { createClient } from "@supabase/supabase-js"
 import { getCardColor } from "@/lib/color"
 
-export const runtime = "edge"
 export const alt = "Story Wrapped"
 export const size = { width: 1080, height: 1080 }
 export const contentType = "image/png"
@@ -30,7 +29,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
     .from("wraps")
     .select("*")
     .eq("slug", slug)
-    .single()
+    .maybeSingle()
 
   if (!wrap) {
     return new ImageResponse(
@@ -89,7 +88,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           <div style={{ display: "flex", position: "absolute", top: 60, left: 60 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img 
-              src="https://yourstorywrapped.com/logo/logo-solid.jpeg" 
+              src="https://www.wrapsy.co/logo/logo-solid.jpeg" 
               width="80" 
               height="80" 
               style={{ borderRadius: 16 }} 
