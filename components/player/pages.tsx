@@ -1,8 +1,9 @@
 "use client"
 
-import { useEffect, useRef, useState, type ReactNode } from "react"
-import { motion, useInView } from "framer-motion"
-import { RotateCcw, Share2 } from "lucide-react"
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
+import { motion, useInView, AnimatePresence } from "framer-motion"
+import { Check, LinkIcon, RotateCcw, Share2 } from "lucide-react"
+import { toPng } from "html-to-image"
 import { Burst, Halftone, WrapFooter, type BurstPalette } from "@/components/player/burst"
 import { SpiralRibbon } from "@/components/player/spiral-ribbon"
 import { ArtistStatsCard } from "@/components/player/artist-stats"
@@ -14,8 +15,6 @@ import { PURPOSES } from "@/context/wrap-context"
 import { buildStats, fmt, type WrapStats } from "@/lib/wrap-stats"
 import type { AiWrapContent } from "@/lib/ai-types"
 import { WrapCard } from "@/components/shared/wrap-card"
-import { ShareModal } from "./share-modal"
-import * as htmlToImage from "html-to-image"
 
 export type WrapPage = { key: string; bg: string; node: ReactNode }
 
@@ -2035,84 +2034,71 @@ function FinaleCard({
   minutesLabel?: string
   topPercentLabel?: string
 }) {
-  const { reset, wrapSlug, wrapUrl } = useWrap()
+  const { reset } = useWrap()
   const exportRef = useRef<HTMLDivElement>(null)
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false)
-  const [isExporting, setIsExporting] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const [sharing, setSharing] = useState(false)
 
-  const actualSlug = wrapSlug || data.slug;
-  const resolvedShareUrl = actualSlug ? `https://www.wrapsy.co/wrap/${actualSlug}` : "https://www.wrapsy.co";
+  const wrapShareUrl = `https://www.wrapsy.co/wrap/${data.slug || "draft"}`
+  const shareTitle = `${data.wrapTitle || data.name}'s Story, Wrapped`
+  const shareText = `Check out this Story Wrapped! ✨`
 
-  function openShareModal() {
-    setIsShareModalOpen(true)
-  }
+  const handleShare = useCallback(async () => {
+    if (sharing) return
+    setSharing(true)
 
-  async function generateImageBlob() {
-    if (!exportRef.current) return null
     try {
-      setIsExporting(true)
-      // High quality export specifically for social media
-      const dataUrl = await htmlToImage.toJpeg(exportRef.current, { quality: 0.95, pixelRatio: 2 })
-      const res = await fetch(dataUrl)
-      return await res.blob()
-    } catch (err) {
-      console.error("Image generation failed", err)
-      return null
-    } finally {
-      setIsExporting(false)
-    }
-  }
-
-  async function handleShareIgStory() {
-    const blob = await generateImageBlob()
-    if (!blob) {
-      alert("Failed to generate image.")
-      return
-    }
-    const file = new File([blob], "story-wrapped.jpg", { type: "image/jpeg" })
-
-    // Web Share API with files triggers Instagram Stories automatically on iOS/Android
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      try {
-        await navigator.share({
-          files: [file]
-        })
-      } catch (e) {
-        console.error(e)
+      // Capture the card as an image
+      let imageFile: File | null = null
+      if (exportRef.current) {
+        try {
+          const dataUrl = await toPng(exportRef.current, {
+            quality: 0.95,
+            pixelRatio: 2,
+            cacheBust: true,
+          })
+          const res = await fetch(dataUrl)
+          const blob = await res.blob()
+          imageFile = new File([blob], "wrap-card.png", { type: "image/png" })
+        } catch (err) {
+          console.warn("[share] Failed to capture card image:", err)
+        }
       }
-    } else {
-      alert("Direct Instagram sharing isn't supported on this device. Downloading image instead!")
-      handleDownload()
+
+      // Try native share (mobile)
+      if (navigator.share) {
+        const shareData: ShareData = {
+          title: shareTitle,
+          text: shareText,
+          url: wrapShareUrl,
+        }
+        // Attach image file if supported
+        if (imageFile && navigator.canShare?.({ files: [imageFile] })) {
+          shareData.files = [imageFile]
+        }
+        await navigator.share(shareData)
+      } else {
+        // Desktop fallback: copy link to clipboard
+        await navigator.clipboard.writeText(wrapShareUrl)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2500)
+      }
+    } catch (err: any) {
+      // User cancelled share — not an error
+      if (err?.name !== "AbortError") {
+        // Fallback: copy link
+        try {
+          await navigator.clipboard.writeText(wrapShareUrl)
+          setCopied(true)
+          setTimeout(() => setCopied(false), 2500)
+        } catch {
+          console.error("[share] Failed to copy to clipboard")
+        }
+      }
+    } finally {
+      setSharing(false)
     }
-  }
-
-  async function handleDownload() {
-    const blob = await generateImageBlob()
-    if (!blob) return
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `wrapsy-${actualSlug || "export"}.jpg`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-  }
-
-  function handleCopyLink() {
-    navigator.clipboard.writeText(resolvedShareUrl)
-    alert("Link copied!")
-  }
-
-  function handleNativeShare() {
-    if (navigator.share) {
-      navigator.share({
-        url: resolvedShareUrl
-      }).catch(console.error)
-    } else {
-      handleCopyLink()
-    }
-  }
+  }, [sharing, shareTitle, shareText, wrapShareUrl])
 
   return (
     <Shell>
@@ -2161,70 +2147,83 @@ function FinaleCard({
             <div className="flex flex-row items-center justify-center gap-3 w-full">
               <motion.button
                 type="button"
-                onClick={openShareModal}
-                disabled={isExporting}
-                animate={{ scale: [1, 1.03, 1] }}
-                transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+                onClick={handleShare}
+                animate={copied ? { scale: 1 } : { scale: [1, 1.03, 1] }}
+                transition={copied ? { duration: 0.2 } : { duration: 2, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
                 whileHover={{ scale: 1.08, y: -4, rotate: -2 }}
                 whileTap={{ scale: 0.96 }}
-                className="flex flex-1 items-center justify-center gap-3 rounded-full bg-green px-8 py-5 font-display text-lg font-black uppercase tracking-wide text-ink shadow-[0_0_20px_rgba(30,215,96,0.4)] disabled:opacity-50"
+                className={`flex flex-1 items-center justify-center gap-3 rounded-full px-8 py-5 font-display text-lg font-black uppercase tracking-wide text-ink transition-colors duration-300 ${
+                  copied
+                    ? "bg-cream shadow-[0_0_20px_rgba(238,238,228,0.3)]"
+                    : "bg-green shadow-[0_0_20px_rgba(30,215,96,0.4)]"
+                }`}
+                disabled={sharing}
               >
-                <Share2 className="size-5" />
-                {isExporting ? "Generating..." : "Share Wrap"}
+                <AnimatePresence mode="wait">
+                  {copied ? (
+                    <motion.span
+                      key="copied"
+                      initial={{ opacity: 0, scale: 0.5 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.5 }}
+                      className="flex items-center gap-3"
+                    >
+                      <Check className="size-5" />
+                      Link Copied!
+                    </motion.span>
+                  ) : sharing ? (
+                    <motion.span
+                      key="sharing"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="flex items-center gap-3"
+                    >
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+                        className="size-5 rounded-full border-2 border-ink border-t-transparent"
+                      />
+                      Preparing...
+                    </motion.span>
+                  ) : (
+                    <motion.span
+                      key="share"
+                      initial={{ opacity: 0, scale: 0.5 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.5 }}
+                      className="flex items-center gap-3"
+                    >
+                      <Share2 className="size-5" />
+                      Share Wrap
+                    </motion.span>
+                  )}
+                </AnimatePresence>
               </motion.button>
-
-
             </div>
           </div>
         </motion.div>
       </div>
 
-      <ShareModal
-        isOpen={isShareModalOpen}
-        onClose={() => setIsShareModalOpen(false)}
-        onDownload={handleDownload}
-        onShareIgStory={handleShareIgStory}
-        onCopyLink={handleCopyLink}
-        onNativeShare={handleNativeShare}
-      />
-
-      {/* Off-screen Export Container for html-to-image (9:16 IG Story aspect ratio) */}
-      <div
-        ref={exportRef}
-        className="pointer-events-none"
-        style={{
-          position: "fixed",
-          left: "-9999px",
-          top: 0,
-          width: "1080px",
-          height: "1920px",
-          backgroundColor: meta.color || "var(--wr-purple)",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: -1,
-        }}
-      >
-        <div style={{ width: "860px" }} className="rounded-2xl overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.8)] border-4 border-white/20 bg-ink">
-          <WrapCard wrap={{
-            name: data.name,
-            purpose: data.purpose || "life",
-            slug: data.slug || "draft",
-            photos: data.photos.map(p => p.url),
-            userNames: data.userNames,
-            personalityImageUrl: null,
-            cardColor: data.cardColor
-          }} />
-        </div>
-
-        {/* Export Footer Logo */}
-        <div style={{ marginTop: "120px", display: "flex", flexDirection: "column", alignItems: "center", gap: "20px" }}>
-          <p style={{ color: "white", fontSize: "32px", fontFamily: "var(--font-display), sans-serif", letterSpacing: "0.2em", textTransform: "uppercase", opacity: 0.8 }}>
-            Get yours at Wrapsy.co
-          </p>
-        </div>
-      </div>
+      {/* "Copied" toast notification */}
+      <AnimatePresence>
+        {copied && (
+          <motion.div
+            initial={{ opacity: 0, y: 30, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            className="absolute bottom-6 left-1/2 z-[50] -translate-x-1/2"
+          >
+            <div className="flex items-center gap-2 rounded-full bg-cream px-5 py-3 shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
+              <LinkIcon className="size-4 text-ink" />
+              <span className="font-sans text-sm font-bold text-ink whitespace-nowrap">
+                {wrapShareUrl.replace("https://www.", "")}
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Shell>
   )
 }
