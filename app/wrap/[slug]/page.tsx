@@ -64,17 +64,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       type: "website",
-      ...(wrap.personality_image_url
-        ? { images: [{ url: wrap.personality_image_url, width: 512, height: 768 }] }
-        : {}),
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      ...(wrap.personality_image_url
-        ? { images: [wrap.personality_image_url] }
-        : {}),
     },
   }
 }
@@ -131,6 +125,7 @@ export default async function WrapPage({ params }: Props) {
       : null,
     isBasicPlan,
     cardColor: wrap.card_color,
+    slug: wrap.slug,
   }
 
   const aiContent = wrap.ai_content as AiWrapContent

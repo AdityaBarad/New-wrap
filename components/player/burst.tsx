@@ -273,13 +273,14 @@ export function Halftone({ dark = true, className }: { dark?: boolean; className
 }
 
 /** Wrapped-style footer: Wrapsy logo + hashtag. */
-export function WrapFooter({ ink, hashtag }: { ink: string; hashtag: string }) {
+export function WrapFooter({ ink, hashtag, align = "center" }: { ink: string; hashtag: string; align?: "center" | "left" | "right" }) {
+  const alignClass = align === "left" ? "items-start" : align === "right" ? "items-end" : "items-center justify-center"
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 2.8, type: "spring", stiffness: 260, damping: 24 }}
-      className="flex flex-col items-center justify-center gap-1"
+      className={`flex flex-col gap-1 ${alignClass}`}
       style={{ color: ink }}
     >
       {/* Wrapsy-style logo */}

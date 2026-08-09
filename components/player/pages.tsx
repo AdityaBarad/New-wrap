@@ -274,7 +274,7 @@ function IntroUniverse({
               </motion.div>
             )}
             <div className="mt-2">
-              <WrapFooter ink={ink} hashtag={HASHTAG} />
+              <WrapFooter ink={ink} hashtag={HASHTAG} align="left" />
             </div>
           </div>
         </motion.div>
@@ -333,7 +333,7 @@ const SHARE_ORBS = [
 
 function ShareWrapsyLogo() {
   return (
-    <div className="flex items-center gap-2 text-[#101010] sm:gap-[1.2cqw]">
+    <div className="flex items-center gap-2 text-white sm:gap-[1.2cqw]">
       <img
         src="/logo/logo-solid.jpeg"
         alt="Logo"
@@ -2035,10 +2035,14 @@ function FinaleCard({
   minutesLabel?: string
   topPercentLabel?: string
 }) {
-  const { reset } = useWrap()
+  const { reset, wrapSlug, wrapUrl } = useWrap()
   const exportRef = useRef<HTMLDivElement>(null)
   const [isShareModalOpen, setIsShareModalOpen] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
+
+  const actualSlug = wrapSlug || data.slug;
+  // Use wrapUrl if available, otherwise construct it from the slug. If no slug, fallback to origin.
+  const resolvedShareUrl = wrapUrl || (actualSlug ? `${window.location.origin}/wrap/${actualSlug}` : window.location.origin)
 
   function openShareModal() {
     setIsShareModalOpen(true)
@@ -2089,7 +2093,7 @@ function FinaleCard({
     const url = URL.createObjectURL(blob)
     const a = document.createElement("a")
     a.href = url
-    a.download = `wrapsy-${data.slug || "export"}.jpg`
+    a.download = `wrapsy-${actualSlug || "export"}.jpg`
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
@@ -2097,18 +2101,14 @@ function FinaleCard({
   }
 
   function handleCopyLink() {
-    const shareUrl = data.slug ? `${window.location.origin}/wrap/${data.slug}` : window.location.origin
-    navigator.clipboard.writeText(shareUrl)
+    navigator.clipboard.writeText(resolvedShareUrl)
     alert("Link copied!")
   }
 
   function handleNativeShare() {
-    const shareUrl = data.slug ? `${window.location.origin}/wrap/${data.slug}` : window.location.origin
     if (navigator.share) {
       navigator.share({
-        title: "My Story Wrapped",
-        text: ai.finale?.tagline || "My story wrapped.",
-        url: shareUrl
+        url: resolvedShareUrl
       }).catch(console.error)
     } else {
       handleCopyLink()
@@ -2131,7 +2131,7 @@ function FinaleCard({
           transition={{ type: "spring", stiffness: 140, damping: 16 }}
           className="relative z-[30] w-full max-w-xs"
         >
-          <div className="rounded-xl overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.5)] border-2 border-white/10 bg-ink">
+          <div ref={exportRef} className="rounded-xl overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.5)] border-2 border-white/10 bg-ink">
             <WrapCard wrap={{
               name: data.wrapTitle || data.name,
               purpose: data.purpose || "life",
