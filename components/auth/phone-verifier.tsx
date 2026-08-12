@@ -112,6 +112,8 @@ export function PhoneVerifier({
       if (!window.recaptchaVerifier) throw new Error("reCAPTCHA not initialized")
       const appVerifier = window.recaptchaVerifier
       
+      Sentry.setUser({ id: formattedPhone })
+      
       const result = await signInWithPhoneNumber(auth, formattedPhone, appVerifier)
       setConfirmationResult(result)
       setStep("OTP")
@@ -153,6 +155,7 @@ export function PhoneVerifier({
     // ------------------------------------
 
     try {
+      Sentry.setUser({ id: `+${digitsOnly}` })
       await confirmationResult.confirm(otp)
       // Success! Pass the strictly formatted phone number up to the parent component
       onSuccess(`+${digitsOnly}`)

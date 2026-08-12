@@ -104,16 +104,42 @@ type WrapContextValue = {
 
 const WrapContext = createContext<WrapContextValue | null>(null)
 
-/** Convert a blob: URL to a base64 data URL string. */
-async function blobUrlToBase64(blobUrl: string): Promise<string> {
-  const res = await fetch(blobUrl)
-  const blob = await res.blob()
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onloadend = () => resolve(reader.result as string)
-    reader.onerror = reject
-    reader.readAsDataURL(blob)
-  })
+/** Upload a blob: URL directly to Supabase Storage. */
+async function uploadBlobToSupabase(blobUrl: string, bucket: string, path: string): Promise<string | null> {
+  try {
+    const res = await fetch(blobUrl)
+    const blob = await res.blob()
+    const supabase = createClient()
+    
+    // Attempt to parse extension from content type (default to jpg)
+    let ext = "jpg"
+    if (blob.type.includes("png")) ext = "png"
+    if (blob.type.includes("webp")) ext = "webp"
+    if (blob.type.includes("gif")) ext = "gif"
+    
+    const fullPath = `${path}.${ext}`
+    
+    const { error } = await supabase.storage
+      .from(bucket)
+      .upload(fullPath, blob, {
+        contentType: blob.type,
+        upsert: true,
+      })
+      
+    if (error) {
+      console.error("[uploadBlobToSupabase] Storage upload error:", error)
+      return null
+    }
+    
+    const { data: urlData } = supabase.storage
+      .from(bucket)
+      .getPublicUrl(fullPath)
+      
+    return urlData.publicUrl
+  } catch (err) {
+    console.error("[uploadBlobToSupabase] Upload failed:", err)
+    return null
+  }
 }
 
 export function WrapProvider({
@@ -297,24 +323,34 @@ export function WrapProvider({
 
       // Save wrap to Supabase and wait for it
       try {
-        let personalityImageBase64: string | null = null
+        const wrapSlug = data.slug || "draft"
+        let personalityImageUrl: string | null = null
+        
         if (personalityBlobUrl) {
           try {
-            personalityImageBase64 = await blobUrlToBase64(personalityBlobUrl)
+            personalityImageUrl = await uploadBlobToSupabase(
+              personalityBlobUrl,
+              "wrap-assets",
+              `${wrapSlug}/personality`
+            )
           } catch (e) {
-            console.error("[save-wrap] Failed to convert personality image:", e)
+            console.error("[save-wrap] Failed to upload personality image:", e)
           }
         }
 
-        const photosBase64 = await Promise.all(
+        const photoUrls = await Promise.all(
           Array.from({ length: 14 }).map(async (_, i) => {
             const photo = data.photos[i]
-            if (!photo) return null
+            if (!photo) return ""
             try {
-              const base64 = await blobUrlToBase64(photo.url)
-              return { name: photo.name, base64 }
+              const url = await uploadBlobToSupabase(
+                photo.url,
+                "wrap-assets",
+                `${wrapSlug}/photos/photo-${i + 1}`
+              )
+              return url || ""
             } catch {
-              return null
+              return ""
             }
           })
         )
@@ -325,8 +361,8 @@ export function WrapProvider({
           body: JSON.stringify({
             wrapData: data,
             aiContent: content,
-            personalityImageBase64,
-            photos: photosBase64,
+            personalityImageUrl,
+            photoUrls,
           }),
         })
 
