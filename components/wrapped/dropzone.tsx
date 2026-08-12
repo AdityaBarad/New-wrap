@@ -24,7 +24,7 @@ export function PhotoDropzone({
     const next: LocalPhoto[] = []
     for (const f of Array.from(files)) {
       if (!f.type.startsWith("image/")) continue
-      next.push({ name: f.name, url: URL.createObjectURL(f) })
+      next.push({ name: f.name, url: URL.createObjectURL(f), file: f })
     }
     onChange([...photos, ...next].slice(0, max))
   }
@@ -113,7 +113,7 @@ export function SinglePhotoDropzone({
   function addFiles(files: FileList | null) {
     const f = files?.[0]
     if (f && f.type.startsWith("image/")) {
-      onChange({ name: f.name, url: URL.createObjectURL(f) })
+      onChange({ name: f.name, url: URL.createObjectURL(f), file: f })
     }
   }
 

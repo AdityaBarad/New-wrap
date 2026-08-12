@@ -29,7 +29,7 @@ export const PURPOSES: PurposeMeta[] = [
   { id: "group", label: "GROUP & FAMILY CHAOS", tag: "the group chat unhinged", color: "var(--wr-purple)" },
 ]
 
-export type LocalPhoto = { name: string; url: string }
+export type LocalPhoto = { name: string; url: string; file?: File }
 
 export type SongData = { videoId: string; title: string; artist: string; thumbnail: string }
 
@@ -105,25 +105,35 @@ type WrapContextValue = {
 
 const WrapContext = createContext<WrapContextValue | null>(null)
 
-/** Upload a blob: URL directly to Supabase Storage. */
-async function uploadBlobToSupabase(blobUrl: string, bucket: string, path: string): Promise<string | null> {
+/** Upload a blob: URL or File directly to Supabase Storage. */
+async function uploadBlobToSupabase(blobUrl: string, bucket: string, path: string, fileObj?: File): Promise<string | null> {
   try {
-    const res = await fetch(blobUrl)
-    const blob = await res.blob()
+    let blob: Blob
+    let contentType: string
+    
+    if (fileObj) {
+      blob = fileObj
+      contentType = fileObj.type
+    } else {
+      const res = await fetch(blobUrl)
+      blob = await res.blob()
+      contentType = blob.type
+    }
+    
     const supabase = createClient()
     
     // Attempt to parse extension from content type (default to jpg)
     let ext = "jpg"
-    if (blob.type.includes("png")) ext = "png"
-    if (blob.type.includes("webp")) ext = "webp"
-    if (blob.type.includes("gif")) ext = "gif"
+    if (contentType.includes("png")) ext = "png"
+    if (contentType.includes("webp")) ext = "webp"
+    if (contentType.includes("gif")) ext = "gif"
     
     const fullPath = `${path}.${ext}`
     
     const { error } = await supabase.storage
       .from(bucket)
       .upload(fullPath, blob, {
-        contentType: blob.type,
+        contentType,
         upsert: true,
       })
       
@@ -349,7 +359,8 @@ export function WrapProvider({
               const url = await uploadBlobToSupabase(
                 photo.url,
                 "wrap-assets",
-                `${wrapSlug}/photos/photo-${i + 1}`
+                `${wrapSlug}/photos/photo-${i + 1}`,
+                photo.file
               )
               return url || ""
             } catch {
