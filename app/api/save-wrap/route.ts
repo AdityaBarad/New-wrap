@@ -57,6 +57,11 @@ async function uploadToStorage(
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
+    
+    if (body?.wrapData?.phone) {
+      Sentry.setUser({ id: body.wrapData.phone })
+    }
+    
     const {
       wrapData,
       aiContent,
@@ -144,7 +149,7 @@ export async function POST(req: NextRequest) {
 
     if (dbError) {
       console.error("[save-wrap] DB update error:", dbError)
-      Sentry.captureException(dbError)
+      Sentry.captureException(new Error(`Supabase Error [save-wrap]: ${dbError.message || JSON.stringify(dbError)}`))
       return NextResponse.json(
         { error: "Failed to update wrap" },
         { status: 500 },

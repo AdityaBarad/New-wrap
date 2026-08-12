@@ -12,6 +12,11 @@ function getSupabase() {
 export async function POST(req: NextRequest) {
   try {
     const { name, phone } = await req.json()
+    
+    if (phone) {
+      Sentry.setUser({ id: phone })
+    }
+    
     if (!name || !phone) {
       return NextResponse.json({ error: "Name and Phone are required" }, { status: 400 })
     }
@@ -27,7 +32,7 @@ export async function POST(req: NextRequest) {
 
     if (error) {
       console.error("[save-lead] DB upsert error:", error)
-      Sentry.captureException(error)
+      Sentry.captureException(new Error(`Supabase Error [save-lead]: ${error.message || JSON.stringify(error)}`))
       return NextResponse.json({ error: "Failed to save lead" }, { status: 500 })
     }
 

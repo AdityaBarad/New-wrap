@@ -195,6 +195,11 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
+    
+    if (body?.phone) {
+      Sentry.setUser({ id: body.phone })
+    }
+    
     const prompt = buildPrompt(body)
 
     const controller = new AbortController()
