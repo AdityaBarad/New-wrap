@@ -106,7 +106,7 @@ type WrapContextValue = {
 const WrapContext = createContext<WrapContextValue | null>(null)
 
 /** Upload a blob: URL or File directly to Supabase Storage. */
-async function uploadBlobToSupabase(blobUrl: string, bucket: string, path: string, fileObj?: File): Promise<string | null> {
+export async function uploadBlobToSupabase(blobUrl: string, bucket: string, path: string, fileObj?: File): Promise<string | null> {
   try {
     let blob: Blob
     let contentType: string
@@ -356,18 +356,9 @@ export function WrapProvider({
           const photo = data.photos[i]
           if (!photo) {
             photoUrls.push("")
-            continue
-          }
-          try {
-            const url = await uploadBlobToSupabase(
-              photo.url,
-              "wrap-assets",
-              `${wrapSlug}/photos/photo-${i + 1}`,
-              photo.file
-            )
-            photoUrls.push(url || "")
-          } catch {
-            photoUrls.push("")
+          } else {
+            // Already uploaded instantly! Just use the URL.
+            photoUrls.push(photo.url)
           }
         }
 

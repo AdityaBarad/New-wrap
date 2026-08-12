@@ -1,9 +1,9 @@
 "use client"
 
 import { useRef, useState } from "react"
-import { Upload, X } from "lucide-react"
+import { Loader2, Upload, X } from "lucide-react"
 import { cn } from "@/lib/utils"
-import type { LocalPhoto } from "@/context/wrap-context"
+import { type LocalPhoto, useWrap, uploadBlobToSupabase } from "@/context/wrap-context"
 
 export function PhotoDropzone({
   max,
@@ -109,11 +109,25 @@ export function SinglePhotoDropzone({
 }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [drag, setDrag] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
+  const { draftSessionId } = useWrap()
 
-  function addFiles(files: FileList | null) {
+  async function addFiles(files: FileList | null) {
     const f = files?.[0]
     if (f && f.type.startsWith("image/")) {
-      onChange({ name: f.name, url: URL.createObjectURL(f), file: f })
+      setIsUploading(true)
+      const previewUrl = URL.createObjectURL(f)
+      
+      // Upload directly to draft folder
+      const path = `drafts/${draftSessionId}/photo-${Date.now()}`
+      const url = await uploadBlobToSupabase(previewUrl, "wrap-assets", path, f)
+      
+      if (url) {
+        onChange({ name: f.name, url, file: f })
+      } else {
+        alert("Failed to upload image. Please try again.")
+      }
+      setIsUploading(false)
     }
   }
 
@@ -123,18 +137,27 @@ export function SinglePhotoDropzone({
         {label}
       </span>
       
-      {photo ? (
+      {photo || isUploading ? (
         <div className="relative aspect-square w-full overflow-hidden rounded-md border-2 border-ink group bg-ink/10">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={photo.url} alt={photo.name} className="h-full w-full object-cover" />
-          <button
-            type="button"
-            onClick={onRemove}
-            className="absolute right-1 top-1 rounded-full bg-ink/80 p-1 text-cream hover:bg-ink transition-colors"
-            aria-label="Remove image"
-          >
-            <X className="size-3.5" />
-          </button>
+          {isUploading ? (
+            <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-ink">
+              <Loader2 className="size-6 animate-spin opacity-50" />
+              <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Uploading</span>
+            </div>
+          ) : (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={photo!.url} alt={photo!.name} className="h-full w-full object-cover" />
+              <button
+                type="button"
+                onClick={onRemove}
+                className="absolute right-1 top-1 rounded-full bg-ink/80 p-1 text-cream hover:bg-ink transition-colors"
+                aria-label="Remove image"
+              >
+                <X className="size-3.5" />
+              </button>
+            </>
+          )}
         </div>
       ) : (
         <button
