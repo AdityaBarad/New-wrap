@@ -10,6 +10,7 @@ import {
 } from "react"
 import { createClient } from "@/lib/supabase/client"
 import type { AiWrapContent } from "@/lib/ai-types"
+import * as Sentry from "@sentry/nextjs"
 
 export type Purpose = "couple" | "travel" | "birthday" | "life" | "group"
 
@@ -128,6 +129,7 @@ async function uploadBlobToSupabase(blobUrl: string, bucket: string, path: strin
       
     if (error) {
       console.error("[uploadBlobToSupabase] Storage upload error:", error)
+      Sentry.captureException(new Error(`Frontend Supabase Upload Error: ${error.message || JSON.stringify(error)}`))
       return null
     }
     
@@ -138,6 +140,7 @@ async function uploadBlobToSupabase(blobUrl: string, bucket: string, path: strin
     return urlData.publicUrl
   } catch (err) {
     console.error("[uploadBlobToSupabase] Upload failed:", err)
+    Sentry.captureException(err)
     return null
   }
 }
