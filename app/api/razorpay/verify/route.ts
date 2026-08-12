@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import * as Sentry from "@sentry/nextjs"
 import crypto from "crypto"
 import { createClient } from "@supabase/supabase-js"
 
@@ -48,6 +49,7 @@ export async function POST(req: NextRequest) {
     }
   } catch (error) {
     console.error("Razorpay verification error:", error)
+    Sentry.captureException(error)
     return NextResponse.json({ error: "Verification failed" }, { status: 500 })
   }
 }

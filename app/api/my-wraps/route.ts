@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import * as Sentry from "@sentry/nextjs"
 import { createClient } from "@supabase/supabase-js"
 
 function getSupabase() {
@@ -28,12 +29,14 @@ export async function POST(req: Request) {
 
     if (error) {
       console.error("[my-wraps] Error fetching wraps:", error)
+      Sentry.captureException(error)
       return NextResponse.json({ error: "Failed to fetch wraps" }, { status: 500 })
     }
 
     return NextResponse.json({ wraps })
   } catch (err) {
     console.error("[my-wraps] Unexpected error:", err)
+    Sentry.captureException(err)
     return NextResponse.json({ error: "Failed to process request" }, { status: 500 })
   }
 }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import * as Sentry from "@sentry/nextjs"
 
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 const GROQ_MODEL = "llama-3.3-70b-versatile"
@@ -225,6 +226,7 @@ export async function POST(req: NextRequest) {
     if (!res.ok) {
       const errText = await res.text()
       console.error("[generate-wrap] Groq API error:", res.status, errText)
+      Sentry.captureException(new Error(`Groq API error: ${res.status} ${errText}`))
       return NextResponse.json(
         { error: `Groq API returned ${res.status}` },
         { status: 502 },
@@ -237,6 +239,7 @@ export async function POST(req: NextRequest) {
 
     if (!rawText) {
       console.error("[generate-wrap] Empty response from Groq. Full response:", JSON.stringify(groqResponse).slice(0, 500))
+      Sentry.captureException(new Error(`Empty response from Groq`))
       return NextResponse.json(
         { error: "Empty response from AI" },
         { status: 502 },
@@ -261,6 +264,7 @@ export async function POST(req: NextRequest) {
         console.log("[generate-wrap] JSON repair succeeded")
       } catch {
         console.error("[generate-wrap] JSON repair also failed. Raw text (first 1000 chars):", cleaned.slice(0, 1000))
+        Sentry.captureException(new Error(`JSON repair failed`))
         return NextResponse.json(
           { error: "AI returned malformed JSON" },
           { status: 502 },
@@ -278,6 +282,7 @@ export async function POST(req: NextRequest) {
       !parsed.personalityCard
     ) {
       console.error("[generate-wrap] Invalid JSON structure. Keys found:", Object.keys(parsed))
+      Sentry.captureException(new Error(`Invalid JSON structure`))
       return NextResponse.json(
         { error: "AI returned invalid structure" },
         { status: 502 },
@@ -293,6 +298,7 @@ export async function POST(req: NextRequest) {
       )
     }
     console.error("[generate-wrap] Unexpected error:", err)
+    Sentry.captureException(err)
     return NextResponse.json(
       { error: "Failed to generate content" },
       { status: 500 },

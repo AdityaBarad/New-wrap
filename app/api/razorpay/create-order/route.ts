@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import * as Sentry from "@sentry/nextjs"
 import Razorpay from "razorpay"
 import { createClient } from "@supabase/supabase-js"
 
@@ -42,6 +43,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ order, planId: plan.id })
   } catch (error) {
     console.error("Razorpay order creation error:", error)
+    Sentry.captureException(error)
     return NextResponse.json({ error: "Failed to create order" }, { status: 500 })
   }
 }

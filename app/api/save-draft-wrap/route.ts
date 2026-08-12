@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import * as Sentry from "@sentry/nextjs"
 import { createClient } from "@supabase/supabase-js"
 import { generateSlug } from "@/lib/slug"
 import { getCardColor } from "@/lib/color"
@@ -54,12 +55,14 @@ export async function POST(req: NextRequest) {
 
     if (dbError) {
       console.error("[save-draft] DB insert error:", dbError)
+      Sentry.captureException(dbError)
       return NextResponse.json({ error: "Failed to save draft", details: dbError }, { status: 500 })
     }
 
     return NextResponse.json({ slug })
   } catch (err: any) {
     console.error("[save-draft] Unexpected error:", err)
+    Sentry.captureException(err)
     return NextResponse.json({ error: "Failed to save draft", details: err.message || err }, { status: 500 })
   }
 }

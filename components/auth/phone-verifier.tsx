@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { auth } from "@/lib/firebase"
 import { RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from "firebase/auth"
+import * as Sentry from "@sentry/nextjs"
 import { motion, AnimatePresence } from "framer-motion"
 import { ArrowRight, Phone, ShieldCheck, Loader2 } from "lucide-react"
 
@@ -116,6 +117,7 @@ export function PhoneVerifier({
       setStep("OTP")
     } catch (err: any) {
       console.error("SMS Error:", err)
+      Sentry.captureException(err)
       setError(err.message || "Failed to send SMS. Ensure number includes country code.")
       // Reset reCAPTCHA if it failed
       if (window.recaptchaVerifier) {
@@ -156,6 +158,7 @@ export function PhoneVerifier({
       onSuccess(`+${digitsOnly}`)
     } catch (err: any) {
       console.error("OTP Error:", err)
+      Sentry.captureException(err)
       setError("Invalid code. Please try again.")
     } finally {
       setLoading(false)

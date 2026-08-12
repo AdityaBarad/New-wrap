@@ -337,7 +337,6 @@ export function WrapProvider({
           import("@/lib/mixpanel").then(({ trackEvent }) => {
             trackEvent("Wrap Generation Completed", { plan: planName, wrap_slug: slug, draft_session_id: draftSessionId })
           })
-
           if (planName === "elite") {
             // Short delay to allow Mixpanel to flush before unloading page
             await new Promise((resolve) => setTimeout(resolve, 500))
@@ -350,12 +349,13 @@ export function WrapProvider({
             return true
           }
         } else {
-          console.error("[save-wrap] Failed to save wrap:", saveRes.status)
-          throw new Error("Failed to save final wrap.")
+          const errorData = await saveRes.json().catch(() => ({}));
+          console.error("[save-wrap] Failed to save wrap:", saveRes.status, errorData)
+          throw new Error(`Failed to save final wrap: ${errorData.error || saveRes.statusText}`)
         }
       } catch (e) {
         console.error("[save-wrap] Error saving wrap:", e)
-        throw new Error("Error saving final wrap.")
+        throw new Error(`Error saving final wrap: ${e instanceof Error ? e.message : String(e)}`)
       }
 
       setLoading(false)

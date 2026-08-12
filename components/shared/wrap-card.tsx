@@ -23,7 +23,7 @@ const PURPOSE_LABELS: Record<string, string> = {
 }
 
 export function WrapCard({ wrap }: { wrap: WrapCardProps }) {
-  const photos = wrap.photos ?? []
+  const photos = (wrap.photos ?? []).filter(Boolean)
   const label = PURPOSE_LABELS[wrap.purpose] ?? wrap.purpose?.toUpperCase() ?? "WRAP"
   
   // Use provided cardColor from DB, fallback to deterministic calculation

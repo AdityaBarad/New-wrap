@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import * as Sentry from "@sentry/nextjs"
 import { createClient } from "@supabase/supabase-js"
 
 function getSupabase() {
@@ -26,12 +27,14 @@ export async function POST(req: NextRequest) {
 
     if (error) {
       console.error("[save-lead] DB upsert error:", error)
+      Sentry.captureException(error)
       return NextResponse.json({ error: "Failed to save lead" }, { status: 500 })
     }
 
     return NextResponse.json({ success: true, user: data })
   } catch (err) {
     console.error("[save-lead] Unexpected error:", err)
+    Sentry.captureException(err)
     return NextResponse.json({ error: "Failed to save lead" }, { status: 500 })
   }
 }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import * as Sentry from "@sentry/nextjs"
 import { createClient } from "@supabase/supabase-js"
 import { generateSlug } from "@/lib/slug"
 
@@ -37,6 +38,7 @@ async function uploadToStorage(
 
     if (error) {
       console.error(`[save-wrap] Storage upload error for ${path}:`, error.message)
+      Sentry.captureException(error)
       return null
     }
 
@@ -47,6 +49,7 @@ async function uploadToStorage(
     return urlData.publicUrl
   } catch (err) {
     console.error(`[save-wrap] Upload failed for ${path}:`, err)
+    Sentry.captureException(err)
     return null
   }
 }
@@ -141,6 +144,7 @@ export async function POST(req: NextRequest) {
 
     if (dbError) {
       console.error("[save-wrap] DB update error:", dbError)
+      Sentry.captureException(dbError)
       return NextResponse.json(
         { error: "Failed to update wrap" },
         { status: 500 },
@@ -156,6 +160,7 @@ export async function POST(req: NextRequest) {
     })
   } catch (err) {
     console.error("[save-wrap] Unexpected error:", err)
+    Sentry.captureException(err)
     return NextResponse.json(
       { error: "Failed to save wrap" },
       { status: 500 },

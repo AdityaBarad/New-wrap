@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import * as Sentry from "@sentry/nextjs"
 
 export async function GET(req: NextRequest) {
   try {
@@ -51,6 +52,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ results: videos })
   } catch (error: any) {
     console.error("[search-song] Error searching YouTube:", error)
+    Sentry.captureException(error)
     return NextResponse.json({ 
       error: "Failed to search YouTube", 
       details: error instanceof Error ? error.message : String(error) 

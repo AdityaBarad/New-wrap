@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import * as Sentry from "@sentry/nextjs"
 
 export async function POST(req: NextRequest) {
   try {
@@ -70,6 +71,7 @@ export async function POST(req: NextRequest) {
 
   } catch (err) {
     console.error("[generate-image] Unexpected error:", err)
+    Sentry.captureException(err)
     return NextResponse.json(
       { error: "Failed to generate image" },
       { status: 500 },
