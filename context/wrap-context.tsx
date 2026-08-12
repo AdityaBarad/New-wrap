@@ -351,23 +351,25 @@ export function WrapProvider({
           }
         }
 
-        const photoUrls = await Promise.all(
-          Array.from({ length: 14 }).map(async (_, i) => {
-            const photo = data.photos[i]
-            if (!photo) return ""
-            try {
-              const url = await uploadBlobToSupabase(
-                photo.url,
-                "wrap-assets",
-                `${wrapSlug}/photos/photo-${i + 1}`,
-                photo.file
-              )
-              return url || ""
-            } catch {
-              return ""
-            }
-          })
-        )
+        const photoUrls: string[] = []
+        for (let i = 0; i < 14; i++) {
+          const photo = data.photos[i]
+          if (!photo) {
+            photoUrls.push("")
+            continue
+          }
+          try {
+            const url = await uploadBlobToSupabase(
+              photo.url,
+              "wrap-assets",
+              `${wrapSlug}/photos/photo-${i + 1}`,
+              photo.file
+            )
+            photoUrls.push(url || "")
+          } catch {
+            photoUrls.push("")
+          }
+        }
 
         const saveRes = await fetch("/api/save-wrap", {
           method: "POST",
