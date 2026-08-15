@@ -34,6 +34,19 @@ export async function POST(req: NextRequest) {
       name: wrapData.name,
     }, { onConflict: "phone" })
 
+    // Extract photoUrls if they exist
+    const photoUrls: string[] = []
+    if (wrapData.photos && Array.isArray(wrapData.photos)) {
+      for (let i = 0; i < 14; i++) {
+        const photo = wrapData.photos[i]
+        if (!photo) {
+          photoUrls.push("")
+        } else {
+          photoUrls.push(photo.url)
+        }
+      }
+    }
+
     // 3. Insert wrap row into database as draft
     const { error: dbError } = await supabase.from("wraps").insert({
       phone: wrapData.phone,
@@ -48,6 +61,11 @@ export async function POST(req: NextRequest) {
       delusional_habit: wrapData.delusionalHabit || null,
       birth_year: wrapData.birthYear || null,
       story_paragraph: wrapData.storyParagraph || null,
+      photo_urls: photoUrls.length > 0 ? photoUrls : null,
+      song_video_id: wrapData.song?.videoId || null,
+      song_title: wrapData.song?.title || null,
+      song_artist: wrapData.song?.artist || null,
+      song_thumbnail: wrapData.song?.thumbnail || null,
       status: "draft",
       is_active: false, // By default inactive, elite will make it active
       card_color: getCardColor(slug)

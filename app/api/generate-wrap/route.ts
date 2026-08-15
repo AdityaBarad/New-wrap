@@ -22,11 +22,11 @@ function buildPrompt(body: Record<string, unknown>): string {
     couple: "Couple / Love Story",
     travel: "Travel Memories",
     birthday: "Birthday Special",
-    life: "Personal Life Journey",
-    group: "Group & Family Chaos",
+    life: "Personal / Self",
+    group: "Group / Family",
   }
 
-  const purposeLabel = purposeLabels[(purpose as string) ?? "life"] ?? "Personal Life Journey"
+  const purposeLabel = purposeLabels[(purpose as string) ?? "life"] ?? "Personal / Self"
 
   return `You are a world-class creative director for a viral "Story Wrapped" experience — think Spotify Wrapped but for someone's STORY. Your job is to write punchy, Gen-Z, unhinged-but-heartfelt, meme-aware copy that makes every slide screenshot-worthy.
 

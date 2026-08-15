@@ -1255,95 +1255,6 @@ function MarqueeRow({
   )
 }
 
-function TopTrack({
-  bg,
-  ink,
-  accent,
-  kicker,
-  title,
-  artist,
-  photo,
-}: {
-  bg: string
-  ink: string
-  accent: string
-  kicker: string
-  title: string
-  artist: string
-  photo?: string
-}) {
-  return (
-    <Shell>
-      {/* moving typography wall */}
-      <div className="pointer-events-none absolute inset-0 flex flex-col justify-between py-6">
-        <MarqueeRow text={HASHTAG} ink={ink} duration={22} />
-        <MarqueeRow text={HASHTAG} ink={ink} duration={16} reverse outline />
-        <MarqueeRow text={HASHTAG} ink={ink} duration={28} />
-        <MarqueeRow text={HASHTAG} ink={ink} duration={19} reverse outline />
-      </div>
-
-      <div className="relative grid h-full w-full grid-cols-1 items-center gap-8 px-6 py-10 md:grid-cols-[1.15fr_0.85fr] md:px-14">
-        <div className="flex flex-col justify-center gap-3">
-          <Kicker ink={ink}>{kicker}</Kicker>
-          <motion.h2
-            initial={{ opacity: 0, scale: 2.2, rotate: -4 }}
-            animate={{ opacity: 1, scale: 1, rotate: -1.5 }}
-            transition={{ type: "spring", stiffness: 170, damping: 15, delay: 0.1 }}
-            className="font-display text-6xl font-black uppercase leading-[0.85] tracking-tight text-balance md:text-8xl"
-            style={{ color: ink }}
-          >
-            {title}
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...SPRING, delay: 0.5 }}
-            className="font-display text-lg font-black uppercase tracking-widest"
-            style={{ color: accent }}
-          >
-            {artist}
-          </motion.p>
-        </div>
-
-        {/* spinning vinyl card */}
-        <motion.div
-          initial={{ opacity: 0, x: 80, rotate: 8 }}
-          animate={{ opacity: 1, x: 0, rotate: 0 }}
-          transition={{ ...SPRING, delay: 0.35 }}
-          className="flex items-center justify-center"
-        >
-          <div
-            className="relative w-[60vw] max-w-[18rem] border-4 p-4 md:w-full"
-            style={{ borderColor: ink, backgroundColor: "var(--wr-ink)" }}
-          >
-            <motion.div
-              className="relative mx-auto aspect-square w-full overflow-hidden rounded-full border-4"
-              style={{ borderColor: accent }}
-              animate={{ rotate: 360 }}
-              transition={{ duration: 8, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={photo || "/wrapped-portrait-1.png"}
-                alt="Now playing artwork"
-                className="h-full w-full object-cover"
-                crossOrigin="anonymous"
-              />
-              <span
-                className="absolute left-1/2 top-1/2 size-8 -translate-x-1/2 -translate-y-1/2 rounded-full border-2"
-                style={{ backgroundColor: "var(--wr-ink)", borderColor: accent }}
-              />
-            </motion.div>
-            <p className="mt-3 text-center font-display text-xs font-black uppercase tracking-widest text-cream/70">
-              On Repeat
-            </p>
-          </div>
-        </motion.div>
-      </div>
-    </Shell>
-  )
-}
-
 /* ================================================================== */
 /* SLIDE 4 — THE RECEIPTS (staggered leaderboard)                     */
 /* ================================================================== */
@@ -2267,11 +2178,10 @@ export function buildPages(
   const photo1 = rawPhotos[0] || "/wrapped-portrait-1.png"
   const photo2 = rawPhotos[1] || photo1
   const photo3 = rawPhotos[2] || photo1
-  const photo4 = rawPhotos[3] || photo1
   const photo5 = rawPhotos[4] || photo1
   const photo6 = rawPhotos[13] || photo1 // The new 6th slide image
 
-  const basePhotos = [photo1, photo2, photo3, photo4, photo5]
+  const basePhotos = [photo1, photo2, photo3, photo5, photo6]
 
   const topListPhotos = [5, 6, 7, 8, 9].map((i, index) => {
     return rawPhotos[i] || basePhotos[index % 5]

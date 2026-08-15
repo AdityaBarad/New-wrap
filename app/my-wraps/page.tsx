@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Sparkles } from "lucide-react"
 import { PhoneVerifier } from "@/components/auth/phone-verifier"
@@ -24,6 +24,16 @@ export default function MyWrapsPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [wraps, setWraps] = useState<WrapInfo[] | null>(null)
+  const [isInitializing, setIsInitializing] = useState(true)
+
+  useEffect(() => {
+    const savedPhone = localStorage.getItem("verified_phone")
+    if (savedPhone) {
+      handleSearch(savedPhone).finally(() => setIsInitializing(false))
+    } else {
+      setIsInitializing(false)
+    }
+  }, [])
 
   const handleSearch = async (verifiedPhone: string) => {
     setPhone(verifiedPhone)
@@ -49,6 +59,7 @@ export default function MyWrapsPage() {
   }
 
   const handleReset = () => {
+    localStorage.removeItem("verified_phone")
     setWraps(null)
     setPhone("")
     setError(null)
@@ -64,7 +75,7 @@ export default function MyWrapsPage() {
 
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 py-12">
         <AnimatePresence mode="wait">
-          {!wraps ? (
+          {isInitializing ? null : !wraps ? (
             <motion.div
               key="search"
               initial={{ opacity: 0, y: 20 }}

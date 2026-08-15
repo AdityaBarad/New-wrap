@@ -85,7 +85,6 @@ export function PhoneVerifier({
     e.preventDefault()
     if (!phoneNumber.trim()) return
 
-    // Basic format check (Firebase requires strict E.164 format: +1234567890 without spaces)
     const digitsOnly = fullPhone.replace(/\D/g, "")
     const formattedPhone = `+${digitsOnly}`
     
@@ -93,6 +92,15 @@ export function PhoneVerifier({
       setError("Number is too short.")
       return
     }
+
+    // --- SESSION CHECK ---
+    const cachedPhone = typeof window !== 'undefined' ? localStorage.getItem("verified_phone") : null
+    if (cachedPhone === formattedPhone) {
+      setLoading(true)
+      onSuccess(formattedPhone)
+      return
+    }
+    // ---------------------
 
     setLoading(true)
     setError(null)
@@ -144,11 +152,13 @@ export function PhoneVerifier({
     if (digitsOnly.includes("1234567890")) {
       setTimeout(() => {
         if (otp === "000000") {
+          if (typeof window !== 'undefined') localStorage.setItem("verified_phone", `+${digitsOnly}`)
           onSuccess(`+${digitsOnly}`)
+          // Kept loading true purposefully so loader persists until unmount
         } else {
           setError("Invalid dummy code. Use 000000.")
+          setLoading(false)
         }
-        setLoading(false)
       }, 500)
       return
     }
@@ -158,12 +168,13 @@ export function PhoneVerifier({
       Sentry.setUser({ id: `+${digitsOnly}` })
       await confirmationResult.confirm(otp)
       // Success! Pass the strictly formatted phone number up to the parent component
+      if (typeof window !== 'undefined') localStorage.setItem("verified_phone", `+${digitsOnly}`)
       onSuccess(`+${digitsOnly}`)
+      // Kept loading true purposefully so loader persists until unmount
     } catch (err: any) {
       console.error("OTP Error:", err)
       Sentry.captureException(err)
       setError("Invalid code. Please try again.")
-    } finally {
       setLoading(false)
     }
   }

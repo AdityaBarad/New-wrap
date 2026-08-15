@@ -25,8 +25,8 @@ export const PURPOSES: PurposeMeta[] = [
   { id: "couple", label: "COUPLE / LOVE STORY", tag: "two hearts, one chaos", color: "var(--wr-pink)" },
   { id: "travel", label: "TRAVEL MEMORIES", tag: "passport full of receipts", color: "var(--wr-green)" },
   { id: "birthday", label: "BIRTHDAY SPECIAL", tag: "another lap around the sun", color: "var(--wr-yellow)" },
-  { id: "life", label: "PERSONAL LIFE JOURNEY", tag: "the main character era", color: "var(--wr-orange)" },
-  { id: "group", label: "GROUP & FAMILY CHAOS", tag: "the group chat unhinged", color: "var(--wr-purple)" },
+  { id: "life", label: "PERSONAL / SELF", tag: "the main character era", color: "var(--wr-orange)" },
+  { id: "group", label: "GROUP / FAMILY", tag: "the group chat unhinged", color: "var(--wr-purple)" },
 ]
 
 export type LocalPhoto = { name: string; url: string; file?: File }

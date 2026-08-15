@@ -162,11 +162,6 @@ Here is an example of what Gemini returns for the prompt above. Notice how it we
     "label": "Steps walked in Paris",
     "note": "Because taking the metro is for the weak, apparently. Two hours for a bakery? Worth it."
   },
-  "topTrack": {
-    "kicker": "Your anthem",
-    "title": "Espresso (But More Caffeinated)",
-    "artistLine": "the soundtrack of your 3 AM reality TV binges"
-  },
   "globalArtistsTitle": "Your Main Character Influences",
   "globalArtists": [
     "The IKEA Instruction Manual",
