@@ -54,7 +54,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const ai = wrap.ai_content as AiWrapContent
-  const title = `${wrap.name}'s Story, Wrapped`
+  const introLines = ai?.intro?.lines
+  const wrapTitle = introLines?.length ? introLines.join(" ") : wrap.name
+  const title = `${wrapTitle} — Story Wrapped`
   const description = ai?.intro?.sub || "Check out this Story Wrapped!"
 
   return {
