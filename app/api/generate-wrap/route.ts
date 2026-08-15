@@ -11,7 +11,6 @@ function buildPrompt(body: Record<string, unknown>): string {
     anniversaryDate,
     destinationCity,
     travelHours,
-    delusionalHabit,
     birthYear,
     storyParagraph,
     photoCount,
@@ -35,7 +34,6 @@ function buildPrompt(body: Record<string, unknown>): string {
 ${anniversaryDate ? `- **Anniversary/First date**: ${anniversaryDate}` : ""}
 ${destinationCity ? `- **Destination city**: ${destinationCity}` : ""}
 ${travelHours ? `- **Travel hours**: ${travelHours}` : ""}
-${delusionalHabit ? `- **Delusional habit / inside joke**: ${delusionalHabit}` : ""}
 ${birthYear ? `- **Birth year**: ${birthYear}` : ""}
 - **Photos uploaded**: ${photoCount || 0}
 

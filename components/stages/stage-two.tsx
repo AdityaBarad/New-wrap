@@ -200,12 +200,6 @@ export function StageTwo() {
                   {(purpose === "birthday" || purpose === "life" || purpose === "group") && (
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <Field
-                        label={purpose === "group" ? "Group Inside Joke Word" : "Ultimate Delusional Habit / Inside Joke"}
-                        placeholder="the word only YOU get"
-                        value={data.delusionalHabit}
-                        onChange={(e) => update({ delusionalHabit: e.target.value })}
-                      />
-                      <Field
                         label="Year of Birth"
                         type="number"
                         placeholder="e.g. 1999"
