@@ -176,7 +176,8 @@ function IntroUniverse({
             className="mt-2 font-display text-sm font-bold"
             style={{ color: ink }}
           >
-            {songTitle} <span className="font-semibold not-uppercase">by</span> {songArtist}
+            <span className="font-black uppercase">{songTitle}</span>
+            {songArtist && <span className="font-semibold not-uppercase"> — {songArtist}</span>}
           </motion.p>
           {songStat && (
             <motion.p
@@ -263,8 +264,13 @@ function IntroUniverse({
                 className="mt-2"
               >
                 <p className="font-display text-lg font-black uppercase" style={{ color: ink }}>
-                  {songTitle} <span className="font-semibold not-uppercase">by</span> {songArtist}
+                  {songTitle}
                 </p>
+                {songArtist && (
+                  <p className="font-sans text-sm font-semibold" style={{ color: ink, opacity: 0.8 }}>
+                    {songArtist}
+                  </p>
+                )}
                 {songStat && (
                   <p className="font-sans text-sm font-semibold" style={{ color: ink, opacity: 0.8 }}>
                     {songStat}
@@ -2143,22 +2149,24 @@ function FinaleCard({
 /* ================================================================== */
 
 function bigMetric(data: WrapData, stats: WrapStats, ai: AiWrapContent) {
-  const purpose = data.purpose ?? "life"
-  if (purpose === "couple") {
-    const days = daysSince(data.anniversaryDate) || stats.int(200, 2400)
-    return { value: days, label: ai.dataHighlight.label, note: ai.dataHighlight.note }
+  if (data.anniversaryDate) {
+    const days = daysSince(data.anniversaryDate)
+    if (days && days > 0) return { value: days, label: ai.dataHighlight.label, note: ai.dataHighlight.note }
   }
-  if (purpose === "travel") {
-    const hours = Number(data.travelHours) || stats.int(60, 380)
-    return { value: hours, label: ai.dataHighlight.label, note: ai.dataHighlight.note }
+  if (data.travelHours && Number(data.travelHours) > 0) {
+    return { value: Number(data.travelHours), label: ai.dataHighlight.label, note: ai.dataHighlight.note }
   }
-  if (purpose === "birthday") {
-    const age = data.birthYear ? Math.max(1, new Date().getFullYear() - Number(data.birthYear)) : stats.int(18, 60)
+  if (data.birthYear) {
+    const age = Math.max(1, new Date().getFullYear() - Number(data.birthYear))
     return { value: age, label: ai.dataHighlight.label, note: ai.dataHighlight.note }
   }
-  if (purpose === "group") {
-    return { value: stats.streakDays, label: ai.dataHighlight.label, note: ai.dataHighlight.note }
-  }
+
+  // Fallbacks if nothing is provided
+  const purpose = data.purpose ?? "life"
+  if (purpose === "couple") return { value: stats.int(200, 2400), label: ai.dataHighlight.label, note: ai.dataHighlight.note }
+  if (purpose === "travel") return { value: stats.int(60, 380), label: ai.dataHighlight.label, note: ai.dataHighlight.note }
+  if (purpose === "birthday") return { value: stats.int(18, 60), label: ai.dataHighlight.label, note: ai.dataHighlight.note }
+  
   return { value: stats.streakDays, label: ai.dataHighlight.label, note: ai.dataHighlight.note }
 }
 

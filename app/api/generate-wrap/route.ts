@@ -15,7 +15,6 @@ function buildPrompt(body: Record<string, unknown>): string {
     birthYear,
     storyParagraph,
     photoCount,
-    song,
   } = body
 
   const purposeLabels: Record<string, string> = {
@@ -39,9 +38,8 @@ ${travelHours ? `- **Travel hours**: ${travelHours}` : ""}
 ${delusionalHabit ? `- **Delusional habit / inside joke**: ${delusionalHabit}` : ""}
 ${birthYear ? `- **Birth year**: ${birthYear}` : ""}
 - **Photos uploaded**: ${photoCount || 0}
-${song ? `- **Chosen theme song**: ${song}` : ""}
 
-## USER'S STORY (use this heavily — it's the soul of the wrap)
+## USER'S STORY (THIS IS THE MOST IMPORTANT INPUT — USE EVERY SINGLE DETAIL)
 "${storyParagraph || "No story provided — improvise based on the profile above."}"
 
 ## INSTRUCTIONS
@@ -49,11 +47,25 @@ Generate creative, personalized, trendy unique content for an 8-slide wrapped ex
 1. Be deeply personalized using the user's story and details
 2. Sound like a mix of spotify Wrapped + Instagram Reels + Twitter shitposting
 3. Use Gen-Z slang naturally (slay, era, main character, unhinged, no cap, ate, etc.)
-4. CRITICAL: NEVER REPEAT THE SAME DETAIL ACROSS MULTIPLE SLIDES. Every slide MUST focus on a DIFFERENT aspect, quirk, or memory from the user's story. If you use a detail on one slide (e.g., stealing hoodies), DO NOT use it again anywhere else.
-5. Utilize as many DIFFERENT points from the user's story as possible to make the whole wrap feel rich, diverse, and interesting.
-6. Be witty, warm, and shareable — every line should make someone want to screenshot it
-7. Be unique — NEVER generic. If they mentioned a city, reference it. If they mentioned a habit, roast it lovingly.
-9. Don't assume things on your own, stay with the data only that users gave.
+4. Be witty, warm, and shareable — every line should make someone want to screenshot it
+5. Be unique — NEVER generic. If they mentioned a city, reference it. If they mentioned a habit, roast it lovingly.
+6. Don't assume things on your own, stay with the data only that users gave.
+7. This is NOT about music or songs. Do NOT reference any songs, artists, albums, music, or Spotify-specific terms. This is a STORY wrap about the person's LIFE.
+
+## USE EVERY DETAIL FROM THE STORY
+The user has written a paragraph with many specific details, memories, habits, places, foods, inside jokes, and quirks. You MUST use ALL of them:
+- First, break the user's story into individual facts/details (e.g. "loves phuchkas", "steals hoodies", "fights about AC temperature", "binge watches K-dramas").
+- Then distribute ALL of those details across the slides — every single one must appear somewhere in the output.
+- If the user mentioned 15 things, all 15 must appear across the wrap. Do NOT skip or ignore any detail.
+- Use the less obvious, quirky details for the ranking lists, dashboard items, and stat labels — these are perfect for those slots.
+
+## ABSOLUTE NO-REPETITION RULE
+Each detail is a ONE-TIME-USE token:
+- If you mention a detail (e.g. "phuchkas", "stealing hoodies", "late night calls") on ANY slide, you are PERMANENTLY BANNED from using that same detail on ANY other slide.
+- Before writing each slide, mentally check: "Have I already used this detail?" If yes, pick a DIFFERENT detail.
+- Spread details evenly — use each one ONLY ONCE across the entire wrap.
+- This applies to ALL fields: intro.sub, highlightCard, topList items, blockRanking items, summaryDashboard lists, globalFootprint descriptions, statProfile labels, dataHighlight note, personalityCard description, and finale tagline.
+- If two slides end up referencing the same food, habit, joke, person, or memory, the ENTIRE output is INVALID.
 
 Return ONLY a valid JSON object (no markdown, no backticks, no explanation) adhering STRICTLY to the following structure and constraints.
 IMPORTANT: The values you generate MUST be wildly creative, unique, and deeply personalized to the user's story. DO NOT use generic Spotify defaults. Capture the true Spotify Wrapped vibe (punchy, rhythmic, slightly roasting, deeply celebratory).
@@ -70,14 +82,13 @@ IMPORTANT: The values you generate MUST be wildly creative, unique, and deeply p
   },
   "dataHighlight": {
     "kicker": "2-4 word label for a big number slide",
-    "value": "The actual calculated number (e.g. 279, 14000, 52). You MUST calculate this based on the specific primary data the user entered (e.g., age calculated from birth year, days calculated from an anniversary, or travel hours). Only use photo count or made up stats if NO birth year, anniversary, or travel hours are provided. Only return the raw number.",
     "label": "What the number represents (e.g. DAYS SINCE WE MET, YEARS OF EXCELLENCE)",
     "note": "A witty 1-2 sentence observation about this number."
   },
   "highlightCard": {
-    "kicker": "2-3 word label",
-    "title": "A personalized title (e.g. for a couple, 'Biggest Fight', for travel 'Best Meal')",
-    "subtitle": "A creative subtitle for this card"
+    "kicker": "2-3 word label (NOT music-related, e.g. 'Core Memory', 'Main Highlight', 'Defining Moment')",
+    "title": "A personalized title about a key memory or trait (NOT a song name). E.g. 'Biggest Fight', 'Best Meal', 'The Meltdown'",
+    "subtitle": "A creative subtitle describing this moment (NOT an artist name)"
   },
   "topListTitle": "Creative title for a top 5 list (e.g. 'Top Delusions', 'Top Inside Jokes') ",
   "topList": [
@@ -137,7 +148,7 @@ IMPORTANT: The values you generate MUST be wildly creative, unique, and deeply p
 }
 
 CRITICAL: 
-- The "lines" array in "intro" MUST have exactly 3 short items (1-2 words each) AND ONE OF THE ITEMS MUST BE THE USER'S NAME.
+- The "lines" array in "intro" MUST have exactly 3 items. ONE OF THE ITEMS MUST BE THE USER'S EXACT NAME AS PROVIDED (even if it contains multiple names or symbols like "Aditya & Geet"), and the other two items should be short (1-2 words).
 - "photoRanking.items" MUST have exactly 5 items, and EACH ITEM MUST BE 2-4 WORDS (MAXIMUM OF 25 CHARACTERS).
 - "blockRanking.items" MUST have exactly 5 items, and EACH ITEM MUST BE 3-4 WORDS (MAXIMUM OF 25 CHARACTERS).
 - "summaryDashboard.list1" MUST have exactly 5 items, EACH 1-2 WORDS (MAX 20 CHARACTERS).

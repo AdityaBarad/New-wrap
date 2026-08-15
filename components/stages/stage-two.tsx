@@ -255,11 +255,12 @@ export function StageTwo() {
                 <div className="flex flex-col gap-6">
                   <div>
                     <span className="mb-2 block font-display text-[11px] font-black uppercase tracking-widest text-foreground/75">
-                      5 slides images (Upload a unique photo for each slide)
+                      Your Main Photos
                     </span>
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
                       <SinglePhotoDropzone
-                        label="1. Intro Slide"
+                        label="01"
+                        slideLayout="intro"
                         photo={data.photos?.[0]}
                         accentColor={meta.color}
                         onChange={(photo) => {
@@ -274,7 +275,8 @@ export function StageTwo() {
                         }}
                       />
                       <SinglePhotoDropzone
-                        label="2. Song Reveal"
+                        label="02"
+                        slideLayout="song"
                         photo={data.photos?.[1]}
                         accentColor={meta.color}
                         onChange={(photo) => {
@@ -289,7 +291,8 @@ export function StageTwo() {
                         }}
                       />
                       <SinglePhotoDropzone
-                        label="3. Artist Stats"
+                        label="03"
+                        slideLayout="stats"
                         photo={data.photos?.[2]}
                         accentColor={meta.color}
                         onChange={(photo) => {
@@ -304,7 +307,8 @@ export function StageTwo() {
                         }}
                       />
                       <SinglePhotoDropzone
-                        label="4. Dashboard"
+                        label="04"
+                        slideLayout="dashboard"
                         photo={data.photos?.[4]}
                         accentColor={meta.color}
                         onChange={(photo) => {
@@ -319,7 +323,8 @@ export function StageTwo() {
                         }}
                       />
                       <SinglePhotoDropzone
-                        label="5. Quirks Slide"
+                        label="05"
+                        slideLayout="quirks"
                         photo={data.photos?.[13]}
                         accentColor={meta.color}
                         onChange={(photo) => {
@@ -338,13 +343,14 @@ export function StageTwo() {
 
                   <div>
                     <span className="mb-2 block font-display text-[11px] font-black uppercase tracking-widest text-foreground/75">
-                      Top List Images (5 photos for the Top Moods list slide)
+                      Top List Images (These photos will appear small)
                     </span>
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+                    <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-7">
                       {[5, 6, 7, 8, 9].map((index) => (
                         <SinglePhotoDropzone
                           key={index}
-                          label={`#${index - 4} Photo`}
+                          size="small"
+                          slideLayout="toplist"
                           photo={data.photos?.[index]}
                           accentColor={meta.color}
                           onChange={(photo) => {
@@ -364,13 +370,14 @@ export function StageTwo() {
 
                   <div>
                     <span className="mb-2 block font-display text-[11px] font-black uppercase tracking-widest text-foreground/75">
-                      Globe Images (3 photos floating around the globe)
+                      Globe Images (These photos will appear small)
                     </span>
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+                    <div className="grid grid-cols-3 gap-2 sm:grid-cols-8 lg:grid-cols-10">
                       {[10, 11, 12].map((index) => (
                         <SinglePhotoDropzone
                           key={index}
-                          label={`Globe Photo ${index - 9}`}
+                          size="small"
+                          slideLayout="globe"
                           photo={data.photos?.[index]}
                           accentColor={meta.color}
                           onChange={(photo) => {
