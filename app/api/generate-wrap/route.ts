@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import * as Sentry from "@sentry/nextjs"
 
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
-const GROQ_MODEL = "llama-3.3-70b-versatile"
+const GROQ_MODEL = "openai/gpt-oss-120b"
 
 function buildPrompt(body: Record<string, unknown>): string {
   const {
@@ -201,15 +201,35 @@ function extractGroqText(response: Record<string, unknown>): string {
   return (response as any)?.choices?.[0]?.message?.content ?? ""
 }
 
+// Keep track of the current key index in server memory to rotate across requests
+let currentKeyIndex = 0
+
 export async function POST(req: NextRequest) {
   try {
-    const apiKey = process.env.GROQ_API_KEY
-    if (!apiKey) {
+    // Load all available numbered API keys from environment
+    const apiKeys = [
+      process.env.GROQ_API_KEY_1,
+      process.env.GROQ_API_KEY_2,
+      process.env.GROQ_API_KEY_3,
+      process.env.GROQ_API_KEY_4,
+      process.env.GROQ_API_KEY_5,
+    ].filter(Boolean) as string[]
+
+    if (apiKeys.length === 0) {
       return NextResponse.json(
-        { error: "GROQ_API_KEY not configured" },
+        { error: "No GROQ API keys configured in environment" },
         { status: 500 },
       )
     }
+
+    // Select the next key in the round-robin sequence
+    const keyIndexToUse = currentKeyIndex % apiKeys.length
+    const apiKey = apiKeys[keyIndexToUse]
+    
+    // Increment for the next request (using modulo 10000 to prevent infinite growth)
+    currentKeyIndex = (currentKeyIndex + 1) % 10000
+    
+    console.log(`[generate-wrap] Using API Key #${keyIndexToUse + 1} of ${apiKeys.length} available keys`);
 
     const body = await req.json()
 
@@ -239,8 +259,8 @@ export async function POST(req: NextRequest) {
           },
         ],
         temperature: 1.0,
-        max_tokens: 8192,
-        response_format: { type: "json_object" },
+        max_tokens: 5000,
+        reasoning_effort: "low",
       }),
     })
 

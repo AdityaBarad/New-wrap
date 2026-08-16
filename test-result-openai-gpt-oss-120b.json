@@ -1,0 +1,88 @@
+{
+  "intro": {
+    "kicker": "Yo",
+    "lines": ["sam", "vibes", "unhinged"],
+    "sub": "Your love saga decoded – ready to brag?"
+  },
+  "share": {
+    "title": "Foodie Frenzy",
+    "hashtag": "SamAndChashmishWrapped"
+  },
+  "dataHighlight": {
+    "kicker": "365 Days",
+    "label": "Days Since First Bite",
+    "note": "You’ve survived 1 year of Sharma ji’s “eat on time” mystery."
+  },
+  "highlightCard": {
+    "kicker": "Core Memory",
+    "title": "The Attendance Call",
+    "subtitle": "\"Sharma ji, khana kha liya?\" – the daily roll call."
+  },
+  "topListTitle": "Top Inside Jokes",
+  "topList": [
+    "Chashmish",
+    "Bauni",
+    "5‑Year‑Old Mode",
+    "Short Roast",
+    "Naming Battle"
+  ],
+  "statProfile": {
+    "name": "Sam & Sharma ji",
+    "stat1Label": "Hours Planning Food",
+    "stat1Value": "∞",
+    "stat2Label": "Moments Acting Kid",
+    "stat2Value": "42",
+    "stat3Label": "Times She Remembers Hunger",
+    "stat3Value": "100+",
+    "stat4Label": "Legal‑Name Ideas",
+    "stat4Value": "Bauni"
+  },
+  "globalFootprint": {
+    "title": "Main Character Energy",
+    "description1": "Turns every meal into a full‑blown comedy show.",
+    "description2": "Their roast‑fest travels 80% across new spots, 20% stays local."
+  },
+  "photoRanking": {
+    "title": "Top Roast Triggers",
+    "items": [
+      "Short Height",
+      "Late Eating",
+      "Naming Wins",
+      "Kid‑Mode Flips",
+      "Same Old Eat Spot"
+    ]
+  },
+  "blockRanking": {
+    "title": "Iconic Quotes",
+    "items": [
+      "Sharma ji, khana kha liya?",
+      "I didn’t hear you",
+      "You’re Bauni now",
+      "We’re both winners",
+      "Travel = Roast"
+    ]
+  },
+  "summaryDashboard": {
+    "list1Title": "Relationship Percentages",
+    "list1": ["Eating", "Travel", "Bullying", "Planning", "Comedy"],
+    "list2Title": "Love Languages",
+    "list2": ["Reminders", "Pretend", "Roasts", "Cute", "Attendance"],
+    "list3Title": "Adult vs Kid",
+    "list3": ["Responsible", "Kiddo", "Named", "Offended", "Legal"],
+    "bottomMetric": "9999",
+    "bottomMetricLabel": "Total Roasts"
+  },
+  "finale": {
+    "title": "One Year Later",
+    "tagline": "Still your favorite person to eat, travel, and annoy forever.",
+    "metricValue": "365",
+    "metricLabel": "Meals Shared",
+    "topPercent": "7",
+    "topPercentLabel": "Romance Level"
+  },
+  "personalityCard": {
+    "title": "Comedic Duo",
+    "description": "Masters of snack‑time reminders and unstoppable roast sessions.",
+    "imagePrompt": "Spotify Wrapped character card style, flat vector illustration and mystical. Two characters: one holding a fork with a speech bubble \"eat?\", the other smirking with a tiny height ruler, surrounded by travel icons and comedy masks."
+  }
+}
