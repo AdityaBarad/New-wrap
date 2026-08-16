@@ -2059,10 +2059,10 @@ function FinaleCard({
         >
           <div className="bg-ink/60 backdrop-blur-md border border-white/10 rounded-3xl p-5 w-full flex flex-col items-center text-center shadow-2xl">
             <p className="text-white font-display uppercase tracking-widest text-[10px] opacity-70 mb-1">
-              Want your own story wrapped?
+              Share your wrap with everyone
             </p>
             <p className="text-green font-display uppercase tracking-tight text-xl font-black leading-none mb-4 drop-shadow-[0_0_10px_rgba(30,215,96,0.3)]">
-              Get yours at Wrapsy.co
+              FLEX YOUR WRAP
             </p>
 
             <div className="flex flex-row items-center justify-center gap-3 w-full">
@@ -2195,7 +2195,7 @@ function bigMetric(data: WrapData, stats: WrapStats, ai: AiWrapContent) {
   if (purpose === "couple") return { value: stats.int(200, 2400), label: ai.dataHighlight.label, note: ai.dataHighlight.note }
   if (purpose === "travel") return { value: stats.int(60, 380), label: ai.dataHighlight.label, note: ai.dataHighlight.note }
   if (purpose === "birthday") return { value: stats.int(18, 60), label: ai.dataHighlight.label, note: ai.dataHighlight.note }
-  
+
   return { value: stats.streakDays, label: ai.dataHighlight.label, note: ai.dataHighlight.note }
 }
 
