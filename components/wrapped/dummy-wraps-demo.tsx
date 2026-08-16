@@ -97,8 +97,7 @@ function WrapRow({ title, wraps, direction = 'left' }: { title: string, wraps: a
         return (
           <div 
             key={`${wrap.slug}${isCopy ? '-copy' : ''}`} 
-            className={`snap-start ${s.card}`} 
-            style={{ width: '220px', minWidth: '220px', flex: '0 0 220px' }}
+            className={`snap-start ${s.card} ${s.cardWrapper}`} 
             onClick={(e) => e.preventDefault()}
           >
             <div 
@@ -123,7 +122,7 @@ function WrapRow({ title, wraps, direction = 'left' }: { title: string, wraps: a
               <h3 className={s.name}>{wrap.name}</h3>
 
               <div className={s.playButton}>
-                <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: '24px', height: '24px', color: '#000', marginLeft: '2px' }}>
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-[18px] h-[18px] sm:w-[24px] sm:h-[24px] text-black ml-[2px]">
                   <path d="M7 6v12l10-6z" />
                 </svg>
               </div>

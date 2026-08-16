@@ -73,11 +73,11 @@ export function Footer() {
               <span className="relative font-display text-xs font-black text-green">YL</span>
             </span>
             <span className="font-display text-base font-black uppercase tracking-tight">
-              Moments/Wrapped
+              Wrapsy
             </span>
           </div>
           <p className="font-display text-xs font-bold uppercase tracking-widest text-ink/60">
-            © {new Date().getFullYear()} Moments/Wrapped — Your Era. Unhinged.
+            © {new Date().getFullYear()} Wrapsy — Your Era. Unhinged.
           </p>
         </div>
       </div>

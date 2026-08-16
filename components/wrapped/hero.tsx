@@ -29,10 +29,10 @@ export function Hero() {
             transition={{ type: 'spring', stiffness: 400, damping: 14 }}
             className="inline-block rounded-full bg-yellow px-4 py-1.5 font-display text-xs font-black uppercase tracking-widest text-ink md:text-sm"
           >
-            ★ 2026 Edition — Now Rolling Out
+            ★ Now Rolling Out
           </motion.span>
 
-          <h1 
+          <h1
             className="mt-4 font-display font-black uppercase leading-[0.82] tracking-tighter text-foreground"
             style={{ fontSize: 'clamp(3.5rem, 12vw, 7.5rem)' }}
           >
@@ -78,20 +78,20 @@ export function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.44, type: 'spring', stiffness: 260, damping: 22 }}
-            className="mt-6 flex flex-wrap items-center gap-3"
+            className="mt-6 flex flex-row items-center gap-2 sm:gap-3"
           >
             <a
               href="/create"
-              className="group flex items-center gap-2 rounded-full bg-green px-7 py-4 font-display text-base font-black uppercase tracking-wide text-ink transition-transform hover:-rotate-2 hover:scale-105"
+              className="group flex items-center gap-1.5 sm:gap-2 rounded-full bg-green px-5 py-3 sm:px-7 sm:py-4 font-display text-[13px] sm:text-base font-black uppercase tracking-wide text-ink transition-transform hover:-rotate-2 hover:scale-105 whitespace-nowrap"
             >
-              Design Your Own
-              <ArrowUpRight className="size-5 transition-transform group-hover:rotate-45" />
+              Get Wrapped
+              <ArrowUpRight className="size-4 sm:size-5 transition-transform group-hover:rotate-45" />
             </a>
             <a
               href="#how"
-              className="flex items-center gap-2 rounded-full border-2 border-foreground/20 px-7 py-4 font-display text-base font-black uppercase tracking-wide text-foreground transition-colors hover:border-pink hover:text-pink"
+              className="flex items-center gap-1.5 sm:gap-2 rounded-full border-2 border-foreground/20 px-5 py-3 sm:px-7 sm:py-4 font-display text-[13px] sm:text-base font-black uppercase tracking-wide text-foreground transition-colors hover:border-pink hover:text-pink whitespace-nowrap"
             >
-              <Play className="size-4 fill-current" />
+              <Play className="size-3 sm:size-4 fill-current" />
               Watch The Drop
             </a>
           </motion.div>

@@ -56,7 +56,7 @@ export function ComingSoon() {
           className="mt-8 max-w-md text-pretty text-base font-medium leading-relaxed text-foreground/70 md:text-lg"
         >
           We're putting the finishing touches on your personalized recap. 
-          Check back later to generate your unhinged Moments/Wrapped album.
+          Check back later to generate your unhinged Wrapsy album.
         </motion.p>
 
         <motion.div
