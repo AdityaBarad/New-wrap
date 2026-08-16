@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Sparkles } from "lucide-react"
+import { Sparkles, Loader2 } from "lucide-react"
 import { PhoneVerifier } from "@/components/auth/phone-verifier"
 import s from "./page.module.css"
 
@@ -75,7 +75,11 @@ export default function MyWrapsPage() {
 
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 py-12">
         <AnimatePresence mode="wait">
-          {isInitializing ? null : !wraps ? (
+          {isInitializing ? (
+            <motion.div key="init" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex py-20 justify-center">
+              <Loader2 className="size-8 animate-spin text-pink" />
+            </motion.div>
+          ) : !wraps ? (
             <motion.div
               key="search"
               initial={{ opacity: 0, y: 20 }}
@@ -105,9 +109,12 @@ export default function MyWrapsPage() {
               </div>
 
               {loading && (
-                <p className="mt-6 text-center font-sans text-sm text-cream/70 animate-pulse">
-                  Fetching your wraps...
-                </p>
+                <div className="mt-6 flex flex-col items-center justify-center gap-2">
+                  <Loader2 className="size-6 animate-spin text-pink" />
+                  <p className="font-sans text-sm text-cream/70">
+                    Fetching your wraps...
+                  </p>
+                </div>
               )}
               {error && (
                 <p className="mt-6 text-center font-sans text-sm font-bold text-orange">

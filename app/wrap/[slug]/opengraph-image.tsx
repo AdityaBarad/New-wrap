@@ -56,9 +56,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
     ? wrap.user_names.split(",").map((n: string) => n.trim()).filter(Boolean)
     : []
   const subtitle = names.length > 0 ? `With ${names.join(", ")}` : ""
-  const cardTitle = names.length > 0
-    ? `${names.join(" & ")} Slayed ${PURPOSE_LABELS[wrap.purpose]?.charAt(0) + PURPOSE_LABELS[wrap.purpose]?.slice(1).toLowerCase() || "Life"}`
-    : wrap.name || "Story Wrapped"
+  const cardTitle = wrap.wrap_title || wrap.name || "Story Wrapped"
 
   return new ImageResponse(
     (

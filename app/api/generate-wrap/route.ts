@@ -79,7 +79,7 @@ IMPORTANT: The values you generate MUST be wildly creative, unique, and deeply p
     "hashtag": "A personalized camelCase hashtag"
   },
   "dataHighlight": {
-    "kicker": "2-4 word label for a big number slide",
+    "kicker": "2-4 word label for the big number slide — ${anniversaryDate ? 'The number is DAYS since their anniversary/first date. Frame kicker, label, and note around days together.' : travelHours ? 'The number is their TOTAL TRAVEL HOURS. Frame kicker, label, and note around travel time.' : birthYear ? `The number is their AGE (born ${birthYear}, currently ${new Date().getFullYear() - Number(birthYear)} years old). Frame kicker, label, and note around their age/years of life.` : 'Frame it around a fun made-up stat.'}",
     "label": "What the number represents (e.g. DAYS SINCE WE MET, YEARS OF EXCELLENCE)",
     "note": "A witty 1-2 sentence observation about this number."
   },
@@ -204,12 +204,13 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    
+
     if (body?.phone) {
       Sentry.setUser({ id: body.phone })
     }
-    
+
     const prompt = buildPrompt(body)
+    console.log("[generate-wrap] Full prompt:\n", prompt)
 
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 45000)

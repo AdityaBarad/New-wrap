@@ -11,7 +11,7 @@ const QUOTES = [
     handle: '@zaraonline',
     bg: 'bg-green',
     fg: 'text-ink',
-    img: '/wrapped-portrait-1.png',
+    img: '/Hero.jpg',
   },
   {
     quote: 'The AI called out my 3AM snack runs by name. Rude. Accurate. Obsessed.',
@@ -19,7 +19,7 @@ const QUOTES = [
     handle: '@matteo.runs',
     bg: 'bg-pink',
     fg: 'text-ink',
-    img: '/wrapped-portrait-2.png',
+    img: '/Hero.jpg',
   },
   {
     quote: 'It made my mundane life feel like a Netflix trailer. 10/10 would relive.',
@@ -27,7 +27,7 @@ const QUOTES = [
     handle: '@priyakay',
     bg: 'bg-yellow',
     fg: 'text-ink',
-    img: '/wrapped-portrait-3.png',
+    img: '/Hero.jpg',
   },
   {
     quote: 'Every transition slaps. Feels like a premium app, not a screenshot generator.',

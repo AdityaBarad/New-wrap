@@ -160,7 +160,7 @@ function WrapRow({ title, wraps, direction = 'left' }: { title: string, wraps: a
 
 export function DummyWrapsDemo() {
   return (
-    <section className="relative w-full bg-[#121212] px-4 py-16 md:px-8 md:py-24 border-y-4 border-ink">
+    <section className="relative w-full bg-ink px-4 py-16 md:px-8 md:py-24 border-y-4 border-ink">
       <div className="mx-auto max-w-[1600px]">
         <WrapRow title="Popular wraps" wraps={ROW_1} direction="left" />
         <WrapRow title="Trending Now" wraps={ROW_2} direction="right" />

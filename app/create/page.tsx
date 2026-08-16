@@ -5,6 +5,6 @@ export default function CreatePage() {
   if (process.env.SHOW_COMING_SOON === 'true') {
     return <ComingSoon />
   }
-  
+
   return <WrapFlow />
 }

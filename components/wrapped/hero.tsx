@@ -3,7 +3,8 @@
 import Image from 'next/image'
 import { ArrowUpRight, Play } from 'lucide-react'
 import { motion } from './motion'
-import { Starburst, Checker } from './shapes'
+import { Starburst } from './shapes'
+import { Burst } from '@/components/player/burst'
 
 export function Hero() {
   return (
@@ -17,11 +18,6 @@ export function Hero() {
         color="var(--wr-purple)"
         spikes={16}
         spin
-      />
-      <Starburst
-        className="pointer-events-none absolute -bottom-24 right-1/4 size-64 opacity-80 md:size-80"
-        color="var(--wr-pink)"
-        spikes={10}
       />
 
       <div className="mx-auto grid w-full max-w-[1600px] flex-1 items-center gap-6 lg:gap-10 lg:grid-cols-[1.15fr_0.85fr]">
@@ -54,7 +50,7 @@ export function Hero() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ type: 'spring', stiffness: 320, damping: 20, delay: 0.08 }}
             >
-              Moments,
+              Story,
             </motion.span>
             <motion.span
               className="block italic text-pink"
@@ -105,39 +101,18 @@ export function Hero() {
 
         {/* poster */}
         <motion.div
-          initial={{ opacity: 0, y: 80, rotate: 6, scale: 0.8 }}
-          animate={{ opacity: 1, y: 0, rotate: 0, scale: 1 }}
+          initial={{ opacity: 0, y: 80, scale: 0.8 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ type: 'spring', stiffness: 220, damping: 18, delay: 0.2 }}
-          className="relative z-10 mx-auto w-full max-w-xs xl:max-w-sm"
+          className="relative z-10 mx-auto flex w-full max-w-sm xl:max-w-md aspect-square items-center justify-center"
         >
-          <div className="relative aspect-[3/4] w-full rotate-2 rounded-2xl border-4 border-ink bg-purple p-4 shadow-2xl">
-            <Checker className="absolute right-4 top-4 size-10" color="var(--wr-yellow)" />
-            <div className="relative h-full w-full overflow-hidden rounded-xl">
-              <Starburst className="absolute inset-0 z-0 size-full scale-110" color="var(--wr-yellow)" spikes={18} spin />
-              <Image
-                src="/wrapped-portrait-1.png"
-                alt="Featured Wrapped album cover portrait"
-                fill
-                priority
-                sizes="(max-width: 768px) 90vw, 380px"
-                className="relative z-10 object-cover mix-blend-normal [clip-path:polygon(50%_2%,63%_20%,85%_15%,80%_37%,98%_50%,80%_63%,85%_85%,63%_80%,50%_98%,37%_80%,15%_85%,20%_63%,2%_50%,20%_37%,15%_15%,37%_20%)]"
-              />
-            </div>
-            <div className="absolute inset-x-4 bottom-4 flex items-end justify-between">
-              <div>
-                <p className="font-display text-3xl font-black uppercase leading-none text-yellow">2026</p>
-                <p className="font-display text-sm font-bold uppercase tracking-widest text-foreground">Wrapped</p>
-              </div>
-              <p className="font-display text-5xl font-black leading-none text-green">#1</p>
-            </div>
-          </div>
-          <motion.div
-            animate={{ y: [0, -10, 0] }}
-            transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}
-            className="absolute -bottom-6 -left-6 rotate-[-6deg] rounded-xl bg-pink px-4 py-2 font-display text-sm font-black uppercase text-ink shadow-lg"
-          >
-            53,623 min lived
-          </motion.div>
+          <Burst
+            photo="/Hero.jpg"
+            palette={{ cloud: "var(--wr-orange)", star1: "var(--wr-purple)", star2: "var(--wr-yellow)" }}
+            delay={0.2}
+            className="h-full w-full"
+            gridSize={8}
+          />
         </motion.div>
       </div>
     </section>

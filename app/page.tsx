@@ -16,12 +16,6 @@ export default function Page() {
       <Hero />
       <DummyWrapsDemo />
 
-      <div className="w-full border-y-4 border-ink bg-pink py-3">
-        <Marquee text="#YOURSTORYWRAPPED —" textClassName="text-ink" />
-      </div>
-
-      <Features />
-
       <div className="flex w-full flex-col">
         <div className="border-y-4 border-ink bg-yellow py-3">
           <Marquee text="DESIGN YOUR OWN · FREE DOWNLOAD · INSTANT ·" textClassName="text-ink" />
@@ -38,6 +32,12 @@ export default function Page() {
       </div>
 
       <HowItWorks />
+
+      <div className="w-full border-y-4 border-ink bg-pink py-3">
+        <Marquee text="#YOURSTORYWRAPPED —" textClassName="text-ink" />
+      </div>
+
+      <Features />
       <Testimonials />
 
       <div className="w-full border-y-4 border-ink bg-orange py-3">

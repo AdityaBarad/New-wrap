@@ -106,6 +106,7 @@ export function Burst({
   delay = 0,
   spinningVinyl = false,
   style,
+  gridSize = 10,
 }: {
   photo?: string
   palette: BurstPalette
@@ -113,8 +114,11 @@ export function Burst({
   delay?: number
   spinningVinyl?: boolean
   style?: React.CSSProperties
+  gridSize?: number
 }) {
   const springConfig = { type: "spring" as const, stiffness: 120, damping: 14 }
+  const squareSize = 100 / gridSize
+  const centerIndex = (gridSize - 1) / 2
   
   return (
     <motion.div
@@ -124,19 +128,19 @@ export function Burst({
       {/* Layer 1: Checkerboard Grid — squares spawn from center outward */}
       <div className="absolute inset-0">
         <svg viewBox="0 0 100 100" className="h-full w-full">
-          {Array.from({ length: 100 }).map((_, i) => {
-            const row = Math.floor(i / 10)
-            const col = i % 10
+          {Array.from({ length: gridSize * gridSize }).map((_, i) => {
+            const row = Math.floor(i / gridSize)
+            const col = i % gridSize
             const isBlack = (row + col) % 2 === 0
-            const distFromCenter = Math.sqrt(Math.pow(row - 4.5, 2) + Math.pow(col - 4.5, 2))
+            const distFromCenter = Math.sqrt(Math.pow(row - centerIndex, 2) + Math.pow(col - centerIndex, 2))
             const staggerDelay = distFromCenter * 0.06
             return (
               <motion.rect
                 key={i}
-                x={col * 10}
-                y={row * 10}
-                width="10"
-                height="10"
+                x={col * squareSize}
+                y={row * squareSize}
+                width={squareSize}
+                height={squareSize}
                 fill={isBlack ? palette.cloud : "transparent"}
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: isBlack ? 1 : 0, scale: 1 }}
@@ -144,7 +148,7 @@ export function Burst({
                   ...springConfig,
                   delay: delay + 0.1 + staggerDelay,
                 }}
-                style={{ transformOrigin: `${col * 10 + 5}px ${row * 10 + 5}px` }}
+                style={{ transformOrigin: `${col * squareSize + squareSize / 2}px ${row * squareSize + squareSize / 2}px` }}
               />
             )
           })}
