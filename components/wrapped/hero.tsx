@@ -92,7 +92,7 @@ export function Hero() {
               className="flex items-center gap-1.5 sm:gap-2 rounded-full border-2 border-foreground/20 px-5 py-3 sm:px-7 sm:py-4 font-display text-[13px] sm:text-base font-black uppercase tracking-wide text-foreground transition-colors hover:border-pink hover:text-pink whitespace-nowrap"
             >
               <Play className="size-3 sm:size-4 fill-current" />
-              Watch The Drop
+              Watch Demos
             </a>
           </motion.div>
 
