@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import { motion, useInView, AnimatePresence } from "framer-motion"
-import { Check, LinkIcon, RotateCcw, Share2 } from "lucide-react"
+import { Check, LinkIcon, RotateCcw, Share2, ChevronLeft } from "lucide-react"
 import { toPng } from "html-to-image"
 import { Burst, Halftone, WrapFooter, type BurstPalette } from "@/components/player/burst"
 import { SpiralRibbon } from "@/components/player/spiral-ribbon"
@@ -1940,7 +1940,9 @@ function FinaleCard({
   palette,
   title = "Your wrapped",
   minutesLabel = "min lived",
-  topPercentLabel = "main character"
+  topPercentLabel = "main character",
+  onGoBack,
+  onReload
 }: {
   meta: any
   data: WrapData
@@ -1950,6 +1952,8 @@ function FinaleCard({
   title?: string
   minutesLabel?: string
   topPercentLabel?: string
+  onGoBack?: () => void
+  onReload?: () => void
 }) {
   const { reset } = useWrap()
   const exportRef = useRef<HTMLDivElement>(null)
@@ -2117,6 +2121,31 @@ function FinaleCard({
                 </AnimatePresence>
               </motion.button>
             </div>
+
+            <div className="flex flex-row items-center justify-center gap-3 w-full mt-3">
+              {onGoBack && (
+                <motion.button
+                  type="button"
+                  onClick={onGoBack}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-full border border-white/20 bg-ink px-4 py-3 font-display text-sm font-bold uppercase tracking-wider text-white transition-colors hover:bg-white/10"
+                >
+                  <ChevronLeft className="size-4" /> Go Back
+                </motion.button>
+              )}
+              {onReload && (
+                <motion.button
+                  type="button"
+                  onClick={onReload}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-full border border-white/20 bg-ink px-4 py-3 font-display text-sm font-bold uppercase tracking-wider text-white transition-colors hover:bg-white/10"
+                >
+                  <RotateCcw className="size-4" /> Reload
+                </motion.button>
+              )}
+            </div>
           </div>
         </motion.div>
       </div>
@@ -2174,7 +2203,9 @@ export function buildPages(
   data: WrapData,
   ai: AiWrapContent,
   generatedImageUrl?: string | null,
-  isReverseExiting?: boolean
+  isReverseExiting?: boolean,
+  onGoBack?: () => void,
+  onReload?: () => void
 ): WrapPage[] {
   const stats = buildStats(data)
   const purpose = data.purpose ?? "life"
@@ -2414,6 +2445,8 @@ export function buildPages(
           title={finaleTitle}
           minutesLabel={finaleMinutesLabel}
           topPercentLabel={finaleTopPercentLabel}
+          onGoBack={onGoBack}
+          onReload={onReload}
         />
       ),
     },

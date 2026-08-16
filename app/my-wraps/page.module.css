@@ -245,13 +245,23 @@
 .marqueeTrack {
   display: flex;
   width: max-content;
-  gap: 24px;
+  gap: 12px;
+}
+@media (min-width: 640px) {
+  .marqueeTrack {
+    gap: 24px;
+  }
 }
 
 .marqueeGroup {
   display: flex;
-  gap: 24px;
+  gap: 12px;
   flex-shrink: 0;
+}
+@media (min-width: 640px) {
+  .marqueeGroup {
+    gap: 24px;
+  }
 }
 
 @keyframes scrollLeft {
@@ -259,16 +269,36 @@
     transform: translateX(0);
   }
   100% {
-    transform: translateX(calc(-50% - 12px));
+    transform: translateX(calc(-50% - 6px));
   }
 }
 
 @keyframes scrollRight {
   0% {
-    transform: translateX(calc(-50% - 12px));
+    transform: translateX(calc(-50% - 6px));
   }
   100% {
     transform: translateX(0);
+  }
+}
+
+@media (min-width: 640px) {
+  @keyframes scrollLeft {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(calc(-50% - 12px));
+    }
+  }
+
+  @keyframes scrollRight {
+    0% {
+      transform: translateX(calc(-50% - 12px));
+    }
+    100% {
+      transform: translateX(0);
+    }
   }
 }
 

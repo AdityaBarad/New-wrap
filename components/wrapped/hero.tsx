@@ -10,7 +10,7 @@ export function Hero() {
   return (
     <section
       id="top"
-      className="relative flex min-h-screen w-full flex-col justify-center overflow-hidden bg-ink px-4 pb-8 pt-24 md:px-8 md:pt-24 lg:pt-20"
+      className="relative flex min-h-screen w-full flex-col justify-start md:justify-center overflow-hidden bg-ink px-4 pb-8 pt-16 md:px-8 md:pt-24 lg:pt-20"
     >
       {/* background blooms */}
       <Starburst
@@ -23,17 +23,9 @@ export function Hero() {
       <div className="mx-auto grid w-full max-w-[1600px] flex-1 items-center gap-6 lg:gap-10 lg:grid-cols-[1.15fr_0.85fr]">
         {/* copy */}
         <div className="relative z-10">
-          <motion.span
-            initial={{ opacity: 0, scale: 0.6, rotate: -6 }}
-            animate={{ opacity: 1, scale: 1, rotate: -3 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 14 }}
-            className="inline-block rounded-full bg-yellow px-4 py-1.5 font-display text-xs font-black uppercase tracking-widest text-ink md:text-sm"
-          >
-            ★ Now Rolling Out
-          </motion.span>
 
           <h1
-            className="mt-4 font-display font-black uppercase leading-[0.82] tracking-tighter text-foreground"
+            className="font-display font-black uppercase leading-[0.82] tracking-tighter text-foreground"
             style={{ fontSize: 'clamp(3.5rem, 12vw, 7.5rem)' }}
           >
             <motion.span

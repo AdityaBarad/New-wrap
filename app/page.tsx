@@ -14,8 +14,14 @@ export default function Page() {
     <main className="relative w-full overflow-x-hidden bg-ink">
       <Nav />
       <Hero />
-      <DummyWrapsDemo />
 
+      <div className="flex w-full flex-col">
+        <div className="border-y-4 border-ink bg-orange py-3">
+          <Marquee text="TRENDING WRAPS · POPULAR NOW · GET INSPIRED ·" textClassName="text-ink" />
+        </div>
+      </div>
+
+      <DummyWrapsDemo />
       <div className="flex w-full flex-col">
         <div className="border-y-4 border-ink bg-yellow py-3">
           <Marquee text="DESIGN YOUR OWN · FREE DOWNLOAD · INSTANT ·" textClassName="text-ink" />

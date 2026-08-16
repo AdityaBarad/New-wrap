@@ -27,7 +27,17 @@ export function StageThree({
   const [isFadeTransition, setIsFadeTransition] = useState(false)
   const [isInstantTransition, setIsInstantTransition] = useState(false)
   const [isReverseExiting, setIsReverseExiting] = useState(false)
-  const pages = useMemo(() => (aiContent ? buildPages(data, aiContent, generatedImageUrl, isReverseExiting) : []), [data, aiContent, generatedImageUrl, isReverseExiting])
+  
+  const backRef = useRef<() => void>()
+  const pages = useMemo(() => (aiContent ? buildPages(
+    data, 
+    aiContent, 
+    generatedImageUrl, 
+    isReverseExiting,
+    () => backRef.current?.(),
+    () => window.location.reload()
+  ) : []), [data, aiContent, generatedImageUrl, isReverseExiting])
+  
   const [index, setIndex] = useState(0)
   const [dir, setDir] = useState(1)
   const [localPaused, setLocalPaused] = useState(false)
@@ -158,6 +168,8 @@ export function StageThree({
 
   const advance = useCallback(() => go(index + 1, 1), [go, index])
   const back = useCallback(() => go(index - 1, -1), [go, index])
+  backRef.current = back
+
 
   useEffect(() => {
     return () => {
