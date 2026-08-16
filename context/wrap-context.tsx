@@ -22,11 +22,11 @@ export type PurposeMeta = {
 }
 
 export const PURPOSES: PurposeMeta[] = [
-  { id: "couple", label: "COUPLE / LOVE STORY", tag: "two hearts, one chaos", color: "var(--wr-pink)" },
-  { id: "travel", label: "TRAVEL MEMORIES", tag: "passport full of receipts", color: "var(--wr-green)" },
-  { id: "birthday", label: "BIRTHDAY SPECIAL", tag: "another lap around the sun", color: "var(--wr-yellow)" },
   { id: "life", label: "PERSONAL / SELF", tag: "the main character era", color: "var(--wr-orange)" },
+  { id: "couple", label: "COUPLE / LOVE STORY", tag: "two hearts, one chaos", color: "var(--wr-pink)" },
+  { id: "birthday", label: "BIRTHDAY SPECIAL", tag: "another lap around the sun", color: "var(--wr-yellow)" },
   { id: "group", label: "GROUP / FAMILY", tag: "the group chat unhinged", color: "var(--wr-purple)" },
+  { id: "travel", label: "TRAVEL MEMORIES", tag: "passport full of receipts", color: "var(--wr-green)" },
 ]
 
 export type LocalPhoto = { name: string; url: string; file?: File }
@@ -48,6 +48,10 @@ export type WrapData = {
   anniversaryDate: string
   destinationCity: string
   travelHours: string
+  whereDidYouMeet: string
+  locationVisited: string
+  tripStartDate: string
+  numberOfPeople: string
   delusionalHabit: string
   birthYear: string
   photos: LocalPhoto[]
@@ -75,6 +79,10 @@ const initialData: WrapData = {
   anniversaryDate: "",
   destinationCity: "",
   travelHours: "",
+  whereDidYouMeet: "",
+  locationVisited: "",
+  tripStartDate: "",
+  numberOfPeople: "",
   delusionalHabit: "",
   birthYear: "",
   photos: [],
@@ -208,6 +216,10 @@ export function WrapProvider({
           anniversaryDate: wrapData.anniversaryDate,
           destinationCity: wrapData.destinationCity,
           travelHours: wrapData.travelHours,
+          whereDidYouMeet: wrapData.whereDidYouMeet,
+          locationVisited: wrapData.locationVisited,
+          tripStartDate: wrapData.tripStartDate,
+          numberOfPeople: wrapData.numberOfPeople,
           delusionalHabit: wrapData.delusionalHabit,
           birthYear: wrapData.birthYear,
           storyParagraph: wrapData.storyParagraph,

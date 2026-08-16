@@ -11,6 +11,10 @@ function buildPrompt(body: Record<string, unknown>): string {
     anniversaryDate,
     destinationCity,
     travelHours,
+    whereDidYouMeet,
+    locationVisited,
+    tripStartDate,
+    numberOfPeople,
     birthYear,
     storyParagraph,
     photoCount,
@@ -32,9 +36,13 @@ function buildPrompt(body: Record<string, unknown>): string {
 - **Purpose**: ${purposeLabel}
 - **People involved**: ${userNames || "the main character"}
 ${anniversaryDate ? `- **Anniversary/First date**: ${anniversaryDate}` : ""}
+${whereDidYouMeet ? `- **Where they met**: ${whereDidYouMeet}` : ""}
 ${destinationCity ? `- **Destination city**: ${destinationCity}` : ""}
 ${travelHours ? `- **Travel hours**: ${travelHours}` : ""}
+${locationVisited ? `- **Location visited**: ${locationVisited}` : ""}
+${tripStartDate ? `- **Trip start date**: ${tripStartDate}` : ""}
 ${birthYear ? `- **Birth year**: ${birthYear}` : ""}
+${numberOfPeople ? `- **Group size**: ${numberOfPeople} people` : ""}
 - **Photos uploaded**: ${photoCount || 0}
 
 ## USER'S STORY (THIS IS THE MOST IMPORTANT INPUT — USE EVERY SINGLE DETAIL)
@@ -79,7 +87,7 @@ IMPORTANT: The values you generate MUST be wildly creative, unique, and deeply p
     "hashtag": "A personalized camelCase hashtag"
   },
   "dataHighlight": {
-    "kicker": "2-4 word label for the big number slide — ${anniversaryDate ? 'The number is DAYS since their anniversary/first date. Frame kicker, label, and note around days together.' : travelHours ? 'The number is their TOTAL TRAVEL HOURS. Frame kicker, label, and note around travel time.' : birthYear ? `The number is their AGE (born ${birthYear}, currently ${new Date().getFullYear() - Number(birthYear)} years old). Frame kicker, label, and note around their age/years of life.` : 'Frame it around a fun made-up stat.'}",
+    "kicker": "2-4 word label for the big number slide — ${anniversaryDate ? 'The number is DAYS since their anniversary/first date. Frame kicker, label, and note around days together.' : tripStartDate ? 'The number is DAYS since their trip started. Frame kicker, label, and note around the trip duration.' : birthYear ? `The number is their AGE (born ${birthYear}, currently ${new Date().getFullYear() - Number(birthYear)} years old). Frame kicker, label, and note around their age/years of life.` : 'Frame it around a fun made-up stat.'}",
     "label": "What the number represents (e.g. DAYS SINCE WE MET, YEARS OF EXCELLENCE)",
     "note": "A witty 1-2 sentence observation about this number."
   },

@@ -12,6 +12,79 @@ import { SongSelector } from "@/components/wrapped/song-selector"
 import { PURPOSES, useWrap } from "@/context/wrap-context"
 import { AiLoading } from "@/components/stages/ai-loading"
 
+const STORY_SUGGESTIONS: Record<string, string[]> = {
+  couple: [
+    "How they (or you) first met — the real, unedited version.",
+    "The exact moment it was clear this was love.",
+    "The most frequent, ridiculous argument (e.g., AC temperature).",
+    "That one inside joke nobody else understands.",
+    "The weirdest habit they have that is secretly loved.",
+    "A memorable disaster date that everyone laughs about now.",
+    "The go-to takeout order when everyone is lazy.",
+    "The song that's always playing in the car.",
+    "Who always says 'sorry' first after a fight.",
+    "The most delusional thing they (or you) both believe.",
+    "Their most iconic red flag that was cheerfully ignored.",
+    "The best trip or vacation taken together."
+  ],
+  travel: [
+    "The most chaotic thing that happened at the airport.",
+    "That one meal everyone still dreams about.",
+    "The time someone got incredibly lost and how they survived.",
+    "The local phrase that kept being mispronounced.",
+    "The biggest cultural shock experienced.",
+    "That one tourist trap someone fell for.",
+    "The most breathtaking view of the entire trip.",
+    "A hilarious miscommunication with a local.",
+    "The thing that was forgotten and had to be bought.",
+    "The best hidden gem discovered by accident.",
+    "How many times someone almost missed a train or flight.",
+    "The funniest thing someone in the group did."
+  ],
+  birthday: [
+    "Their (or your) absolute peak moment from the last year.",
+    "The most unhinged decision they/you made recently.",
+    "Their current hyper-fixation or obsession.",
+    "The most played song or artist of the year.",
+    "A lesson learned the hard way.",
+    "The silliest thing they/you spent money on.",
+    "Their most frequently used phrase or slang.",
+    "The funniest text message sent or received.",
+    "A new habit picked up (good or bad).",
+    "The best night out from this year.",
+    "The most chaotic era from the past 12 months.",
+    "What they/you are most delusional about right now."
+  ],
+  group: [
+    "The inside joke that always derails the group chat.",
+    "Who is the 'mom' of the group and who is the 'liability'.",
+    "The most chaotic trip or night out you all shared.",
+    "The argument that still hasn't been resolved.",
+    "The worst advice someone gave in the group chat.",
+    "Who always cancels plans at the last minute.",
+    "The most iconic quote someone said this year.",
+    "Who has the worst taste in partners/food.",
+    "A shared enemy or mutual annoyance everyone has.",
+    "The time everyone collectively panicked about something.",
+    "Who takes the longest to get ready.",
+    "The most memorable meal you all had together."
+  ],
+  life: [
+    "Their (or your) main character moment of the year.",
+    "The era they/you are currently in (e.g., 'villain era').",
+    "The most questionable late-night purchase.",
+    "The lie they/you tell themselves the most.",
+    "Their weirdest hyper-fixation.",
+    "The food they/you couldn't stop eating this year.",
+    "The most dramatic reaction to a minor inconvenience.",
+    "The biggest 'delusion' that actually came true.",
+    "The habit sworn to be dropped but wasn't.",
+    "Their/your favorite outfit or style phase.",
+    "The funniest thing done completely alone.",
+    "The best boundary set for themselves/yourself."
+  ]
+}
+
 export function StageTwo() {
   const { data, update, submitStage2, loading, aiLoading, error } = useWrap()
   const purpose = data.purpose ?? "life"
@@ -176,23 +249,31 @@ export function StageTwo() {
                         value={data.anniversaryDate}
                         onChange={(e) => update({ anniversaryDate: e.target.value })}
                       />
+                      <Field
+                        label="Where did you meet?"
+                        placeholder="e.g. Hinge, college party..."
+                        optional
+                        value={data.whereDidYouMeet}
+                        onChange={(e) => update({ whereDidYouMeet: e.target.value })}
+                      />
                     </div>
                   )}
 
                   {purpose === "travel" && (
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <Field
-                        label="Ultimate Destination City"
+                        label="Location Visited"
                         placeholder="e.g. Tokyo"
-                        value={data.destinationCity}
-                        onChange={(e) => update({ destinationCity: e.target.value })}
+                        optional
+                        value={data.locationVisited}
+                        onChange={(e) => update({ locationVisited: e.target.value })}
                       />
                       <Field
-                        label="Total Flight / Roadtrip Hours"
-                        type="number"
-                        placeholder="e.g. 142"
-                        value={data.travelHours}
-                        onChange={(e) => update({ travelHours: e.target.value })}
+                        label="Trip Start Date"
+                        type="date"
+                        optional
+                        value={data.tripStartDate}
+                        onChange={(e) => update({ tripStartDate: e.target.value })}
                       />
                     </div>
                   )}
@@ -206,6 +287,16 @@ export function StageTwo() {
                         value={data.birthYear}
                         onChange={(e) => update({ birthYear: e.target.value })}
                       />
+                      {purpose === "group" && (
+                        <Field
+                          label="Number of People"
+                          type="number"
+                          placeholder="e.g. 4"
+                          optional
+                          value={data.numberOfPeople}
+                          onChange={(e) => update({ numberOfPeople: e.target.value })}
+                        />
+                      )}
                     </div>
                   )}
                 </div>
@@ -466,47 +557,56 @@ export function StageTwo() {
                   <div className="h-1 flex-1 bg-foreground/10" />
                 </div>
 
-                <div className="flex flex-col gap-2 min-h-[300px]">
-                  <label className="font-display text-xs font-black uppercase tracking-widest text-foreground/70">
-                    Tell us your story
-                    <span className="ml-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold normal-case tracking-normal" style={{ backgroundColor: meta.color, color: "var(--wr-ink)" }}>
-                      powers AI ✨
-                    </span>
-                  </label>
-                  <p className="font-sans text-[11px] font-medium text-foreground/40 leading-relaxed">
-                    Write a paragraph about your story — the chaos, the wins, the late nights, the inside jokes. The more detail you share, the more personalized and unhinged your wrap gets.
-                  </p>
-                  <textarea
-                    value={data.storyParagraph}
-                    onChange={(e) => update({ storyParagraph: e.target.value })}
-                    placeholder={
-                      purpose === "couple"
-                        ? "Tell us about your relationship — how you met, your funniest moments, that one argument about where to eat, the trip that almost broke you, the song you can't stop playing together..."
-                        : purpose === "travel"
-                          ? "Tell us about your travels — the best sunset, the worst airport, the food that changed your life, the hostel story you keep retelling, the city that stole your heart..."
-                          : purpose === "birthday"
-                            ? "Tell us about your story — the glow up, the chaos, the friendships that hit different, the moment you peaked, the late night that became legendary..."
-                            : purpose === "group"
-                              ? "Tell us about your squad — the inside jokes, the group chat drama, the trip that almost ended friendships, the person who always shows up late..."
-                              : "Tell us about your story — the highs, the lows, the unhinged moments, the growth, the people who made it worth it, the main character moments..."
-                    }
-                    rows={7}
-                    className="w-full resize-none rounded-lg border-2 border-foreground/20 bg-ink/50 px-4 py-3 font-sans text-sm font-medium text-foreground placeholder:text-foreground/30 transition-all focus:border-cream focus:outline-none focus:ring-2 focus:ring-cream/20"
-                    style={{
-                      boxShadow: data.storyParagraph ? `0 0 0 1px ${meta.color}44, 0 4px 20px ${meta.color}11` : undefined,
-                      borderColor: data.storyParagraph ? meta.color : undefined,
-                    }}
-                    maxLength={1500}
-                  />
-                  <div className="flex items-center justify-between">
-                    <p className="font-sans text-[10px] font-medium text-foreground/30">
-                      {data.storyParagraph.length} / 1,500 characters
-                    </p>
-                    {data.storyParagraph.length > 50 && (
-                      <span className="flex items-center gap-1 rounded-full px-2 py-0.5 font-display text-[10px] font-bold uppercase tracking-wide" style={{ backgroundColor: `${meta.color}22`, color: meta.color }}>
-                        AI ready
+                <div className="flex flex-col gap-4 min-h-[300px]">
+                  <div>
+                    <label className="font-display text-xs font-black uppercase tracking-widest text-foreground/70">
+                      Tell us your story
+                      <span className="ml-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold normal-case tracking-normal" style={{ backgroundColor: meta.color, color: "var(--wr-ink)" }}>
+                        powers AI ✨
                       </span>
-                    )}
+                    </label>
+                    <p className="mt-1 font-sans text-[11px] font-medium text-foreground/40 leading-relaxed">
+                      Write a paragraph about your story. The more detail you share, the more personalized and unhinged your wrap gets.
+                    </p>
+                  </div>
+                  
+                  <div className="rounded-xl border-2 border-foreground/10 bg-foreground/5 p-4">
+                    <span className="mb-3 flex items-center gap-2 font-display text-[10px] font-black uppercase tracking-widest" style={{ color: meta.color }}>
+                      <Sparkles className="size-3" /> Things you could mention:
+                    </span>
+                    <ul className="grid max-h-[160px] grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 overflow-y-auto pr-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-foreground/20">
+                      {(STORY_SUGGESTIONS[purpose] || STORY_SUGGESTIONS.life).map((suggestion, idx) => (
+                        <li key={idx} className="flex items-start gap-2 text-[11px] font-medium text-foreground/60">
+                          <span className="mt-0.5 block size-1.5 shrink-0 rounded-full" style={{ backgroundColor: meta.color }} />
+                          <span className="leading-tight">{suggestion}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <textarea
+                      value={data.storyParagraph}
+                      onChange={(e) => update({ storyParagraph: e.target.value })}
+                      placeholder="Start typing your story here..."
+                      rows={6}
+                      className="w-full resize-none rounded-lg border-2 border-foreground/20 bg-ink/50 px-4 py-3 font-sans text-sm font-medium text-foreground placeholder:text-foreground/30 transition-all focus:border-cream focus:outline-none focus:ring-2 focus:ring-cream/20"
+                      style={{
+                        boxShadow: data.storyParagraph ? `0 0 0 1px ${meta.color}44, 0 4px 20px ${meta.color}11` : undefined,
+                        borderColor: data.storyParagraph ? meta.color : undefined,
+                      }}
+                      maxLength={1500}
+                    />
+                    <div className="flex items-center justify-between">
+                      <p className="font-sans text-[10px] font-medium text-foreground/30">
+                        {data.storyParagraph.length} / 1,500 characters
+                      </p>
+                      {data.storyParagraph.length > 50 && (
+                        <span className="flex items-center gap-1 rounded-full px-2 py-0.5 font-display text-[10px] font-bold uppercase tracking-wide" style={{ backgroundColor: `${meta.color}22`, color: meta.color }}>
+                          AI ready
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
 
