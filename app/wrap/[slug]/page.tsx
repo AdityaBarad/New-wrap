@@ -128,6 +128,7 @@ export default async function WrapPage({ params }: Props) {
     isBasicPlan,
     cardColor: wrap.card_color,
     slug: wrap.slug,
+    hasPassword: wrap.has_password || false,
   }
 
   const aiContent = wrap.ai_content as AiWrapContent

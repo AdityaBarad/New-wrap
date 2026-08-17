@@ -65,6 +65,9 @@ export type WrapData = {
   slug?: string
   // DB Card Color
   cardColor?: string
+  // Password protection
+  hasPassword?: boolean
+  password?: string
 }
 
 const initialData: WrapData = {
@@ -88,6 +91,8 @@ const initialData: WrapData = {
   photos: [],
   storyParagraph: "",
   song: null,
+  hasPassword: false,
+  password: "",
 }
 
 type Stage = 1 | 2 | 3 | 4
@@ -273,6 +278,11 @@ export function WrapProvider({
   const submitStage2 = useCallback(async () => {
     setError(null)
     
+    if (data.hasPassword && (!data.password || data.password.trim().length === 0)) {
+      setError("Please enter a password for your wrap.")
+      return
+    }
+
     if (!data.storyParagraph || data.storyParagraph.length < 800) {
       setError("Please write at least 800 characters so the AI can generate a highly personalized story for you.")
       return

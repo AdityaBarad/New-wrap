@@ -85,18 +85,73 @@ const STORY_SUGGESTIONS: Record<string, string[]> = {
   ]
 }
 
+const TITLE_SUGGESTIONS: Record<string, string> = {
+  couple: "e.g. Our 1 Year Anniversary",
+  travel: "e.g. Euro Trip 2024",
+  birthday: "e.g. Alex's 25th Birthday",
+  group: "e.g. The Vegas Trip",
+  life: "e.g. My Life Wrapped or Sarah Era"
+}
+
+const NAME_SUGGESTIONS: Record<string, string> = {
+  couple: "e.g. Sam & Riley",
+  travel: "e.g. Maya & Jake",
+  birthday: "e.g. Alex",
+  group: "e.g. The Boyz",
+  life: "e.g. Sarah"
+}
+
 export function StageTwo() {
   const { data, update, submitStage2, loading, aiLoading, error } = useWrap()
   const purpose = data.purpose ?? "life"
   const meta = PURPOSES.find((p) => p.id === purpose)!
   const [subStep, setSubStep] = useState(1)
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [step1Error, setStep1Error] = useState<string | null>(null)
+  const [step3Error, setStep3Error] = useState<string | null>(null)
 
   // Show the cinematic loading screen while AI is generating
   if (aiLoading) {
     return <AiLoading accentColor={meta.color} />
   }
 
-  const handleNext = () => setSubStep(s => Math.min(5, s + 1))
+  const handleNext = () => {
+    if (subStep === 1) {
+      if (!data.wrapTitle || data.wrapTitle.trim() === "") {
+        setStep1Error("Wrap Title is required.")
+        return
+      }
+      if (!data.userNames || data.userNames.trim() === "") {
+        setStep1Error("User Names is required.")
+        return
+      }
+      if (!data.purpose) {
+        setStep1Error("Please select a purpose.")
+        return
+      }
+      if (data.hasPassword) {
+        if (!data.password || data.password.trim() === "") {
+          setStep1Error("Password cannot be empty.")
+          return
+        }
+        if (data.password !== confirmPassword) {
+          setStep1Error("Passwords do not match.")
+          return
+        }
+      }
+    }
+    if (subStep === 3) {
+      const requiredIndices = [0, 1, 2, 4, 13, 5, 6, 7, 8, 9, 10, 11, 12]
+      const missingPhotos = requiredIndices.filter(i => !data.photos?.[i])
+      if (missingPhotos.length > 0) {
+        setStep3Error("Please upload all required photos before proceeding.")
+        return
+      }
+    }
+    setStep1Error(null)
+    setStep3Error(null)
+    setSubStep(s => Math.min(5, s + 1))
+  }
   const handlePrev = () => setSubStep(s => Math.max(1, s - 1))
 
   return (
@@ -152,32 +207,10 @@ export function StageTwo() {
                   <div className="h-1 flex-1 bg-foreground/10" />
                 </div>
 
-                <div className="grid grid-cols-1 gap-4">
-                  <Field
-                    label="Wrap Title"
-                    placeholder="e.g. Our 1 Year Anniversary"
-                    value={data.wrapTitle}
-                    onChange={(e) => update({ wrapTitle: e.target.value })}
-                  />
-                  <Field
-                    label="User Names"
-                    placeholder={purpose === "couple" ? "e.g. Sam & Riley" : "who's starring in this?"}
-                    value={data.userNames}
-                    onChange={(e) => update({ userNames: e.target.value })}
-                  />
-                  <Field
-                    label="What's this for?"
-                    optional
-                    placeholder="a gift, a flex..."
-                    value={data.whatsThisFor}
-                    onChange={(e) => update({ whatsThisFor: e.target.value })}
-                  />
-                </div>
-
                 {/* Purpose pills */}
                 <div>
                   <span className="mb-2 block font-display text-xs font-black uppercase tracking-widest text-foreground/70">
-                    Pick your purpose
+                    Pick your purpose *
                   </span>
                   <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                     {PURPOSES.map((p) => {
@@ -209,6 +242,96 @@ export function StageTwo() {
                     })}
                   </div>
                 </div>
+
+                <div className="grid grid-cols-1 gap-4">
+                  <Field
+                    label="Wrap Title *"
+                    placeholder={TITLE_SUGGESTIONS[purpose] || "e.g. Our 1 Year Anniversary"}
+                    value={data.wrapTitle}
+                    onChange={(e) => update({ wrapTitle: e.target.value })}
+                  />
+                  <Field
+                    label="User Names *"
+                    placeholder={NAME_SUGGESTIONS[purpose] || "The names that will be shown in the wrap.  Example - Sam, Sam & Lily"}
+                    value={data.userNames}
+                    onChange={(e) => update({ userNames: e.target.value })}
+                  />
+                  <Field
+                    label="What's this for?"
+                    optional
+                    placeholder="a gift, a flex..."
+                    value={data.whatsThisFor}
+                    onChange={(e) => update({ whatsThisFor: e.target.value })}
+                  />
+                </div>
+
+                {/* Password Protection */}
+                <div className="rounded-xl border-2 border-foreground/10 bg-foreground/5 p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="block font-display text-xs font-black uppercase tracking-widest text-foreground">
+                        Password Protection
+                      </span>
+                      <p className="mt-1 font-sans text-[11px] font-medium text-foreground/50">
+                        Require a password to view this wrap.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        update({ hasPassword: !data.hasPassword })
+                        if (data.hasPassword) {
+                          update({ password: "" })
+                          setConfirmPassword("")
+                          setStep1Error(null)
+                        }
+                      }}
+                      className={cn(
+                        "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
+                        data.hasPassword ? "bg-green" : "bg-foreground/20"
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
+                          data.hasPassword ? "translate-x-6" : "translate-x-1"
+                        )}
+                      />
+                    </button>
+                  </div>
+
+                  <AnimatePresence>
+                    {data.hasPassword && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0, marginTop: 0 }}
+                        animate={{ height: "auto", opacity: 1, marginTop: 16 }}
+                        exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                          <Field
+                            label="Password"
+                            type="password"
+                            placeholder="Enter password"
+                            value={data.password || ""}
+                            onChange={(e) => update({ password: e.target.value })}
+                          />
+                          <Field
+                            label="Confirm Password"
+                            type="password"
+                            placeholder="Re-enter password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                          />
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {step1Error && (
+                  <p className="mt-2 text-xs font-semibold text-red-500">{step1Error}</p>
+                )}
 
                 <div className="mt-4 flex justify-end">
                   <button
@@ -246,6 +369,7 @@ export function StageTwo() {
                       <Field
                         label="Anniversary / First Date"
                         type="date"
+                        optional
                         value={data.anniversaryDate}
                         onChange={(e) => update({ anniversaryDate: e.target.value })}
                       />
@@ -278,7 +402,7 @@ export function StageTwo() {
                     </div>
                   )}
 
-                  {(purpose === "birthday" || purpose === "life" || purpose === "group") && (
+                  {(purpose === "birthday" || purpose === "life") && (
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <Field
                         label="Year of Birth"
@@ -287,16 +411,19 @@ export function StageTwo() {
                         value={data.birthYear}
                         onChange={(e) => update({ birthYear: e.target.value })}
                       />
-                      {purpose === "group" && (
-                        <Field
-                          label="Number of People"
-                          type="number"
-                          placeholder="e.g. 4"
-                          optional
-                          value={data.numberOfPeople}
-                          onChange={(e) => update({ numberOfPeople: e.target.value })}
-                        />
-                      )}
+                    </div>
+                  )}
+
+                  {purpose === "group" && (
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <Field
+                        label="Number of People"
+                        type="number"
+                        placeholder="e.g. 4"
+                        optional
+                        value={data.numberOfPeople}
+                        onChange={(e) => update({ numberOfPeople: e.target.value })}
+                      />
                     </div>
                   )}
                 </div>
@@ -486,6 +613,10 @@ export function StageTwo() {
                   </div>
                 </div>
 
+                {step3Error && (
+                  <p className="mt-2 text-center text-xs font-semibold text-red-500">{step3Error}</p>
+                )}
+
                 <div className="mt-4 flex justify-between">
                   <button
                     type="button"
@@ -574,7 +705,7 @@ export function StageTwo() {
                       Enter your story in bullet points (minimum 10 points). The more detail you share, the more personalized and unhinged your wrap gets.
                     </p>
                   </div>
-                  
+
                   <div className="rounded-xl border-2 border-foreground/10 bg-foreground/5 p-4">
                     <span className="mb-3 flex items-center gap-2 font-display text-[10px] font-black uppercase tracking-widest" style={{ color: meta.color }}>
                       <Sparkles className="size-3" /> Things you could mention:

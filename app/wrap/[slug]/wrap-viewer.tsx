@@ -22,6 +22,11 @@ export function WrapViewer({ wrapData, aiContent, personalityImageUrl, slug, vie
   const [isPaused, setIsPaused] = useState(false)
   const [introComplete, setIntroComplete] = useState(false)
   const [hasStarted, setHasStarted] = useState(false)
+  
+  const [isUnlocked, setIsUnlocked] = useState(!wrapData.hasPassword)
+  const [passwordInput, setPasswordInput] = useState("")
+  const [passwordError, setPasswordError] = useState<string | null>(null)
+  const [isVerifying, setIsVerifying] = useState(false)
 
   const handleIntroComplete = useCallback(() => {
     setIntroComplete(true)
@@ -30,6 +35,30 @@ export function WrapViewer({ wrapData, aiContent, personalityImageUrl, slug, vie
   useEffect(() => {
     setWrapUrl(window.location.href)
   }, [])
+
+  const handleVerifyPassword = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
+    if (!passwordInput.trim()) return
+
+    setIsVerifying(true)
+    setPasswordError(null)
+    try {
+      const res = await fetch("/api/verify-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug, password: passwordInput }),
+      })
+      if (res.ok) {
+        setIsUnlocked(true)
+      } else {
+        const data = await res.json()
+        setPasswordError(data.error || "Incorrect password")
+      }
+    } catch (err) {
+      setPasswordError("Failed to verify password")
+    }
+    setIsVerifying(false)
+  }
 
   return (
     <WrapProvider
@@ -62,7 +91,7 @@ export function WrapViewer({ wrapData, aiContent, personalityImageUrl, slug, vie
                   transition={{ delay: 0.2 }}
                   className="font-display text-sm font-black uppercase tracking-[0.3em] text-green sm:text-base"
                 >
-                  Ready for the recap?
+                  {!isUnlocked ? "Protected Wrap" : "Ready for the recap?"}
                 </motion.p>
                 
                 <motion.h1
@@ -76,15 +105,43 @@ export function WrapViewer({ wrapData, aiContent, personalityImageUrl, slug, vie
                   <span className="text-cream/40">Wrapped</span>
                 </motion.h1>
 
-                <motion.button
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.7, type: "spring", stiffness: 200, damping: 20 }}
-                  onClick={() => setHasStarted(true)}
-                  className="mt-12 rounded-full bg-cream px-10 py-4 font-sans text-sm font-bold uppercase tracking-widest text-ink transition-transform hover:scale-105 active:scale-95 shadow-[0_0_40px_rgba(238,238,228,0.3)]"
-                >
-                  Unwrap
-                </motion.button>
+                {!isUnlocked ? (
+                  <motion.form
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.6 }}
+                    onSubmit={handleVerifyPassword}
+                    className="mt-10 flex w-full max-w-sm flex-col items-center gap-4"
+                  >
+                    <input
+                      type="password"
+                      placeholder="Enter password to unlock"
+                      value={passwordInput}
+                      onChange={(e) => setPasswordInput(e.target.value)}
+                      className="w-full rounded-full border-2 border-cream/20 bg-[#181818] px-6 py-4 text-center font-sans text-sm font-semibold text-white placeholder:text-white/40 focus:border-cream focus:outline-none focus:ring-1 focus:ring-cream"
+                    />
+                    {passwordError && (
+                      <p className="text-xs font-semibold text-red-500">{passwordError}</p>
+                    )}
+                    <button
+                      type="submit"
+                      disabled={isVerifying || !passwordInput.trim()}
+                      className="w-full rounded-full bg-cream px-10 py-4 font-sans text-sm font-bold uppercase tracking-widest text-ink shadow-[0_0_40px_rgba(238,238,228,0.2)] transition-transform hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {isVerifying ? "Verifying..." : "Unlock"}
+                    </button>
+                  </motion.form>
+                ) : (
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.7, type: "spring", stiffness: 200, damping: 20 }}
+                    onClick={() => setHasStarted(true)}
+                    className="mt-12 rounded-full bg-cream px-10 py-4 font-sans text-sm font-bold uppercase tracking-widest text-ink shadow-[0_0_40px_rgba(238,238,228,0.3)] transition-transform hover:scale-105 active:scale-95"
+                  >
+                    Unwrap
+                  </motion.button>
+                )}
               </div>
             </motion.div>
           </AnimatePresence>

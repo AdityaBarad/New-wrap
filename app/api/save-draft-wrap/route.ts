@@ -72,7 +72,9 @@ export async function POST(req: NextRequest) {
       song_thumbnail: wrapData.song?.thumbnail || null,
       status: "draft",
       is_active: false, // By default inactive, elite will make it active
-      card_color: getCardColor(slug)
+      card_color: getCardColor(slug),
+      has_password: wrapData.hasPassword || false,
+      password: wrapData.password || null
     })
 
     if (dbError) {
