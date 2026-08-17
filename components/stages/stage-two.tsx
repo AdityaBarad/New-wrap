@@ -339,9 +339,14 @@ export function StageTwo() {
 
                 <div className="flex flex-col gap-6">
                   <div>
-                    <span className="mb-2 block font-display text-[11px] font-black uppercase tracking-widest text-foreground/75">
-                      Your Main Photos
-                    </span>
+                    <div className="mb-2">
+                      <span className="block font-display text-[11px] font-black uppercase tracking-widest text-foreground/75">
+                        Your Main Photos
+                      </span>
+                      <p className="mt-1 font-sans text-[10px] font-medium text-foreground/40 leading-relaxed">
+                        Note: Your images will be cropped and displayed exactly as you see them in the square preview boxes below.
+                      </p>
+                    </div>
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
                       <SinglePhotoDropzone
                         label="01"
@@ -566,7 +571,7 @@ export function StageTwo() {
                       </span>
                     </label>
                     <p className="mt-1 font-sans text-[11px] font-medium text-foreground/40 leading-relaxed">
-                      Write a paragraph about your story. The more detail you share, the more personalized and unhinged your wrap gets.
+                      Enter your story in bullet points (minimum 10 points). The more detail you share, the more personalized and unhinged your wrap gets.
                     </p>
                   </div>
                   

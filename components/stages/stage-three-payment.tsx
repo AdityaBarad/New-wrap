@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "@/components/wrapped/motion"
 import { useWrap } from "@/context/wrap-context"
 import { useRazorpay } from "react-razorpay"
 import { trackEvent, updateProfile, incrementProfile } from "@/lib/mixpanel"
+import { createClient } from "@/lib/supabase/client"
 
 declare global {
   interface Window {
@@ -28,12 +29,24 @@ export function StageThreePayment() {
   const { data, wrapSlug, generateWrap, error, draftSessionId } = useWrap()
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
   const [paymentError, setPaymentError] = useState<string | null>(null)
+  const [plans, setPlans] = useState<any[] | null>(null)
   const { Razorpay } = useRazorpay()
+
+  useEffect(() => {
+    async function fetchPlans() {
+      const supabase = createClient()
+      const { data: fetchedPlans } = await supabase.from("plans").select("*")
+      if (fetchedPlans) {
+        setPlans(fetchedPlans)
+      }
+    }
+    fetchPlans()
+  }, [])
 
   const handlePayment = async (planName: string, price: number) => {
     setLoadingPlan(planName)
     setPaymentError(null)
-    
+
     updateProfile({
       "Journey Stage": "Payment Initiated",
       "Selected Plan": planName,
@@ -73,7 +86,7 @@ export function StageThreePayment() {
             })
 
             if (!verifyRes.ok) throw new Error("Payment verification failed")
-            
+
             verificationSuccess = true;
             incrementProfile("Total Spent", price)
             incrementProfile("Wraps Created", 1)
@@ -84,7 +97,7 @@ export function StageThreePayment() {
                 number: order.id,
                 total: price,
               }
-              
+
               if (typeof window.goaffproTrackConversion !== "undefined") {
                 console.log("GoAffPro tracking conversion for order:", window.goaffpro_order)
                 window.goaffproTrackConversion(window.goaffpro_order)
@@ -117,7 +130,7 @@ export function StageThreePayment() {
       const rzp = new Razorpay(options)
       rzp.on("payment.failed", (response: any) => {
         trackEvent("Payment Failed", { plan: planName, error_message: response.error.description, wrap_slug: wrapSlug, draft_session_id: draftSessionId })
-        
+
         setPaymentError(response.error.description)
         setLoadingPlan(null)
       })
@@ -127,6 +140,9 @@ export function StageThreePayment() {
       setLoadingPlan(null)
     }
   }
+
+  const basicPrice = plans?.find(p => p.name === 'basic')?.price || 500
+  const elitePrice = plans?.find(p => p.name === 'elite')?.price || 1200
 
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden px-4 font-sans" style={{ backgroundColor: "#121212", paddingTop: "64px", paddingBottom: "64px" }}>
@@ -156,29 +172,26 @@ export function StageThreePayment() {
           </div>
         )}
 
-        <div className="flex flex-col items-center justify-center gap-6 md:flex-row md:items-stretch">
-          
+        <div className="flex flex-col-reverse items-center justify-center gap-6 md:flex-row md:items-stretch">
+
           {/* Basic Plan */}
           <div className="relative flex w-full max-w-sm flex-col rounded-xl p-5 shadow-xl transition-transform hover:scale-[1.02]" style={{ backgroundColor: "#242424" }}>
-            {/* Top Badge */}
-            <div className="absolute rounded px-2 py-1 text-xs font-bold" style={{ top: "-12px", left: "16px", backgroundColor: "#ffd2d7", color: "#181818" }}>
-              Most Popular
-            </div>
+            {/* Top Badge removed */}
 
             <div className="flex items-center gap-2" style={{ marginTop: "16px", color: "#ffffff" }}>
               <MiniWrapsyLogo className="size-5" />
               <span className="text-sm font-bold">Wrapsy</span>
             </div>
-            
+
             <h3 className="mt-2 text-3xl font-black" style={{ color: "#ffd2d7" }}>Basic</h3>
-            
+
             <div className="mt-2" style={{ color: "#ffffff" }}>
-              <div className="font-semibold">₹700</div>
+              <div className="font-semibold">₹{basicPrice}</div>
               <div className="text-sm" style={{ color: "#9ca3af" }}>One-time payment</div>
             </div>
 
             <hr className="my-6 border-0 h-px" style={{ backgroundColor: "#3e3e3e" }} />
-            
+
             <ul className="flex flex-col gap-3 text-sm" style={{ color: "#ffffff" }}>
               <li className="flex items-start gap-2"><span className="mt-1 size-1 shrink-0 rounded-full" style={{ backgroundColor: "#ffffff" }} /> Delivery in 1-2 Days</li>
               <li className="flex items-start gap-2"><span className="mt-1 size-1 shrink-0 rounded-full" style={{ backgroundColor: "#ffffff" }} /> Half Slides Experience</li>
@@ -188,40 +201,38 @@ export function StageThreePayment() {
             </ul>
 
             <button
-              onClick={() => handlePayment("basic", 700)}
-              disabled={!!loadingPlan}
+              onClick={() => handlePayment("basic", basicPrice)}
+              disabled={!!loadingPlan || plans === null}
               className="flex w-full items-center justify-center rounded-full text-base font-bold transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-70"
               style={{ backgroundColor: "#ffd2d7", color: "#181818", paddingTop: "16px", paddingBottom: "16px", marginTop: "40px" }}
             >
               {loadingPlan === "basic" ? "Processing..." : "Get Basic"}
             </button>
 
-            <p className="mt-4 text-[11px] leading-tight" style={{ color: "#9ca3af" }}>
-              ₹700 one-time payment. Terms apply. Offer available for users generating a new wrap. Standard processing times apply. <span className="underline cursor-pointer">Terms apply.</span>
-            </p>
+
           </div>
 
           {/* Elite Plan */}
           <div className="relative flex w-full max-w-sm flex-col rounded-xl p-5 shadow-xl transition-transform hover:scale-[1.02]" style={{ backgroundColor: "#242424" }}>
             {/* Top Badge */}
             <div className="absolute rounded px-2 py-1 text-xs font-bold" style={{ top: "-12px", left: "16px", backgroundColor: "#ffc864", color: "#181818" }}>
-              Best Value
+              Most Popular
             </div>
 
             <div className="flex items-center gap-2" style={{ marginTop: "16px", color: "#ffffff" }}>
               <MiniWrapsyLogo className="size-5" />
               <span className="text-sm font-bold">Wrapsy</span>
             </div>
-            
+
             <h3 className="mt-2 text-3xl font-black" style={{ color: "#ffc864" }}>Elite</h3>
-            
+
             <div className="mt-2" style={{ color: "#ffffff" }}>
-              <div className="font-semibold">₹1500</div>
+              <div className="font-semibold">₹{elitePrice}</div>
               <div className="text-sm" style={{ color: "#9ca3af" }}>One-time payment</div>
             </div>
 
             <hr className="my-6 border-0 h-px" style={{ backgroundColor: "#3e3e3e" }} />
-            
+
             <ul className="flex flex-col gap-3 text-sm" style={{ color: "#ffffff" }}>
               <li className="flex items-start gap-2"><span className="mt-1 size-1 shrink-0 rounded-full" style={{ backgroundColor: "#ffffff" }} /> Instant Delivery</li>
               <li className="flex items-start gap-2"><span className="mt-1 size-1 shrink-0 rounded-full" style={{ backgroundColor: "#ffffff" }} /> Full Cinematic Slides</li>
@@ -232,17 +243,15 @@ export function StageThreePayment() {
             </ul>
 
             <button
-              onClick={() => handlePayment("elite", 1500)}
-              disabled={!!loadingPlan}
+              onClick={() => handlePayment("elite", elitePrice)}
+              disabled={!!loadingPlan || plans === null}
               className="flex w-full items-center justify-center rounded-full text-base font-bold transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-70"
               style={{ backgroundColor: "#ffc864", color: "#181818", paddingTop: "16px", paddingBottom: "16px", marginTop: "40px" }}
             >
               {loadingPlan === "elite" ? "Processing..." : "Get Elite"}
             </button>
 
-            <p className="mt-4 text-[11px] leading-tight" style={{ color: "#9ca3af" }}>
-              ₹1500 one-time payment. Priority delivery and full features included. Offer available for users generating a new wrap. <span className="underline cursor-pointer">Terms apply.</span>
-            </p>
+
           </div>
 
         </div>

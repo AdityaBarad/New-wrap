@@ -7,24 +7,24 @@ import { Pop } from './motion'
 
 const FAQS = [
   {
-    q: 'Is it actually free?',
-    a: 'Yes. Building and exporting your core Wrapped album is free forever. A Pro tier unlocks extra templates, 4K exports, and video rollouts.',
+    q: 'How does the AI work?',
+    a: 'You write a short paragraph about your story, memories, and inside jokes. Our AI analyzes it and generates an 8-slide cinematic experience with witty, highly personalized copy and a custom character card.',
+  },
+  {
+    q: 'Can I add my own photos and music?',
+    a: 'Yes! You can upload up to 14 photos to feature in your slides, and you can select a custom background song to play during the experience.',
   },
   {
     q: 'What do you do with my photos and data?',
-    a: 'Everything is processed to build your album and never sold. You can delete your data and generated albums at any time, instantly.',
+    a: 'Your story and photos are only used to generate your Wrapped experience. We never sell your data, and your assets are securely hosted solely for your personal shareable link.',
   },
   {
-    q: 'Where does the data come from?',
-    a: 'You choose. Import from your camera roll, notes, calendars, and connected apps — or just type your stats in manually.',
+    q: 'How do I share my Wrap?',
+    a: 'Once your Wrap is ready, you receive a unique URL. You can share this link directly in group chats, or screen-record the interactive experience to post on Instagram, TikTok, and Snapchat.',
   },
   {
-    q: 'Can I edit the AI copy?',
-    a: 'Absolutely. Every roast, stat, and caption is editable. Regenerate with one tap until it hits exactly right.',
-  },
-  {
-    q: 'What can I share it to?',
-    a: 'Export vertical stories, square posts, or a link. Optimized for Instagram, TikTok, and every group chat you are in.',
+    q: 'How long does it take to get my Wrap?',
+    a: 'Your personalized Wrapped experience is generated and delivered instantly!',
   },
 ]
 

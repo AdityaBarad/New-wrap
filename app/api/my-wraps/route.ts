@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     // Fetch wraps associated with this phone number
     const { data: wraps, error } = await supabase
       .from("wraps")
-      .select("slug, name, purpose, created_at, personality_image_url, photo_urls, user_names")
+      .select("slug, name, wrap_title, purpose, created_at, personality_image_url, photo_urls, user_names")
       .eq("phone", phone)
       .eq("status", "generated")
       .order("created_at", { ascending: false })

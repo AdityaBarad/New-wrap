@@ -5,10 +5,30 @@ import { Pop, motion } from './motion'
 import { Starburst } from './shapes'
 
 const COLS = [
-  { title: 'Product', links: ['Templates', 'Pricing', 'Pro', 'Changelog'] },
-  { title: 'Company', links: ['About', 'Careers', 'Press', 'Contact'] },
-  { title: 'Legal', links: ['Privacy', 'Terms', 'Data', 'Cookies'] },
-  { title: 'Social', links: ['Instagram', 'TikTok', 'X / Twitter', 'YouTube'] },
+  { 
+    title: 'Product', 
+    links: [
+      { label: 'Demos', href: '#popular-wraps' }, 
+      { label: 'How it Works', href: '#how' }, 
+      { label: 'FAQ', href: '#faq' }
+    ] 
+  },
+  { 
+    title: 'Support', 
+    links: [
+      { label: 'Contact Us', href: 'mailto:admin@wrapsy.co' },
+      { label: 'Privacy Policy', href: '#' }, 
+      { label: 'Terms of Service', href: '#' }
+    ] 
+  },
+  { 
+    title: 'Social', 
+    links: [
+      { label: 'Instagram', href: 'https://www.instagram.com/getwrapsy' }, 
+      { label: 'TikTok', href: 'https://tiktok.com/@wrapsy.co' }, 
+      { label: 'X / Twitter', href: 'https://twitter.com/wrapsyco' }
+    ] 
+  },
 ]
 
 export function Footer() {
@@ -44,7 +64,7 @@ export function Footer() {
           </motion.a>
         </div>
 
-        <div className="grid grid-cols-2 gap-8 py-12 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-8 py-12 md:grid-cols-3">
           {COLS.map((c) => (
             <div key={c.title}>
               <p className="mb-4 font-display text-sm font-black uppercase tracking-widest text-ink/50">
@@ -52,12 +72,14 @@ export function Footer() {
               </p>
               <ul className="space-y-2">
                 {c.links.map((l) => (
-                  <li key={l}>
+                  <li key={l.label}>
                     <a
-                      href="#"
+                      href={l.href}
+                      target={l.href.startsWith('http') ? '_blank' : undefined}
+                      rel={l.href.startsWith('http') ? 'noopener noreferrer' : undefined}
                       className="font-display text-base font-bold uppercase tracking-tight text-ink transition-colors hover:text-cream"
                     >
-                      {l}
+                      {l.label}
                     </a>
                   </li>
                 ))}
@@ -68,9 +90,8 @@ export function Footer() {
 
         <div className="flex flex-col items-center justify-between gap-4 border-t-4 border-ink pt-6 md:flex-row">
           <div className="flex items-center gap-2">
-            <span className="relative flex size-8 items-center justify-center">
-              <Starburst className="absolute inset-0 size-full" color="var(--wr-ink)" spikes={14} />
-              <span className="relative font-display text-xs font-black text-green">YL</span>
+            <span className="relative flex size-10 items-center justify-center">
+              <img src="/logo/black-transparent.png" alt="Wrapsy Logo" className="w-full h-full object-contain" />
             </span>
             <span className="font-display text-base font-black uppercase tracking-tight">
               Wrapsy

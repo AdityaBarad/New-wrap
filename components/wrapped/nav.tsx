@@ -19,7 +19,7 @@ export function Nav() {
     <header className="fixed inset-x-0 top-0 z-50">
       <nav className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-4 py-3 md:px-8 md:py-5">
         <a href="#top" className="flex items-center gap-2">
-          <span className="relative flex size-12 items-center justify-center">
+          <span className="relative flex size-[53px] items-center justify-center">
             <img src="/logo/logo-transparent.png" alt="Wrapsy Logo" className="w-full h-full object-contain" />
           </span>
           <span className="font-display text-lg sm:text-xl font-black uppercase leading-none tracking-tight text-foreground">

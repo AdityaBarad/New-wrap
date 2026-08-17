@@ -149,7 +149,7 @@ IMPORTANT: The values you generate MUST be wildly creative, unique, and deeply p
   "personalityCard": {
     "title": "A 1-2 word personality archetype",
     "description": "A punchy 1-2 sentence description of why they got this personality.",
-    "imagePrompt": "A highly detailed image generation prompt for Stable Diffusion. It MUST specify: 'Spotify Wrapped character card style, flat vector illustration and mystical.' followed by the specific imagery for the archetype."
+    "imagePrompt": "A highly detailed image generation prompt for Stable Diffusion. It MUST specify: 'Spotify Wrapped character card style, flat vector illustration and mystical.' followed by the specific imagery for the archetype. CRUCIAL: The prompt MUST accurately reflect the users involved based on their names, inferred genders, and the wrap's purpose. Avoid defaulting to generic genders—tailor the character representations specifically to the provided names and story."
   }
 }
 

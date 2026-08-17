@@ -7,43 +7,33 @@ import { Starburst } from './shapes'
 const QUOTES = [
   {
     quote: 'Posted my Wrapped and my group chat has not recovered. This is the flex of the era.',
-    name: 'Zara O.',
-    handle: '@zaraonline',
+    name: 'Emily Carter',
     bg: 'bg-green',
     fg: 'text-ink',
-    img: '/Hero.jpg',
   },
   {
     quote: 'The AI called out my 3AM snack runs by name. Rude. Accurate. Obsessed.',
-    name: 'Mateo R.',
-    handle: '@matteo.runs',
+    name: 'Marcus Jenkins',
     bg: 'bg-pink',
     fg: 'text-ink',
-    img: '/Hero.jpg',
   },
   {
     quote: 'It made my mundane life feel like a Netflix trailer. 10/10 would relive.',
-    name: 'Priya K.',
-    handle: '@priyakay',
+    name: 'Sophia Patel',
     bg: 'bg-yellow',
     fg: 'text-ink',
-    img: '/Hero.jpg',
   },
   {
     quote: 'Every transition slaps. Feels like a premium app, not a screenshot generator.',
-    name: 'Dev S.',
-    handle: '@devbuilds',
+    name: 'James Miller',
     bg: 'bg-orange',
     fg: 'text-ink',
-    img: null,
   },
   {
     quote: 'My recap in review made me cry then made me laugh. Emotional whiplash. Loved it.',
-    name: 'Lena M.',
-    handle: '@lenam',
+    name: 'Olivia Brown',
     bg: 'bg-cream',
     fg: 'text-ink',
-    img: null,
   },
 ]
 
@@ -70,18 +60,8 @@ export function Testimonials() {
                   &ldquo;{q.quote}&rdquo;
                 </blockquote>
                 <figcaption className="mt-5 flex items-center gap-3">
-                  {q.img ? (
-                    <span className="relative size-11 overflow-hidden rounded-full border-2 border-ink">
-                      <Image src={q.img} alt={q.name} fill sizes="44px" className="object-cover" />
-                    </span>
-                  ) : (
-                    <span className="flex size-11 items-center justify-center rounded-full border-2 border-ink bg-ink font-display text-sm font-black text-cream">
-                      {q.name.slice(0, 1)}
-                    </span>
-                  )}
                   <div className="font-display leading-tight">
                     <p className="text-sm font-black uppercase">{q.name}</p>
-                    <p className="text-xs font-bold opacity-60">{q.handle}</p>
                   </div>
                 </figcaption>
               </figure>

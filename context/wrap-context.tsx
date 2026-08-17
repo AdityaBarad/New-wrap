@@ -272,6 +272,12 @@ export function WrapProvider({
 
   const submitStage2 = useCallback(async () => {
     setError(null)
+    
+    if (!data.storyParagraph || data.storyParagraph.length < 800) {
+      setError("Please write at least 800 characters so the AI can generate a highly personalized story for you.")
+      return
+    }
+
     setLoading(true)
     try {
       const res = await fetch("/api/save-draft-wrap", {

@@ -14,6 +14,7 @@ type WrapInfo = {
   personality_image_url: string | null
   photo_urls: string[] | null
   user_names: string | null
+  wrap_title: string | null
 }
 
 import { WrapCard } from "@/components/shared/wrap-card"
@@ -166,7 +167,7 @@ export default function MyWrapsPage() {
                       transition={{ delay: i * 0.06 }}
                     >
                       <WrapCard wrap={{
-                        name: wrap.name,
+                        name: wrap.wrap_title || wrap.name,
                         purpose: wrap.purpose,
                         slug: wrap.slug,
                         photos: wrap.photo_urls || [],
