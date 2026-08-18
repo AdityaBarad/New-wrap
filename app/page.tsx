@@ -1,3 +1,4 @@
+import { createClient } from "@supabase/supabase-js"
 import { Nav } from '@/components/wrapped/nav'
 import { Hero } from '@/components/wrapped/hero'
 import { DummyWrapsDemo } from '@/components/wrapped/dummy-wraps-demo'
@@ -9,7 +10,39 @@ import { Testimonials } from '@/components/wrapped/testimonials'
 import { Faq } from '@/components/wrapped/faq'
 import { Footer } from '@/components/wrapped/footer'
 
-export default function Page() {
+const FEATURED_SLUGS = [
+  "diya-mwsgfl",
+  "aarna-6dl8g8",
+  "shruti-odkkr6",
+  "wrap-gtam8r",
+  "sakshi-and-mohi-ngmfn4",
+  "aarav-anaya-4nqzwf",
+  "rohan-aananya-3cvvj6",
+  "manik-kirti-37r7uu",
+]
+
+async function getFeaturedWraps() {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  )
+
+  const { data, error } = await supabase
+    .from("wraps")
+    .select("slug, name, wrap_title, purpose, photo_urls, user_names, personality_image_url, card_color")
+    .in("slug", FEATURED_SLUGS)
+    .eq("status", "generated")
+
+  if (error) return []
+
+  return (data || []).sort(
+    (a, b) => FEATURED_SLUGS.indexOf(a.slug) - FEATURED_SLUGS.indexOf(b.slug),
+  )
+}
+
+export default async function Page() {
+  const featuredWraps = await getFeaturedWraps()
+
   return (
     <main className="relative w-full overflow-x-hidden bg-ink">
       <Nav />
@@ -21,7 +54,7 @@ export default function Page() {
         </div>
       </div>
 
-      <DummyWrapsDemo />
+      <DummyWrapsDemo featuredWraps={featuredWraps} />
       <div className="flex w-full flex-col">
         <div className="border-y-4 border-ink bg-yellow py-3">
           <Marquee text="DESIGN YOUR OWN · FREE DOWNLOAD · INSTANT ·" textClassName="text-ink" />

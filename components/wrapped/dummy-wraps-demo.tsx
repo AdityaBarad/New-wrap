@@ -2,27 +2,19 @@
 
 import React from 'react'
 import s from '@/app/my-wraps/page.module.css'
+import { WrapCard, type WrapCardProps } from '@/components/shared/wrap-card'
+import { SPOTIFY_COLORS } from '@/lib/color'
 
-const PURPOSE_LABELS: Record<string, string> = {
-  couple: "COUPLE",
-  travel: "TRAVEL",
-  birthday: "BIRTHDAY",
-  personal: "LIFE",
-  group: "GROUP / FAMILY",
+type FeaturedWrap = {
+  slug: string
+  name: string
+  wrap_title: string | null
+  purpose: string
+  photo_urls: string[] | null
+  user_names: string | null
+  personality_image_url: string | null
+  card_color: string | null
 }
-
-const SPOTIFY_COLORS = [
-  "#ff6666", "#ff8a8a", "#ffa1a1", "#ff4da8", "#ff66b3", 
-  "#ff99cc", "#ffb3e6", "#e60073", "#ff4d4d", "#ff6a13", 
-  "#ff876a", "#ff9640", "#ffb366", "#ffcc99", "#ffdb4d", 
-  "#ffe854", "#ffff66", "#c4f033", "#a6ff4d", "#ccff99", 
-  "#21e065", "#3de3a3", "#4de3a8", "#66ffcc", "#00e673", 
-  "#33cc33", "#4dd2ff", "#66c2ff", "#7ac5ff", "#99ddff", 
-  "#3399ff", "#0073e6", "#4d4dff", "#7b2ff2", "#9933ff", 
-  "#b366ff", "#cca3ff", "#d6a3ff", "#e6ccff", "#ff33cc", 
-  "#ff66d9", "#ff99e6", "#cc0099", "#ff5050", "#ff9999", 
-  "#ffd480", "#80ffaa", "#80bfff", "#d279d2", "#e6b3b3"
-]
 
 const BIRTHDAY_IMGS = ["images (23).jpg", "images (24).jpg", "images (25).jpg", "images (26).jpg", "images (27).jpg", "images (28).jpg", "images (29).jpg", "images (30).jpg", "images (31).jpg"].map(i => `/dummy/birthday/${i}`)
 const COUPLE_IMGS = ["couple 1 (1).jpg", "couple 1 (2).jpg", "couple 1 (3).jpg", "couple 1 (4).jpg", "couple 1 (5).jpg", "couple 1 (6).jpg"].map(i => `/dummy/couple/${i}`)
@@ -31,7 +23,7 @@ const PERSONAL_IMGS = ["images (1).jpg", "images (2).jpg", "images (3).jpg", "im
 const TRAVEL_IMGS = ["travel (1).jpg", "travel (2).jpg", "travel (3).jpg", "travel (4).jpg", "travel (5).jpg", "travel (6).jpg", "travel (7).jpg"].map(i => `/dummy/travel/${i}`)
 
 let wrapCounter = 0;
-function createWrap(purpose: string, pool: string[], name: string, subtitle: string) {
+function createWrap(purpose: string, pool: string[], name: string, subtitle: string): WrapCardProps {
   const c = wrapCounter++;
   const slug = `demo-${purpose}-${c}`;
   const photos = [
@@ -40,10 +32,13 @@ function createWrap(purpose: string, pool: string[], name: string, subtitle: str
     pool[(c * 3 + 2) % pool.length],
   ]
   return {
-    slug, name, purpose, photos, subtitle,
+    slug, name, purpose, photos,
+    // Strip the "With " prefix so WrapCard re-adds it as the subtitle
+    userNames: subtitle.replace(/^With\s+/, ""),
+    personalityImageUrl: null,
     // Multiply by a prime number (23) to pseudo-randomly jump around the sorted color array
     // This perfectly scrambles the color distribution so no two adjacent wraps look similar
-    color: SPOTIFY_COLORS[(c * 23) % SPOTIFY_COLORS.length]
+    cardColor: SPOTIFY_COLORS[(c * 23) % SPOTIFY_COLORS.length]
   }
 }
 
@@ -86,52 +81,19 @@ const ROW_3 = [
   createWrap("couple", COUPLE_IMGS, "Engagement", "She said yes!"),
 ]
 
-function WrapRow({ title, wraps, direction = 'left' }: { title: string, wraps: any[], direction?: 'left' | 'right' }) {
+function WrapRow({ title, wraps, direction = 'left' }: { title: string, wraps: WrapCardProps[], direction?: 'left' | 'right' }) {
   const scrollClass = direction === 'left' ? s.scrollLeft : s.scrollRight;
 
   const renderCards = (isCopy = false) => (
     <>
-      {wraps.map((wrap) => {
-        const label = PURPOSE_LABELS[wrap.purpose] ?? wrap.purpose.toUpperCase()
-        
-        return (
-          <div 
-            key={`${wrap.slug}${isCopy ? '-copy' : ''}`} 
-            className={`snap-start ${s.card} ${s.cardWrapper}`} 
-            onClick={(e) => e.preventDefault()}
-          >
-            <div 
-              className={s.imageArea} 
-              style={{ 
-                backgroundColor: wrap.color,
-                "--card-bg": wrap.color
-              } as React.CSSProperties}
-            >
-              <div className={s.circlesContainer}>
-                <img src={wrap.photos[1]} alt="" className={`${s.circleImage} ${s.leftCircle}`} />
-                <img src={wrap.photos[2]} alt="" className={`${s.circleImage} ${s.rightCircle}`} />
-                <img src={wrap.photos[0]} alt="" className={`${s.circleImage} ${s.centerCircle}`} />
-              </div>
-              
-              <img src="/logo/logo-solid.jpeg" alt="Logo" className={s.logo} />
-              
-              <span className={s.badge}>
-                {label}
-              </span>
-              
-              <h3 className={s.name}>{wrap.name}</h3>
-
-              <div className={s.playButton}>
-                <svg viewBox="0 0 24 24" fill="currentColor" className="w-[18px] h-[18px] sm:w-[24px] sm:h-[24px] text-black ml-[2px]">
-                  <path d="M7 6v12l10-6z" />
-                </svg>
-              </div>
-            </div>
-            
-            <p className={s.subtitle}>{wrap.subtitle}</p>
-          </div>
-        )
-      })}
+      {wraps.map((wrap) => (
+        <div
+          key={`${wrap.slug}${isCopy ? '-copy' : ''}`}
+          className={`snap-start ${s.cardWrapper}`}
+        >
+          <WrapCard wrap={wrap} />
+        </div>
+      ))}
     </>
   )
 
@@ -142,7 +104,7 @@ function WrapRow({ title, wraps, direction = 'left' }: { title: string, wraps: a
           {title}
         </h2>
       </div>
-      
+
       <div className={s.marqueeContainer}>
         <div className={`${s.marqueeTrack} ${scrollClass}`}>
           <div className={s.marqueeGroup}>
@@ -157,13 +119,48 @@ function WrapRow({ title, wraps, direction = 'left' }: { title: string, wraps: a
   )
 }
 
-export function DummyWrapsDemo() {
+function toCard(w: FeaturedWrap): WrapCardProps {
+  return {
+    name: w.wrap_title || w.name,
+    purpose: w.purpose,
+    slug: w.slug,
+    photos: w.photo_urls || [],
+    userNames: w.user_names,
+    personalityImageUrl: w.personality_image_url,
+    cardColor: w.card_color || undefined,
+    href: `/wrap/${w.slug}`,
+  }
+}
+
+const shift = (arr: WrapCardProps[], n: number) => [...arr.slice(n), ...arr.slice(0, n)]
+
+type Row = { title: string, wraps: WrapCardProps[], direction: 'left' | 'right' }
+
+function buildRows(wraps: WrapCardProps[]): Row[] {
+  if (wraps.length === 0) {
+    return [
+      { title: "Popular wraps", wraps: ROW_1, direction: "left" },
+      { title: "Trending Now", wraps: ROW_2, direction: "right" },
+      { title: "Made For You", wraps: ROW_3, direction: "left" },
+    ]
+  }
+
+  return [
+    { title: "Popular wraps", wraps, direction: "left" },
+    { title: "Trending Now", wraps: shift(wraps, 3), direction: "right" },
+    { title: "Made For You", wraps: shift(wraps, 5), direction: "left" },
+  ]
+}
+
+export function DummyWrapsDemo({ featuredWraps = [] }: { featuredWraps?: FeaturedWrap[] }) {
+  const rows = buildRows(featuredWraps.map(toCard))
+
   return (
     <section id="popular-wraps" className="relative w-full bg-ink px-4 py-16 md:px-8 md:py-24 border-y-4 border-ink">
       <div className="mx-auto max-w-[1600px]">
-        <WrapRow title="Popular wraps" wraps={ROW_1} direction="left" />
-        <WrapRow title="Trending Now" wraps={ROW_2} direction="right" />
-        <WrapRow title="Made For You" wraps={ROW_3} direction="left" />
+        {rows.map((row) => (
+          <WrapRow key={row.title} title={row.title} wraps={row.wraps} direction={row.direction} />
+        ))}
       </div>
     </section>
   )
