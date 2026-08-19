@@ -78,6 +78,7 @@ export function Footer() {
                       target={l.href.startsWith('http') ? '_blank' : undefined}
                       rel={l.href.startsWith('http') ? 'noopener noreferrer' : undefined}
                       className="font-display text-base font-bold uppercase tracking-tight text-ink transition-colors hover:text-cream"
+                      suppressHydrationWarning
                     >
                       {l.label}
                     </a>

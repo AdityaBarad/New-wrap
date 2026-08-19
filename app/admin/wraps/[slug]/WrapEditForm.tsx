@@ -1,16 +1,19 @@
 "use client"
+// Trigger hot reload
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy, useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import { GripVertical, Save, Wand2 } from "lucide-react"
+import { GripVertical, Save, Wand2, Crop as CropIcon, X, Check, Search, Loader2 } from "lucide-react"
 import { AiLoading } from "@/components/stages/ai-loading"
 import { uploadBlobToSupabase } from "@/context/wrap-context"
+import Cropper from "react-easy-crop"
+import { getCroppedImg } from "@/lib/cropImage"
 
 // Sortable Image Component
-function SortableImage({ url, id, index }: { url: string, id: string, index: number }) {
+function SortableImage({ url, id, index, onEdit }: { url: string, id: string, index: number, onEdit: (id: string, url: string) => void }) {
   const {
     attributes,
     listeners,
@@ -37,6 +40,13 @@ function SortableImage({ url, id, index }: { url: string, id: string, index: num
       >
         <GripVertical className="h-4 w-4 text-gray-700" />
       </div>
+      <button
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit(id, url); }}
+        className="absolute bottom-2 right-2 z-10 bg-black/80 text-white p-1.5 rounded-md cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black"
+        type="button"
+      >
+        <CropIcon className="h-4 w-4" />
+      </button>
       <div className="absolute top-2 right-2 z-10 bg-black/50 text-white text-xs px-2 py-1 rounded-md">
         {index + 1}
       </div>
@@ -57,6 +67,25 @@ export function WrapEditForm({ wrap }: { wrap: any }) {
   const [title, setTitle] = useState(wrap.wrap_title || "")
   const [purpose, setPurpose] = useState(wrap.purpose || "")
   const [isActive, setIsActive] = useState(wrap.is_active || false)
+  const [hasPassword, setHasPassword] = useState(wrap.has_password || false)
+  const [password, setPassword] = useState(wrap.password || "")
+  
+  const [userNames, setUserNames] = useState(wrap.user_names || "")
+  const [anniversaryDate, setAnniversaryDate] = useState(wrap.anniversary_date || "")
+  const [destinationCity, setDestinationCity] = useState(wrap.destination_city || "")
+  const [travelHours, setTravelHours] = useState(wrap.travel_hours || "")
+  const [whereDidYouMeet, setWhereDidYouMeet] = useState(wrap.where_did_you_meet || "")
+  const [locationVisited, setLocationVisited] = useState(wrap.location_visited || "")
+  const [tripStartDate, setTripStartDate] = useState(wrap.trip_start_date || "")
+  const [numberOfPeople, setNumberOfPeople] = useState(wrap.number_of_people || "")
+  const [delusionalHabit, setDelusionalHabit] = useState(wrap.delusional_habit || "")
+  const [birthYear, setBirthYear] = useState(wrap.birth_year || "")
+  const [storyParagraph, setStoryParagraph] = useState(wrap.story_paragraph || "")
+  
+  const [songVideoId, setSongVideoId] = useState(wrap.song_video_id || "")
+  const [songTitle, setSongTitle] = useState(wrap.song_title || "")
+  const [songArtist, setSongArtist] = useState(wrap.song_artist || "")
+  const [cardColor, setCardColor] = useState(wrap.card_color || "")
   
   const [aiContentStr, setAiContentStr] = useState(
     wrap.ai_content ? JSON.stringify(wrap.ai_content, null, 2) : ""
@@ -69,6 +98,75 @@ export function WrapEditForm({ wrap }: { wrap: any }) {
     url
   }))
   const [photos, setPhotos] = useState(initialPhotos)
+  
+  // Crop state
+  const [croppingImage, setCroppingImage] = useState<{id: string, url: string} | null>(null)
+  const [crop, setCrop] = useState({ x: 0, y: 0 })
+  const [zoom, setZoom] = useState(1)
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
+  const [isCropping, setIsCropping] = useState(false)
+  
+  // Song search state
+  const [songQuery, setSongQuery] = useState("")
+  const [songResults, setSongResults] = useState<any[]>([])
+  const [songLoading, setSongLoading] = useState(false)
+
+  useEffect(() => {
+    if (!songQuery.trim()) {
+      setSongResults([])
+      return
+    }
+
+    const timer = setTimeout(async () => {
+      setSongLoading(true)
+      try {
+        const res = await fetch(`/api/search-song?q=${encodeURIComponent(songQuery)}`)
+        if (res.ok) {
+          const json = await res.json()
+          setSongResults(json.results || [])
+        }
+      } catch (err) {
+        console.error("Search failed", err)
+      } finally {
+        setSongLoading(false)
+      }
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [songQuery])
+
+  const onCropComplete = useCallback((croppedArea: any, croppedAreaPixels: any) => {
+    setCroppedAreaPixels(croppedAreaPixels)
+  }, [])
+
+  const handleApplyCrop = async () => {
+    if (!croppingImage || !croppedAreaPixels) return
+    setIsCropping(true)
+    try {
+      const croppedBlob = await getCroppedImg(croppingImage.url, croppedAreaPixels)
+      if (croppedBlob) {
+        // Upload to Supabase
+        const newUrl = await uploadBlobToSupabase(
+          URL.createObjectURL(croppedBlob),
+          "wrap-assets",
+          `${wrap.slug}/crops/${croppingImage.id}-${Date.now()}`
+        )
+        
+        if (newUrl) {
+          // Update photos array
+          setPhotos((prev: any) => prev.map((p: any) => p.id === croppingImage.id ? { ...p, url: newUrl } : p))
+          setCroppingImage(null)
+        } else {
+          alert("Failed to upload cropped image")
+        }
+      }
+    } catch (e) {
+      console.error(e)
+      alert("Failed to crop image")
+    } finally {
+      setIsCropping(false)
+    }
+  }
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -113,17 +211,40 @@ export function WrapEditForm({ wrap }: { wrap: any }) {
           purpose,
           is_active: isActive,
           photo_urls: photoUrls,
-          ai_content: aiContentObj
+          ai_content: aiContentObj,
+          has_password: hasPassword,
+          password: password,
+          user_names: userNames,
+          anniversary_date: anniversaryDate,
+          destination_city: destinationCity,
+          travel_hours: travelHours,
+          where_did_you_meet: whereDidYouMeet,
+          location_visited: locationVisited,
+          trip_start_date: tripStartDate,
+          number_of_people: numberOfPeople,
+          delusional_habit: delusionalHabit,
+          birth_year: birthYear,
+          story_paragraph: storyParagraph,
+          song_video_id: songVideoId,
+          song_title: songTitle,
+          song_artist: songArtist,
+          card_color: cardColor
         }),
       })
       
-      if (!res.ok) throw new Error("Failed to update wrap")
+      if (!res.ok) {
+        const rawText = await res.text()
+        console.error("Raw server response:", rawText)
+        let errData: any = {}
+        try { errData = JSON.parse(rawText) } catch (e) {}
+        throw new Error(errData.details ? JSON.stringify(errData.details) : errData.error || `Server Error: ${res.status} ${res.statusText}`)
+      }
       
       alert("Wrap saved successfully!")
       router.refresh()
-    } catch (err) {
+    } catch (err: any) {
       console.error(err)
-      alert("Failed to save changes")
+      alert("Failed to save changes: " + (err.message || err))
     } finally {
       setLoading(false)
     }
@@ -201,7 +322,35 @@ export function WrapEditForm({ wrap }: { wrap: any }) {
 
       if (!saveRes.ok) throw new Error("Failed to save final wrap")
       
-      // Success! Redirect to the wrap.
+      // 5. Automatically make it active since we generated it from the admin panel
+      await fetch(`/api/admin/wraps/${wrap.slug}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          is_active: true,
+          wrap_title: title,
+          purpose: purpose,
+          has_password: hasPassword,
+          password: password,
+          user_names: userNames,
+          anniversary_date: anniversaryDate,
+          destination_city: destinationCity,
+          travel_hours: travelHours,
+          where_did_you_meet: whereDidYouMeet,
+          location_visited: locationVisited,
+          trip_start_date: tripStartDate,
+          number_of_people: numberOfPeople,
+          delusional_habit: delusionalHabit,
+          birth_year: birthYear,
+          story_paragraph: storyParagraph,
+          song_video_id: songVideoId,
+          song_title: songTitle,
+          song_artist: songArtist,
+          card_color: cardColor
+        }),
+      })
+      
+      // Success! Redirect to the live wrap.
       window.location.href = `/wrap/${wrap.slug}`
       await new Promise(() => {}) // Hang the promise to prevent UI flickering before redirect
 
@@ -252,6 +401,143 @@ export function WrapEditForm({ wrap }: { wrap: any }) {
           </div>
           
           <div className="pt-4 border-t border-gray-100">
+            <h4 className="font-medium text-gray-900 mb-4">Additional Information</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">User Names</label>
+                <input type="text" value={userNames} onChange={(e) => setUserNames(e.target.value)} className="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-black" />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Anniversary Date</label>
+                <input type="text" value={anniversaryDate} onChange={(e) => setAnniversaryDate(e.target.value)} className="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-black" />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Destination City</label>
+                <input type="text" value={destinationCity} onChange={(e) => setDestinationCity(e.target.value)} className="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-black" />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Travel Hours</label>
+                <input type="text" value={travelHours} onChange={(e) => setTravelHours(e.target.value)} className="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-black" />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Where Did You Meet?</label>
+                <input type="text" value={whereDidYouMeet} onChange={(e) => setWhereDidYouMeet(e.target.value)} className="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-black" />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Location Visited</label>
+                <input type="text" value={locationVisited} onChange={(e) => setLocationVisited(e.target.value)} className="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-black" />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Trip Start Date</label>
+                <input type="text" value={tripStartDate} onChange={(e) => setTripStartDate(e.target.value)} className="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-black" />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Number of People</label>
+                <input type="text" value={numberOfPeople} onChange={(e) => setNumberOfPeople(e.target.value)} className="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-black" />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Delusional Habit</label>
+                <input type="text" value={delusionalHabit} onChange={(e) => setDelusionalHabit(e.target.value)} className="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-black" />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Birth Year</label>
+                <input type="text" value={birthYear} onChange={(e) => setBirthYear(e.target.value)} className="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-black" />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Card Color</label>
+                <input type="text" value={cardColor} onChange={(e) => setCardColor(e.target.value)} className="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-black" />
+              </div>
+            </div>
+            <div className="space-y-2 mt-4">
+              <label className="block text-sm font-medium text-gray-700">Story Paragraph</label>
+              <textarea 
+                value={storyParagraph} 
+                onChange={(e) => setStoryParagraph(e.target.value)} 
+                rows={4}
+                className="w-full border border-gray-300 rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+              />
+            </div>
+          </div>
+
+          <div className="pt-4 border-t border-gray-100">
+            <h4 className="font-medium text-gray-900 mb-4">Song Information</h4>
+            
+            {/* Song Search */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Search YouTube for a Song</label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input 
+                  type="text" 
+                  value={songQuery} 
+                  onChange={(e) => setSongQuery(e.target.value)}
+                  placeholder="Type a song title or artist..."
+                  className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                />
+                {songLoading && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-gray-400" />}
+              </div>
+              
+              {songResults.length > 0 && (
+                <div className="mt-2 border border-gray-200 rounded-md bg-white divide-y divide-gray-100 max-h-60 overflow-y-auto shadow-sm relative z-10">
+                  {songResults.map(song => (
+                    <div 
+                      key={song.videoId} 
+                      className="flex items-center gap-3 p-2 hover:bg-gray-50 cursor-pointer transition-colors"
+                      onClick={() => {
+                        setSongTitle(song.title)
+                        setSongArtist(song.artist)
+                        setSongVideoId(song.videoId)
+                        setSongQuery("")
+                        setSongResults([])
+                      }}
+                    >
+                      <img src={song.thumbnail} alt="" className="w-12 h-10 object-cover rounded" />
+                      <div className="flex-1 overflow-hidden">
+                        <div className="text-sm font-medium text-gray-900 truncate">{song.title}</div>
+                        <div className="text-xs text-gray-500 truncate">{song.artist}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Song Title</label>
+                <input type="text" value={songTitle} onChange={(e) => setSongTitle(e.target.value)} className="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-black" />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Song Artist</label>
+                <input type="text" value={songArtist} onChange={(e) => setSongArtist(e.target.value)} className="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-black" />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Song Video ID or YouTube URL</label>
+                <input 
+                  type="text" 
+                  value={songVideoId} 
+                  onChange={(e) => {
+                    let val = e.target.value;
+                    try {
+                      if (val.includes("youtube.com") || val.includes("youtu.be")) {
+                        const url = new URL(val.startsWith("http") ? val : `https://${val}`);
+                        if (url.searchParams.has("v")) {
+                          val = url.searchParams.get("v") || val;
+                        } else if (url.hostname === "youtu.be") {
+                          val = url.pathname.slice(1) || val;
+                        }
+                      }
+                    } catch (err) {}
+                    setSongVideoId(val)
+                  }} 
+                  className="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-black" 
+                  placeholder="e.g. dQw4w9WgXcQ"
+                />
+              </div>
+            </div>
+          </div>
+          
+          <div className="pt-4 border-t border-gray-100">
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">AI Content (JSON)</label>
               <textarea 
@@ -279,6 +565,33 @@ export function WrapEditForm({ wrap }: { wrap: any }) {
               </button>
             </div>
           </div>
+          
+          <div className="pt-4 border-t border-gray-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="font-medium text-gray-900">Password Protection</div>
+                <div className="text-sm text-gray-500">Require a password to view this wrap</div>
+              </div>
+              <button
+                onClick={() => setHasPassword(!hasPassword)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${hasPassword ? 'bg-green-500' : 'bg-gray-200'}`}
+              >
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${hasPassword ? 'translate-x-6' : 'translate-x-1'}`} />
+              </button>
+            </div>
+            {hasPassword && (
+              <div className="space-y-2 mt-4">
+                <label className="block text-sm font-medium text-gray-700">Password</label>
+                <input 
+                  type="text" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                  placeholder="Enter password"
+                />
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Photos Drag and Drop */}
@@ -299,7 +612,17 @@ export function WrapEditForm({ wrap }: { wrap: any }) {
                 strategy={rectSortingStrategy}
               >
                 {photos.map((photo: any, index: number) => (
-                  <SortableImage key={photo.id} id={photo.id} url={photo.url} index={index} />
+                  <SortableImage 
+                    key={photo.id} 
+                    id={photo.id} 
+                    url={photo.url} 
+                    index={index} 
+                    onEdit={(id, url) => {
+                      setCroppingImage({ id, url })
+                      setCrop({ x: 0, y: 0 })
+                      setZoom(1)
+                    }} 
+                  />
                 ))}
               </SortableContext>
             </div>
@@ -349,6 +672,72 @@ export function WrapEditForm({ wrap }: { wrap: any }) {
         </div>
       </div>
     </div>
+    
+    {/* Crop Modal */}
+    {croppingImage && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+        <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col h-[85vh]">
+          <div className="p-4 border-b border-gray-100 flex justify-between items-center">
+            <h3 className="text-lg font-semibold text-gray-900">Crop Image (Focal Point)</h3>
+            <button onClick={() => setCroppingImage(null)} className="p-1 hover:bg-gray-100 rounded-md">
+              <X className="h-5 w-5 text-gray-500" />
+            </button>
+          </div>
+          
+          <div className="relative flex-1 bg-gray-900 w-full">
+            <Cropper
+              image={croppingImage.url}
+              crop={crop}
+              zoom={zoom}
+              aspect={9 / 16}
+              onCropChange={setCrop}
+              onCropComplete={onCropComplete}
+              onZoomChange={setZoom}
+            />
+          </div>
+          
+          <div className="p-4 border-t border-gray-100 bg-gray-50 flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-600">Zoom:</span>
+              <input
+                type="range"
+                value={zoom}
+                min={1}
+                max={3}
+                step={0.1}
+                aria-labelledby="Zoom"
+                onChange={(e) => {
+                  setZoom(Number(e.target.value))
+                }}
+                className="w-32 accent-black"
+              />
+            </div>
+            <div className="flex gap-2">
+              <button 
+                onClick={() => setCroppingImage(null)}
+                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium hover:bg-gray-50"
+                type="button"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleApplyCrop}
+                disabled={isCropping}
+                className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-md text-sm font-medium hover:bg-gray-800 disabled:opacity-50"
+                type="button"
+              >
+                {isCropping ? "Applying..." : (
+                  <>
+                    <Check className="h-4 w-4" />
+                    Apply Crop
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
     </>
   )
 }

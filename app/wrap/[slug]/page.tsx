@@ -6,6 +6,7 @@ import type { AiWrapContent } from "@/lib/ai-types"
 
 type Props = {
   params: Promise<{ slug: string }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
 // Supabase client for server-side data fetching
@@ -16,20 +17,19 @@ function getSupabase() {
   )
 }
 
-async function getWrap(slug: string) {
+async function getWrap(slug: string, isPreview: boolean = false) {
   const supabase = getSupabase()
 
   const { data, error } = await supabase
     .from("wraps")
     .select("*, plan:plans(name)")
     .eq("slug", slug)
-    .eq("is_public", true)
     .maybeSingle()
 
   if (error || !data) return null
 
   // Check if active (default true for older wraps that don't have this field)
-  if (data.is_active === false) return null
+  if (data.is_active === false && !isPreview) return null
 
   // Increment view count (fire-and-forget)
   supabase
@@ -42,9 +42,13 @@ async function getWrap(slug: string) {
 }
 
 // Dynamic OG metadata for social sharing
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params
-  const wrap = await getWrap(slug)
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params
+  const searchParams = await props.searchParams
+  const isPreview = searchParams?.preview === 'true'
+  
+  const { slug } = params
+  const wrap = await getWrap(slug, isPreview)
 
   if (!wrap) {
     return {
@@ -75,9 +79,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default async function WrapPage({ params }: Props) {
-  const { slug } = await params
-  const wrap = await getWrap(slug)
+export default async function WrapPage(props: Props) {
+  const params = await props.params
+  const searchParams = await props.searchParams
+  const isPreview = searchParams?.preview === 'true'
+  
+  const { slug } = params
+  const wrap = await getWrap(slug, isPreview)
 
   if (!wrap) {
     return (
