@@ -42,7 +42,7 @@ export default function RootLayout({
           {children}
           {process.env.NODE_ENV === 'production' && <Analytics />}
         </MixpanelProvider>
-        <Script strategy="beforeInteractive" src="https://api.goaffpro.com/loader.js?shop=xywkxqqnxh" />
+        <Script strategy="beforeInteractive" src="https://api.goaffpro.com/loader.js?shop=otfzxvidhm" />
       </body>
     </html>
   )
