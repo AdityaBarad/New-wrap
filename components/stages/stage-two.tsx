@@ -11,6 +11,7 @@ import { SinglePhotoDropzone } from "@/components/wrapped/dropzone"
 import { SongSelector } from "@/components/wrapped/song-selector"
 import { PURPOSES, useWrap } from "@/context/wrap-context"
 import { AiLoading } from "@/components/stages/ai-loading"
+import { trackEvent } from "@/lib/mixpanel"
 
 const STORY_SUGGESTIONS: Record<string, string[]> = {
   couple: [
@@ -102,7 +103,7 @@ const NAME_SUGGESTIONS: Record<string, string> = {
 }
 
 export function StageTwo() {
-  const { data, update, submitStage2, loading, aiLoading, error } = useWrap()
+  const { data, update, submitStage2, loading, aiLoading, error, draftSessionId } = useWrap()
   const purpose = data.purpose ?? "life"
   const meta = PURPOSES.find((p) => p.id === purpose)!
   const [subStep, setSubStep] = useState(1)
@@ -114,6 +115,18 @@ export function StageTwo() {
   if (aiLoading) {
     return <AiLoading accentColor={meta.color} />
   }
+
+  // Common properties sent with every step event
+  const getCommonEventProps = () => ({
+    draft_session_id: draftSessionId,
+    name: data.name,
+    phone: data.phone,
+    purpose: data.purpose,
+    wrap_title: data.wrapTitle,
+    user_names: data.userNames,
+    whats_this_for: data.whatsThisFor,
+    has_password: data.hasPassword,
+  })
 
   const handleNext = () => {
     if (subStep === 1) {
@@ -139,6 +152,11 @@ export function StageTwo() {
           return
         }
       }
+
+      // Track: Basic Info step completed
+      trackEvent("Step 1 - Basic Info Completed", {
+        ...getCommonEventProps(),
+      })
     }
     if (subStep === 3) {
       const requiredIndices = [0, 1, 2, 4, 13, 5, 6, 7, 8, 9, 10, 11, 12]
@@ -147,6 +165,34 @@ export function StageTwo() {
         setStep3Error("Please upload all required photos before proceeding.")
         return
       }
+
+      // Track: Photos uploaded step completed
+      trackEvent("Step 2 - Photos Uploaded", {
+        ...getCommonEventProps(),
+        photo_count: (data.photos || []).filter(Boolean).length,
+        anniversary_date: data.anniversaryDate,
+        where_did_you_meet: data.whereDidYouMeet,
+        location_visited: data.locationVisited,
+        trip_start_date: data.tripStartDate,
+        birth_year: data.birthYear,
+        number_of_people: data.numberOfPeople,
+      })
+    }
+    if (subStep === 4) {
+      // Track: Song selected step completed
+      trackEvent("Step 3 - Song Selected", {
+        ...getCommonEventProps(),
+        photo_count: (data.photos || []).filter(Boolean).length,
+        song_title: data.song?.title || null,
+        song_artist: data.song?.artist || null,
+        has_song: !!data.song,
+        anniversary_date: data.anniversaryDate,
+        where_did_you_meet: data.whereDidYouMeet,
+        location_visited: data.locationVisited,
+        trip_start_date: data.tripStartDate,
+        birth_year: data.birthYear,
+        number_of_people: data.numberOfPeople,
+      })
     }
     setStep1Error(null)
     setStep3Error(null)
