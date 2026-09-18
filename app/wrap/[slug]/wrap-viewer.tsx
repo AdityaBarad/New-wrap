@@ -6,8 +6,9 @@ import { YoutubePlayer } from "@/components/wrapped/youtube-player"
 import type { WrapData } from "@/context/wrap-context"
 import type { AiWrapContent } from "@/lib/ai-types"
 import { WrapProvider } from "@/context/wrap-context"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
+import { useImagePreloader } from "@/lib/use-image-preloader"
 
 type Props = {
   wrapData: WrapData
@@ -27,6 +28,33 @@ export function WrapViewer({ wrapData, aiContent, personalityImageUrl, slug, vie
   const [passwordInput, setPasswordInput] = useState("")
   const [passwordError, setPasswordError] = useState<string | null>(null)
   const [isVerifying, setIsVerifying] = useState(false)
+
+  // Collect all image URLs that slides will display
+  const allImageUrls = useMemo(() => {
+    const urls: string[] = []
+
+    // All user-uploaded photos
+    if (wrapData.photos) {
+      wrapData.photos.forEach((p) => {
+        const url = typeof p === "string" ? p : p?.url
+        if (url) urls.push(url)
+      })
+    }
+
+    // AI-generated personality card image
+    if (personalityImageUrl) urls.push(personalityImageUrl)
+
+    // Static assets used across slides
+    urls.push("/logo/logo-solid.jpeg")
+    urls.push("/wrapped-portrait-1.png")
+    urls.push("/wrapped-portrait-2.png")
+    urls.push("/wrapped-portrait-3.png")
+
+    return urls
+  }, [wrapData.photos, personalityImageUrl])
+
+  // Start preloading all images immediately on mount
+  const { allLoaded: imagesReady } = useImagePreloader(allImageUrls)
 
   const handleIntroComplete = useCallback(() => {
     setIntroComplete(true)
@@ -136,10 +164,11 @@ export function WrapViewer({ wrapData, aiContent, personalityImageUrl, slug, vie
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.7, type: "spring", stiffness: 200, damping: 20 }}
-                    onClick={() => setHasStarted(true)}
-                    className="mt-12 rounded-full bg-cream px-10 py-4 font-sans text-sm font-bold uppercase tracking-widest text-ink shadow-[0_0_40px_rgba(238,238,228,0.3)] transition-transform hover:scale-105 active:scale-95"
+                    onClick={() => imagesReady && setHasStarted(true)}
+                    disabled={!imagesReady}
+                    className="mt-12 rounded-full bg-cream px-10 py-4 font-sans text-sm font-bold uppercase tracking-widest text-ink shadow-[0_0_40px_rgba(238,238,228,0.3)] transition-transform hover:scale-105 active:scale-95 disabled:opacity-70 disabled:cursor-wait"
                   >
-                    Unwrap
+                    {imagesReady ? "Unwrap" : "Loading..."}
                   </motion.button>
                 )}
               </div>
