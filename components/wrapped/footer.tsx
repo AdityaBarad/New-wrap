@@ -17,8 +17,8 @@ const COLS = [
     title: 'Support', 
     links: [
       { label: 'Contact Us', href: 'mailto:admin@wrapsy.co' },
-      { label: 'Privacy Policy', href: '#' }, 
-      { label: 'Terms of Service', href: '#' }
+      { label: 'Privacy Policy', href: '/privacy' },
+      { label: 'Terms of Service', href: '/terms' }
     ] 
   },
   { 
